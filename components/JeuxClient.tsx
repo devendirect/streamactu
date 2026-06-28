@@ -1,0 +1,54 @@
+"use client";
+
+import { useState } from "react";
+import type { Contenu } from "@/types";
+import WordleJour from "@/components/WordleJour";
+import PochetteMystere from "@/components/PochetteMystere";
+
+type Onglet = "titre" | "pochette";
+
+interface JeuxClientProps {
+  contenu: Contenu;
+  dateISO: string;
+}
+
+export default function JeuxClient({ contenu, dateISO }: JeuxClientProps) {
+  const [onglet, setOnglet] = useState<Onglet>("titre");
+
+  return (
+    <div className="space-y-6">
+      {/* Toggle onglets */}
+      <div className="flex border border-border/50">
+        <button
+          onClick={() => setOnglet("titre")}
+          className="flex-1 py-3 text-sm font-medium transition-colors border-r border-border/50"
+          style={{
+            background: onglet === "titre" ? "#ECE6D8" : "transparent",
+            color: onglet === "titre" ? "#16140F" : "#9A9282",
+            fontWeight: onglet === "titre" ? 600 : 400,
+          }}
+        >
+          Titre du jour
+        </button>
+        <button
+          onClick={() => setOnglet("pochette")}
+          className="flex-1 py-3 text-sm font-medium transition-colors"
+          style={{
+            background: onglet === "pochette" ? "#ECE6D8" : "transparent",
+            color: onglet === "pochette" ? "#16140F" : "#9A9282",
+            fontWeight: onglet === "pochette" ? 600 : 400,
+          }}
+        >
+          Pochette mystère
+        </button>
+      </div>
+
+      {/* Contenu de l'onglet */}
+      {onglet === "titre" ? (
+        <WordleJour contenu={contenu} dateISO={dateISO} />
+      ) : (
+        <PochetteMystere contenu={contenu} dateISO={dateISO} />
+      )}
+    </div>
+  );
+}
