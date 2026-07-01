@@ -1,4 +1,5 @@
 import { convaincseMoiStream } from "@/lib/anthropic";
+import { getCached, setCached, streamFromCache } from "@/lib/pitch-cache";
 import { checkRateLimit, getIp } from "@/lib/rate-limit";
 import { headers } from "next/headers";
 
@@ -7,19 +8,18 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   const ip = getIp(await headers());
 
-  // 10 requêtes par minute par IP (le bouton est sur une fiche, usage normal = 1-2 clics)
   if (!checkRateLimit(`convaincs:${ip}`, 10, 60_000)) {
     return new Response("Trop de requêtes. Réessaie dans une minute.", { status: 429 });
   }
 
   let body: {
+    slug: string;
     titre: string;
     type: "Série" | "Film";
     genres: string;
     note: string;
     casting: string;
     synopsis: string;
-    variation?: boolean;
   };
 
   try {
@@ -32,7 +32,10 @@ export async function POST(request: Request) {
     return new Response("Champs manquants.", { status: 400 });
   }
 
-  const stream = convaincseMoiStream(body);
+  const cached = body.slug ? getCached(body.slug) : undefined;
+  const stream = cached
+    ? streamFromCache(cached)
+    : convaincseMoiStream(body, body.slug ? (text) => setCached(body.slug, text) : undefined);
 
   return new Response(stream, {
     headers: {

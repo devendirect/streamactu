@@ -18,7 +18,6 @@ interface ConvaincsParams {
   note: string;
   casting: string;
   synopsis: string;
-  variation?: boolean;
 }
 
 function buildPrompt(p: ConvaincsParams): string {
@@ -31,11 +30,7 @@ function buildPrompt(p: ConvaincsParams): string {
     `Synopsis : ${p.synopsis}`,
   ].join("\n");
 
-  const extra = p.variation
-    ? "\n\nDonne une version nettement différente, sous un angle nouveau (ambiance, casting, ce qu'on ressent…)."
-    : "";
-
-  return `${SYSTEM_PROMPT}\n\n${data}${extra}\n\nÉcris uniquement le pitch, en français, sans titre, sans guillemets, sans préambule.`;
+  return `${SYSTEM_PROMPT}\n\n${data}\n\nÉcris uniquement le pitch, en français, sans titre, sans guillemets, sans préambule.`;
 }
 
 // ──────────────────────────────────────────────
@@ -98,11 +93,15 @@ export async function retrouverIA(description: string): Promise<RetrouveurIAResu
  * Retourne un ReadableStream de texte pour le streaming SSE depuis un Route Handler.
  * Utilise le modèle Haiku 4.5 (rapide, économique).
  */
-export function convaincseMoiStream(params: ConvaincsParams): ReadableStream<Uint8Array> {
+export function convaincseMoiStream(
+  params: ConvaincsParams,
+  onComplete?: (text: string) => void
+): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder();
 
   return new ReadableStream({
     async start(controller) {
+      let accumulated = "";
       try {
         const stream = client.messages.stream({
           model: "claude-haiku-4-5-20251001",
@@ -115,11 +114,13 @@ export function convaincseMoiStream(params: ConvaincsParams): ReadableStream<Uin
             event.type === "content_block_delta" &&
             event.delta.type === "text_delta"
           ) {
+            accumulated += event.delta.text;
             controller.enqueue(encoder.encode(event.delta.text));
           }
         }
-      } catch (err) {
-        // En cas d'erreur, on envoie un message de fallback plutôt que de planter
+
+        if (accumulated) onComplete?.(accumulated);
+      } catch {
         controller.enqueue(
           encoder.encode("Mon enthousiasme bug une seconde — réessaie dans un instant.")
         );

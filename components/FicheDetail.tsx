@@ -19,25 +19,23 @@ export default function FicheDetail({ contenu }: FicheDetailProps) {
   const serie = isSerie ? (contenu as Serie) : null;
   const film = !isSerie ? (contenu as Film) : null;
 
-  async function lancerConvaincs(variation = false) {
+  async function lancerConvaincs() {
     setLoading(true);
-    if (!variation) {
-      setPitch("");
-      setPitchVisible(false);
-    }
+    setPitch("");
+    setPitchVisible(false);
 
     try {
       const res = await fetch("/api/convaincs-moi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          slug: contenu.slug,
           titre: contenu.titre,
           type: isSerie ? "Série" : "Film",
           genres: contenu.genres.map((g) => g.nom).join(", "),
           note: contenu.note.toFixed(1),
           casting: contenu.casting.slice(0, 3).map((p) => p.nom).join(", "),
           synopsis: contenu.synopsis,
-          variation,
         }),
       });
 
@@ -170,16 +168,7 @@ export default function FicheDetail({ contenu }: FicheDetailProps) {
 
           {pitchVisible && (
             <div className="border-y border-primary/35 bg-primary/[0.05] p-4">
-              <div className="flex items-center justify-between gap-3 mb-3">
-                <span className="font-mono-label text-primary">✦ Le mot d&apos;un ami</span>
-                <button
-                  onClick={() => lancerConvaincs(true)}
-                  disabled={loading}
-                  className="font-mono-label text-[#9A9282] hover:text-primary transition-colors disabled:opacity-40"
-                >
-                  ↻ Regénérer
-                </button>
-              </div>
+              <p className="font-mono-label text-primary mb-3">✦ Le mot d&apos;un ami</p>
               <p className="text-[17px] leading-[1.55] text-foreground">{pitch}</p>
             </div>
           )}

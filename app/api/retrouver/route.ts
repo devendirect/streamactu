@@ -8,7 +8,13 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   const ip = getIp(await headers());
 
-  // 5 requêtes par minute par IP (appel Claude coûteux)
+  if (!checkRateLimit(`retrouver-day:${ip}`, 5, 24 * 60 * 60_000)) {
+    return new Response(
+      JSON.stringify({ error: "Tu as atteint la limite de 5 recherches par jour. Reviens demain !" }),
+      { status: 429, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   if (!checkRateLimit(`retrouver:${ip}`, 5, 60_000)) {
     return new Response(
       JSON.stringify({ error: "Trop de requêtes. Réessaie dans une minute." }),
