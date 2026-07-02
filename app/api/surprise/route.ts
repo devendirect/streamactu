@@ -14,9 +14,11 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const typeParam = searchParams.get("type") as MediaType | "tous" | null;
+  const VALID_TYPES = ["film", "serie", "tous"] as const;
+  const raw = searchParams.get("type");
+  const typeParam = VALID_TYPES.includes(raw as never) ? (raw as MediaType | "tous") : "tous";
 
-  const contenu = await getContenuAleatoire(typeParam ?? "tous");
+  const contenu = await getContenuAleatoire(typeParam);
 
   return Response.json(contenu);
 }

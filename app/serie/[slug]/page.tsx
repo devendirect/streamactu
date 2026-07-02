@@ -29,6 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: serie.titre,
     description: serie.synopsis?.slice(0, 160),
     openGraph: {
+      type: "video.tv_show",
       title: `${serie.titre} | StreamActu.fr`,
       description: serie.synopsis?.slice(0, 160),
       images: serie.backdrop ? [{ url: serie.backdrop }] : [],

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import type { Contenu } from "@/types";
+import { normaliser } from "@/lib/utils";
 
 interface PochetteMystereProps {
   contenu: Contenu;
@@ -11,14 +12,6 @@ interface PochetteMystereProps {
 
 const MAX_ESSAIS = 4;
 const NIVEAUX_BLUR = [28, 18, 10, 4, 0];  // blur en px par niveau d'indice
-
-function normaliser(str: string): string {
-  return str
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9]/g, "");
-}
 
 type EtatJeu = "en-cours" | "gagne" | "perdu";
 

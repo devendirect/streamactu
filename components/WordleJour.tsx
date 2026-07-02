@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import type { Contenu } from "@/types";
+import { normaliser } from "@/lib/utils";
 
 interface WordleJourProps {
-  contenu: Contenu;
+  contenu: Contenu & { casting?: { nom: string }[] };
   dateISO: string;
 }
 
@@ -19,24 +20,16 @@ const INDICES_LABELS = [
   "Note",
 ];
 
-function getIndice(contenu: Contenu & { casting?: { nom: string }[]; plateforme?: { nom: string } }, n: number): string {
+function getIndice(contenu: WordleJourProps["contenu"], n: number): string {
   switch (n) {
     case 0: return String(contenu.annee || "?");
     case 1: return contenu.genres.map((g) => g.nom).join(", ") || "?";
-    case 2: return (contenu as unknown as { casting?: { nom: string }[] }).casting?.slice(0, 2).map((p) => p.nom).join(", ") || "?";
+    case 2: return contenu.casting?.slice(0, 2).map((p) => p.nom).join(", ") || "?";
     case 3: return contenu.synopsis ? contenu.synopsis.slice(0, 80) + "…" : "?";
-    case 4: return (contenu as unknown as { plateforme?: { nom: string } }).plateforme?.nom || "Voir TMDB";
+    case 4: return contenu.plateforme?.nom || "Voir TMDB";
     case 5: return `${contenu.note.toFixed(1)} / 10`;
     default: return "?";
   }
-}
-
-function normaliser(str: string): string {
-  return str
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9]/g, "");
 }
 
 type EtatJeu = "en-cours" | "gagne" | "perdu";
@@ -133,7 +126,7 @@ export default function WordleJour({ contenu, dateISO }: WordleJourProps) {
               Indice {i + 1} · {INDICES_LABELS[i]}
             </span>
             <span className="text-base font-semibold">
-              {getIndice(contenu as Parameters<typeof getIndice>[0], i)}
+              {getIndice(contenu, i)}
             </span>
           </div>
         ))}

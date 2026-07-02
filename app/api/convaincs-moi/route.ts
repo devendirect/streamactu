@@ -31,6 +31,15 @@ export async function POST(request: Request) {
   if (!body.titre || !body.synopsis) {
     return new Response("Champs manquants.", { status: 400 });
   }
+  if (!["Série", "Film"].includes(body.type)) {
+    return new Response("Type invalide.", { status: 400 });
+  }
+  if (body.titre.length > 200 || body.synopsis.length > 2000) {
+    return new Response("Champs trop longs.", { status: 400 });
+  }
+  if ((body.genres?.length ?? 0) > 300 || (body.casting?.length ?? 0) > 300) {
+    return new Response("Champs trop longs.", { status: 400 });
+  }
 
   const cached = body.slug ? getCached(body.slug) : undefined;
   const stream = cached

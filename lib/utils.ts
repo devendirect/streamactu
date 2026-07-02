@@ -180,3 +180,21 @@ export function formatDuree(minutes: number): string {
   const m = minutes % 60;
   return h > 0 ? (m > 0 ? `${h}h ${m}min` : `${h}h`) : `${m}min`;
 }
+
+export const TYPE_ICONS: Record<string, string> = { serie: "▣", film: "◈" };
+export const TYPE_LABELS: Record<string, string> = { serie: "Série", film: "Film" };
+
+export function isNouvelleSerieCheck(saisonActuelle?: number, premiereDiffusion?: string): boolean {
+  if (saisonActuelle === 1) return true;
+  if (!premiereDiffusion) return false;
+  const diff = (Date.now() - new Date(premiereDiffusion).getTime()) / 86_400_000;
+  return diff >= 0 && diff <= 180;
+}
+
+export function normaliser(str: string): string {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}

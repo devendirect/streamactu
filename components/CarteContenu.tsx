@@ -1,20 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Contenu } from "@/types";
+import { TYPE_ICONS, TYPE_LABELS, isNouvelleSerieCheck } from "@/lib/utils";
 
 interface Props {
   contenu: Contenu;
   priorite?: boolean;
-}
-
-const TYPE_ICONS: Record<string, string> = { serie: "▣", film: "◈" };
-const TYPE_LABELS: Record<string, string> = { serie: "Série", film: "Film" };
-
-function isNouvelleSerieCheck(saisonActuelle?: number, premiereDiffusion?: string): boolean {
-  if (saisonActuelle === 1) return true;
-  if (!premiereDiffusion) return false;
-  const diff = (Date.now() - new Date(premiereDiffusion).getTime()) / 86_400_000;
-  return diff >= 0 && diff <= 180;
 }
 
 export default function CarteContenu({ contenu, priorite = false }: Props) {

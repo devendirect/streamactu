@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
 
-## Getting Started
+# StreamActu.fr
 
-First, run the development server:
+**Veille streaming quotidienne — séries et films disponibles ce soir sur les grandes plateformes françaises.**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+[![Next.js](https://img.shields.io/badge/Next.js_16-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Claude](https://img.shields.io/badge/Claude_Haiku-D97757?style=for-the-badge&logo=anthropic&logoColor=white)](https://anthropic.com)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**[→ streamactu.fr](https://streamactu.fr)**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+![Aperçu de StreamActu.fr](./public/screenshot.png)
 
-## Learn More
+</div>
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Plateformes couvertes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+<div align="center">
 
-## Deploy on Vercel
+[![Netflix](https://img.shields.io/badge/Netflix-E50914?style=flat-square&logo=netflix&logoColor=white)](https://netflix.com)
+[![Prime Video](https://img.shields.io/badge/Prime_Video-00A8E0?style=flat-square&logo=amazonprime&logoColor=white)](https://primevideo.com)
+[![Disney+](https://img.shields.io/badge/Disney+-113CCF?style=flat-square&logo=disney&logoColor=white)](https://disneyplus.com)
+[![Apple TV+](https://img.shields.io/badge/Apple_TV+-000000?style=flat-square&logo=apple&logoColor=white)](https://tv.apple.com)
+[![Canal+](https://img.shields.io/badge/Canal+-000000?style=flat-square&logo=canal&logoColor=white)](https://canalplus.com)
+[![Max](https://img.shields.io/badge/Max-002BE7?style=flat-square&logo=hbo&logoColor=white)](https://max.com)
+[![Paramount+](https://img.shields.io/badge/Paramount+-0064FF?style=flat-square&logo=paramount&logoColor=white)](https://paramountplus.com)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+</div>
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Fonctionnalités
+
+### Nouveautés quotidiennes
+Chaque plateforme, chaque jour — séries et films triés par popularité, avec note, genres et casting. Navigation par jour, semaine ou mois.
+
+### ✦ Convaincs-moi
+Sur chaque fiche, un ami cinéphile IA te pitch le contenu en 3-4 phrases pour te convaincre de le regarder ce soir.
+
+### ✦ Retrouveur
+Tu te souviens vaguement d'un film — une ambiance, un acteur, une scène — mais plus du titre ? Décris-le, l'IA le retrouve et l'enrichit via TMDB.
+
+### À la surprise
+Un contenu aléatoire disponible en streaming FR, pour les indécis.
+
+### Jeux quotidiens
+Deux jeux renouvelés chaque jour : deviner le titre du jour ou reconnaître une pochette floutée.
+
+---
+
+## Données
+
+Données films et séries fournies par [TMDB](https://www.themoviedb.org).
+Ce produit utilise l'API TMDB mais n'est ni approuvé ni certifié par TMDB.

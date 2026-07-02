@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Search } from "lucide-react";
 
 const NAV = [
   { href: "/", label: "Actu" },
@@ -33,7 +32,7 @@ export default function Header() {
           aria-label="Rechercher"
           className="text-[#9A9282] hover:text-foreground transition-colors"
         >
-          <Search size={18} strokeWidth={1.5} />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </Link>
       </div>
     </header>

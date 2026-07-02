@@ -8,6 +8,10 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: "Jeux — Titre du jour & Pochette mystère",
   description: "Deux jeux quotidiens autour des séries et films streaming : devinez le titre du jour ou la pochette mystère.",
+  openGraph: {
+    title: "Jeux — Titre du jour & Pochette mystère | StreamActu.fr",
+    description: "Deux jeux quotidiens autour des séries et films streaming : devinez le titre du jour ou la pochette mystère.",
+  },
 };
 
 function contenuDuJour<T>(liste: T[], dateISO: string): T {

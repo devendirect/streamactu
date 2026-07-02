@@ -4,10 +4,9 @@ import {
   formatMoisURL,
   formatSemaineURL,
   getISOWeek,
-  toISO,
 } from "@/lib/utils";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://streamactu.fr";
+const BASE = process.env.SITE_URL ?? "https://streamactu.fr";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -58,11 +57,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }
 
   // ── Pages statiques ──
-  entries.push({
-    url: `${BASE}/mentions-legales`,
-    changeFrequency: "yearly",
-    priority: 0.2,
-  });
+  entries.push(
+    { url: `${BASE}/mentions-legales`, changeFrequency: "yearly", priority: 0.2 },
+    { url: `${BASE}/jeux`, changeFrequency: "daily", priority: 0.5 }
+  );
 
   return entries;
 }

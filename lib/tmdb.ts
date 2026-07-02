@@ -45,7 +45,10 @@ async function tmdbGet<T>(
   params: Record<string, string | number | boolean> = {},
   ttl = 3600
 ): Promise<T> {
-  const res = await fetch(buildUrl(path, params), { next: { revalidate: ttl } });
+  const res = await fetch(buildUrl(path, params), {
+    next: { revalidate: ttl },
+    signal: AbortSignal.timeout(10000),
+  });
   if (!res.ok) {
     throw new Error(`TMDB ${res.status} sur ${path}`);
   }

@@ -6,10 +6,12 @@ const client = new Anthropic({
 });
 
 const SYSTEM_PROMPT =
-  "Tu es un ami cinéphile passionné et enthousiaste. À partir des informations ci-dessous, " +
-  "convaincs l'utilisateur de regarder ce contenu ce soir en 3-4 phrases maximum. " +
+  "Tu es un ami cinéphile passionné et enthousiaste. " +
+  "Convaincs l'utilisateur de regarder ce contenu ce soir en 3-4 phrases maximum. " +
   "Style naturel et chaleureux, pas un communiqué de presse. " +
-  "Pas de spoilers. Pas de mention de TMDB ou StreamActu.";
+  "Parle uniquement du ressenti et de l'expérience de visionnage. " +
+  "Cite uniquement le titre, les acteurs et les genres. " +
+  "Écris uniquement le pitch, en français, sans titre, sans guillemets, sans préambule.";
 
 interface ConvaincsParams {
   titre: string;
@@ -20,8 +22,8 @@ interface ConvaincsParams {
   synopsis: string;
 }
 
-function buildPrompt(p: ConvaincsParams): string {
-  const data = [
+function buildDataPrompt(p: ConvaincsParams): string {
+  return [
     `Titre : ${p.titre}`,
     `Type : ${p.type}`,
     `Genres : ${p.genres}`,
@@ -29,8 +31,6 @@ function buildPrompt(p: ConvaincsParams): string {
     `Casting principal : ${p.casting}`,
     `Synopsis : ${p.synopsis}`,
   ].join("\n");
-
-  return `${SYSTEM_PROMPT}\n\n${data}\n\nÉcris uniquement le pitch, en français, sans titre, sans guillemets, sans préambule.`;
 }
 
 // ──────────────────────────────────────────────
@@ -70,12 +70,15 @@ export interface RetrouveurIAResult {
 }
 
 export async function retrouverIA(description: string): Promise<RetrouveurIAResult> {
-  const response = await client.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 1024,
-    system: RETROUVER_SYSTEM,
-    messages: [{ role: "user", content: description }],
-  });
+  const response = await client.messages.create(
+    {
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 1024,
+      system: RETROUVER_SYSTEM,
+      messages: [{ role: "user", content: description }],
+    },
+    { timeout: 15000 }
+  );
 
   const raw = response.content[0].type === "text" ? response.content[0].text.trim() : "{}";
   try {
@@ -103,11 +106,15 @@ export function convaincseMoiStream(
     async start(controller) {
       let accumulated = "";
       try {
-        const stream = client.messages.stream({
-          model: "claude-haiku-4-5-20251001",
-          max_tokens: 300,
-          messages: [{ role: "user", content: buildPrompt(params) }],
-        });
+        const stream = client.messages.stream(
+          {
+            model: "claude-haiku-4-5-20251001",
+            max_tokens: 300,
+            system: SYSTEM_PROMPT,
+            messages: [{ role: "user", content: buildDataPrompt(params) }],
+          },
+          { timeout: 15000 }
+        );
 
         for await (const event of stream) {
           if (
