@@ -5,10 +5,11 @@ import {
   parseDateURL,
   parseMoisURL,
   parseSemaineURL,
+  decalerSemaineISO,
   formatDateURL,
   formatJourSemaineFR,
-  formatMoisURL,
   formatMoisFR,
+  formatMoisURL,
   formatSemaineURL,
   formatSemaineFR,
   toISO,
@@ -16,8 +17,11 @@ import {
   getISOWeek,
 } from "@/lib/utils";
 import AccueilClient from "@/components/AccueilClient";
+import EnTeteNouveautes from "@/components/EnTeteNouveautes";
 
 export const revalidate = 86400;
+
+const OG_IMAGES = ["/og-default.png"];
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -34,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title,
       description,
-      openGraph: { title, description },
+      openGraph: { title, description, images: OG_IMAGES },
       alternates: { canonical: `/${slug}` },
     };
   }
@@ -47,7 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title,
       description,
-      openGraph: { title, description },
+      openGraph: { title, description, images: OG_IMAGES },
       alternates: { canonical: `/${slug}` },
     };
   }
@@ -60,7 +64,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title,
       description,
-      openGraph: { title, description },
+      openGraph: { title, description, images: OG_IMAGES },
       alternates: { canonical: `/${slug}` },
     };
   }
@@ -71,10 +75,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export async function generateStaticParams() {
   const params: { slug: string }[] = [];
   const now = new Date();
-  const MOIS = [
-    "janvier", "février", "mars", "avril", "mai", "juin",
-    "juillet", "août", "septembre", "octobre", "novembre", "décembre",
-  ];
 
   // 30 derniers jours
   for (let i = 1; i <= 30; i++) {
@@ -86,17 +86,16 @@ export async function generateStaticParams() {
   // 6 derniers mois
   for (let i = 1; i <= 6; i++) {
     const d = new Date(now);
-    d.setMonth(d.getMonth() - i);
-    params.push({ slug: `${MOIS[d.getMonth()]}-${d.getFullYear()}` });
+    d.setUTCDate(15); // évite le débordement de fin de mois (ex. 31 → mois suivant)
+    d.setUTCMonth(d.getUTCMonth() - i);
+    params.push({ slug: formatMoisURL(d.getUTCMonth() + 1, d.getUTCFullYear()) });
   }
 
   // 12 dernières semaines
   const { semaine: semCourante, annee: anneeCourante } = getISOWeek(now);
   for (let i = 0; i < 12; i++) {
-    let sem = semCourante - i;
-    let annee = anneeCourante;
-    if (sem < 1) { annee--; sem += 52; }
-    params.push({ slug: formatSemaineURL(sem, annee) });
+    const { semaine, annee } = decalerSemaineISO(semCourante, anneeCourante, -i);
+    params.push({ slug: formatSemaineURL(semaine, annee) });
   }
 
   return params;
@@ -113,11 +112,18 @@ export default async function SlugPage({ params }: Props) {
     if (iso > aujourdhui) notFound();
 
     const nouveautes = await getNouveautesJour(iso);
+    const label = formatJourSemaineFR(date);
     return (
-      <AccueilClient
-        plateformes={nouveautes}
-        contexte={{ mode: "jour", dateISO: iso }}
-      />
+      <>
+        <EnTeteNouveautes
+          titre={`Nouveautés streaming — ${label}`}
+          intro={`Les séries et films sortis ce jour-là sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, Max et Paramount+.`}
+        />
+        <AccueilClient
+          plateformes={nouveautes}
+          contexte={{ mode: "jour", dateISO: iso }}
+        />
+      </>
     );
   }
 
@@ -133,10 +139,16 @@ export default async function SlugPage({ params }: Props) {
 
     const nouveautes = await getNouveautesSemaine(semaine, annee);
     return (
-      <AccueilClient
-        plateformes={nouveautes}
-        contexte={{ mode: "semaine", semaine, annee }}
-      />
+      <>
+        <EnTeteNouveautes
+          titre={`Nouveautés streaming — Semaine du ${formatSemaineFR(semaine, annee)}`}
+          intro="Les séries et films sortis cette semaine-là sur les sept grandes plateformes de streaming disponibles en France."
+        />
+        <AccueilClient
+          plateformes={nouveautes}
+          contexte={{ mode: "semaine", semaine, annee }}
+        />
+      </>
     );
   }
 
@@ -149,10 +161,16 @@ export default async function SlugPage({ params }: Props) {
 
     const nouveautes = await getNouveautesMois(mois, annee);
     return (
-      <AccueilClient
-        plateformes={nouveautes}
-        contexte={{ mode: "mois", mois, annee }}
-      />
+      <>
+        <EnTeteNouveautes
+          titre={`Nouveautés streaming — ${formatMoisFR(mois, annee)}`}
+          intro="Le récapitulatif du mois : toutes les séries et films arrivés sur Netflix, Prime Video, Disney+ et les autres plateformes."
+        />
+        <AccueilClient
+          plateformes={nouveautes}
+          contexte={{ mode: "mois", mois, annee }}
+        />
+      </>
     );
   }
 

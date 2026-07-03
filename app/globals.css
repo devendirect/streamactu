@@ -35,6 +35,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-ink-3: var(--ink-3);
+  --color-ink-4: var(--ink-4);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -68,6 +70,11 @@
   --border: rgba(236, 230, 216, 0.12);
   --input: rgba(236, 230, 216, 0.08);
   --ring: #E3A53A;
+
+  /* Gris texte accessibles — ≥ 4.5:1 sur #16140F (WCAG AA).
+     Ne pas descendre en dessous de --ink-4 pour du texte. */
+  --ink-3: #8E8676; /* libellés, méta (remplace #6E6857 / #7C7565) */
+  --ink-4: #8A8272; /* niveau le plus effacé (remplace #4A4437 / #5C564A) */
 
   --radius: 0.25rem;
 
@@ -106,9 +113,16 @@
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
-    background: radial-gradient(130% 90% at 50% -10%, #221E16 0%, #16140F 55%);
-    background-attachment: fixed;
     background-color: #16140F;
+  }
+  /* Halo de fond fixe via pseudo-élément : background-attachment: fixed
+     force un repaint au scroll sur mobile et est ignoré par iOS Safari */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(130% 90% at 50% -10%, #221E16 0%, #16140F 55%);
   }
   ::selection {
     background: #E3A53A;
@@ -165,4 +179,110 @@
       padding-right: 20px;
     }
   }
+}
+
+/* ── Splash ── */
+
+/* SVG transform origins in view-box coordinate space */
+.sa-base  { transform-box: view-box; transform-origin: 60px 84px; }
+.sa-t1    { transform-box: view-box; transform-origin: 34px 84px; }
+.sa-t2    { transform-box: view-box; transform-origin: 50px 84px; }
+.sa-t3    { transform-box: view-box; transform-origin: 86px 84px; }
+.sa-trait { transform-box: view-box; transform-origin: 68px 84px; }
+.sa-sphere{ transform-box: view-box; transform-origin: 68px 34px; }
+.sa-ring  { transform-box: view-box; transform-origin: 68px 34px; }
+.sa-halo  { filter: blur(9px); opacity: 0.5; }
+
+/* Intro keyframes */
+@keyframes sa-base-in {
+  from { transform: scaleX(0); }
+}
+@keyframes sa-tick-in {
+  from { transform: scaleY(0); }
+}
+@keyframes sa-trait-in {
+  0%   { transform: scaleY(0); }
+  80%  { transform: scaleY(1.12); }
+  100% { transform: scaleY(1); }
+}
+@keyframes sa-sphere-in {
+  0%   { transform: scale(0); }
+  75%  { transform: scale(1.28); }
+  100% { transform: scale(1); }
+}
+@keyframes sa-ring-pulse {
+  0%   { transform: scale(0.3); opacity: 0; }
+  15%  { opacity: 0.75; }
+  100% { transform: scale(3.2); opacity: 0; }
+}
+@keyframes sa-halo-in {
+  from { opacity: 0; }
+  to   { opacity: 0.5; }
+}
+@keyframes sa-glow {
+  0%, 100% { opacity: 0.45; }
+  50%       { opacity: 0.85; }
+}
+@keyframes sa-wordmark-in {
+  from { transform: translateY(9px); opacity: 0; }
+}
+@keyframes sa-tagline-in {
+  from { opacity: 0; letter-spacing: 0.55em; }
+  to   { opacity: 1; letter-spacing: 0.42em; }
+}
+
+/* Exit keyframes */
+@keyframes sa-exit-fly {
+  to { transform: var(--fly, translate(-38vw, -34vh) scale(0.23)); opacity: 0; }
+}
+@keyframes sa-exit-fade {
+  to { opacity: 0; }
+}
+
+/* Intro animations — calées sur le déclenchement de la sortie à 1,5 s
+   (SplashScreen.tsx) pour un splash total d'environ 2,2 s */
+.sa-splash[data-phase="intro"] .sa-base {
+  animation: sa-base-in 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) 0s both;
+}
+.sa-splash[data-phase="intro"] .sa-t1 {
+  animation: sa-tick-in 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s both;
+}
+.sa-splash[data-phase="intro"] .sa-t2 {
+  animation: sa-tick-in 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) 0.36s both;
+}
+.sa-splash[data-phase="intro"] .sa-t3 {
+  animation: sa-tick-in 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) 0.42s both;
+}
+.sa-splash[data-phase="intro"] .sa-trait {
+  animation: sa-trait-in 0.35s cubic-bezier(0.3, 1.5, 0.4, 1) 0.5s both;
+}
+.sa-splash[data-phase="intro"] .sa-sphere {
+  animation: sa-sphere-in 0.4s cubic-bezier(0.3, 1.7, 0.4, 1) 0.65s both;
+}
+.sa-splash[data-phase="intro"] .sa-ring {
+  animation: sa-ring-pulse 0.8s ease-out 0.7s both;
+}
+.sa-splash[data-phase="intro"] .sa-halo {
+  animation:
+    sa-halo-in 0.35s ease 0.65s both,
+    sa-glow 2.4s ease-in-out 1s infinite;
+}
+.sa-splash[data-phase="intro"] .sa-splash__wordmark {
+  animation: sa-wordmark-in 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) 0.85s both;
+}
+.sa-splash[data-phase="intro"] .sa-splash__tagline {
+  animation: sa-tagline-in 0.5s ease-out 0.95s both;
+}
+
+/* Exit animations */
+.sa-splash[data-phase="exit"] {
+  animation: sa-exit-fade 0.45s ease 0.3s forwards;
+  pointer-events: none;
+}
+.sa-splash[data-phase="exit"] .sa-splash__logo {
+  animation: sa-exit-fly 0.7s cubic-bezier(0.5, 0.02, 0.2, 1) 0.05s forwards;
+}
+.sa-splash[data-phase="exit"] .sa-splash__wordmark,
+.sa-splash[data-phase="exit"] .sa-splash__tagline {
+  animation: sa-exit-fade 0.25s ease forwards;
 }

@@ -8,7 +8,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/recherche", "/surprise"],
+        // /recherche et /surprise sont gérées par noindex (meta robots) :
+        // les bloquer ici empêcherait Google de voir cette directive.
+        disallow: ["/api/"],
       },
     ],
     sitemap: `${BASE}/sitemap.xml`,

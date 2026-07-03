@@ -105,7 +105,7 @@ export default function PochetteMystere({ contenu, dateISO }: PochetteMysterePro
 
         {partie.etat === "gagne" && (
           <div className="absolute inset-0 bg-primary/10 flex items-center justify-center">
-            <span className="text-3xl">✦</span>
+            <span aria-hidden="true" className="text-3xl">✦</span>
           </div>
         )}
       </div>
@@ -135,7 +135,7 @@ export default function PochetteMystere({ contenu, dateISO }: PochetteMysterePro
               onChange={(e) => setValeur(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && tenter()}
               placeholder="Votre réponse…"
-              className="flex-1 border border-border/40 bg-white/[0.03] px-4 py-3 font-mono text-sm text-[#6E6857] placeholder-[#5C564A] focus:outline-none focus:border-primary transition-colors"
+              className="flex-1 border border-border/40 bg-white/[0.03] px-4 py-3 font-mono text-sm text-ink-3 placeholder-ink-4 focus:outline-none focus:border-primary transition-colors"
             />
             <button
               onClick={tenter}

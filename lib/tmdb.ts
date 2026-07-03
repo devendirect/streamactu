@@ -390,6 +390,25 @@ export async function rechercherContenu(query: string): Promise<ResultatRecherch
 }
 
 // ──────────────────────────────────────────────
+// Tendances de la semaine (cache 24h) — chips de la page recherche
+// ──────────────────────────────────────────────
+
+export const getTendancesSemaine = unstable_cache(
+  async (): Promise<string[]> => {
+    const data = await tmdbGet<
+      ReponseTMDB<(TMDBSerie | TMDBFilm) & { media_type: string }>
+    >("/trending/all/week", {}, 86400);
+
+    return data.results
+      .filter((r) => r.media_type === "tv" || r.media_type === "movie")
+      .slice(0, 4)
+      .map((r) => ("title" in r ? r.title : r.name));
+  },
+  ["tendances-semaine"],
+  { revalidate: 86400 }
+);
+
+// ──────────────────────────────────────────────
 // Contenu aléatoire (pour /surprise)
 // ──────────────────────────────────────────────
 
@@ -422,10 +441,10 @@ export async function getContenuAleatoire(type: "serie" | "film" | "tous" = "tou
 }
 
 // ──────────────────────────────────────────────
-// Contenu pour le Wordle du jour (cache 24h)
+// Contenus des jeux du jour — rotation quotidienne (cache 24h)
 // ──────────────────────────────────────────────
 
-export const getContenuMensuelWordle = unstable_cache(
+export const getContenusJeuDuJour = unstable_cache(
   async (): Promise<Contenu[]> => {
     const [genresTv, genresFilm] = await Promise.all([getGenresTv(), getGenresFilm()]);
     const [tvData, filmData] = await Promise.all([
@@ -447,7 +466,7 @@ export const getContenuMensuelWordle = unstable_cache(
     const films = filmData.results.map((f) => mapFilm(f, genresFilm));
     return [...series, ...films];
   },
-  ["wordle-mensuel"],
+  ["contenus-jeu-du-jour"],
   { revalidate: 86400 }
 );
 

@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
+import { getNouveautesSemaine } from "@/lib/tmdb";
 import {
+  decalerSemaineISO,
   formatDateURL,
   formatMoisURL,
   formatSemaineURL,
@@ -8,7 +10,7 @@ import {
 
 const BASE = process.env.SITE_URL ?? "https://streamactu.fr";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const entries: MetadataRoute.Sitemap = [];
 
@@ -35,11 +37,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // ── 12 dernières semaines ──
   const { semaine: semCur, annee: anneeCur } = getISOWeek(now);
   for (let i = 0; i < 12; i++) {
-    let sem = semCur - i;
-    let annee = anneeCur;
-    if (sem < 1) { annee--; sem += 52; }
+    const { semaine, annee } = decalerSemaineISO(semCur, anneeCur, -i);
     entries.push({
-      url: `${BASE}/${formatSemaineURL(sem, annee)}`,
+      url: `${BASE}/${formatSemaineURL(semaine, annee)}`,
       changeFrequency: "weekly",
       priority: i === 0 ? 0.8 : 0.6,
     });
@@ -48,6 +48,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // ── 6 derniers mois ──
   for (let i = 1; i <= 6; i++) {
     const d = new Date(now);
+    d.setUTCDate(15); // évite le débordement de fin de mois (ex. 31 → mois suivant)
     d.setUTCMonth(d.getUTCMonth() - i);
     entries.push({
       url: `${BASE}/${formatMoisURL(d.getUTCMonth() + 1, d.getUTCFullYear())}`,
@@ -61,6 +62,30 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/mentions-legales`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${BASE}/jeux`, changeFrequency: "daily", priority: 0.5 }
   );
+
+  // ── Fiches des sorties récentes (4 dernières semaines) ──
+  // Réutilise le cache des pages semaine ; en cas d'échec TMDB, le sitemap
+  // de base reste servi.
+  try {
+    const semaines = [0, 1, 2, 3].map((i) => decalerSemaineISO(semCur, anneeCur, -i));
+    const donnees = await Promise.all(
+      semaines.map((s) => getNouveautesSemaine(s.semaine, s.annee))
+    );
+
+    const vues = new Set<string>();
+    for (const plateformes of donnees) {
+      for (const pf of plateformes) {
+        for (const contenu of [...pf.series, ...pf.films]) {
+          const url = `${BASE}/${contenu.type}/${contenu.slug}`;
+          if (vues.has(url)) continue;
+          vues.add(url);
+          entries.push({ url, changeFrequency: "weekly", priority: 0.6 });
+        }
+      }
+    }
+  } catch {
+    // TMDB indisponible — on n'ajoute pas les fiches cette fois-ci.
+  }
 
   return entries;
 }

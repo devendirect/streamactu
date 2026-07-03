@@ -10,14 +10,14 @@ export async function POST(request: Request) {
 
   if (!checkRateLimit(`retrouver-day:${ip}`, 5, 24 * 60 * 60_000)) {
     return new Response(
-      JSON.stringify({ error: "Tu as atteint la limite de 5 recherches par jour. Reviens demain !" }),
+      JSON.stringify({ error: "Vous avez atteint la limite de 5 recherches par jour. Revenez demain !" }),
       { status: 429, headers: { "Content-Type": "application/json" } }
     );
   }
 
   if (!checkRateLimit(`retrouver:${ip}`, 5, 60_000)) {
     return new Response(
-      JSON.stringify({ error: "Trop de requêtes. Réessaie dans une minute." }),
+      JSON.stringify({ error: "Trop de requêtes. Réessayez dans une minute." }),
       { status: 429, headers: { "Content-Type": "application/json" } }
     );
   }
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
         }
       } catch {
         controller.enqueue(
-          send({ type: "error", message: "Une erreur est survenue. Réessaie dans un instant." })
+          send({ type: "error", message: "Une erreur est survenue. Réessayez dans un instant." })
         );
       } finally {
         controller.close();

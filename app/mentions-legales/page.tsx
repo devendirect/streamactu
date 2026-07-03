@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Mentions légales",
+  alternates: { canonical: "/mentions-legales" },
   openGraph: {
     title: "Mentions légales | StreamActu.fr",
     description: "Informations légales, données personnelles et attribution TMDB pour StreamActu.fr.",
+    images: ["/og-default.png"],
   },
 };
 
@@ -12,7 +14,7 @@ export default function MentionsLegalesPage() {
   return (
     <div className="sa-container py-10 max-w-2xl space-y-10">
       <div>
-        <p className="font-mono-label text-[#7C7565] mb-3">Informations légales</p>
+        <p className="font-mono-label text-ink-3 mb-3">Informations légales</p>
         <h1 className="text-4xl font-extrabold tracking-[-0.025em]">Mentions légales</h1>
       </div>
 

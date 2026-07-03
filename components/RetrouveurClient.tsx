@@ -21,7 +21,7 @@ interface State {
   erreur: string;
 }
 
-const TYPE_MARK: Record<string, string> = { serie: "▣", film: "◆" };
+const TYPE_MARK: Record<string, string> = { serie: "▣", film: "◈" };
 const TYPE_LABEL: Record<string, string> = { serie: "Série", film: "Film" };
 
 export default function RetrouveurClient() {
@@ -96,7 +96,7 @@ export default function RetrouveurClient() {
       setState((s) => ({ ...s, phase: "done" }));
     } catch (err: unknown) {
       if (err instanceof Error && err.name === "AbortError") return;
-      setState((s) => ({ ...s, phase: "error", erreur: "Une erreur est survenue. Réessaie." }));
+      setState((s) => ({ ...s, phase: "error", erreur: "Une erreur est survenue. Réessayez." }));
     }
   }, [state.phase]);
 
@@ -116,7 +116,7 @@ export default function RetrouveurClient() {
       {/* ── Intro ── */}
       <div
         className="font-mono-label mb-4"
-        style={{ color: "#7C7565" }}
+        style={{ color: "var(--ink-3)" }}
       >
         Retrouver un film, une série
       </div>
@@ -142,7 +142,7 @@ export default function RetrouveurClient() {
           fontFamily: "var(--font-newsreader), serif",
           fontSize: "17px",
           lineHeight: 1.5,
-          color: "#8E8676",
+          color: "var(--ink-3)",
           maxWidth: "54ch",
         }}
       >
@@ -197,6 +197,7 @@ export default function RetrouveurClient() {
           {/* Toggle FR only */}
           <button
             onClick={() => setFrOnly((v) => !v)}
+            aria-pressed={frOnly}
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -269,7 +270,7 @@ export default function RetrouveurClient() {
 
       {/* ── Exemples ── */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "14px", alignItems: "center" }}>
-        <span className="font-mono-label" style={{ color: "#5C564A", marginRight: "4px" }}>
+        <span className="font-mono-label" style={{ color: "var(--ink-4)", marginRight: "4px" }}>
           Essayez
         </span>
         {EXEMPLES.map((ex) => (
@@ -400,7 +401,7 @@ export default function RetrouveurClient() {
               <span className="font-mono-label" style={{ color: "#9A9282" }}>
                 {resultatsAffiches.length} titre{resultatsAffiches.length > 1 ? "s" : ""} trouvé{resultatsAffiches.length > 1 ? "s" : ""}
               </span>
-              <span className="font-mono-label" style={{ color: "#6E6857" }}>
+              <span className="font-mono-label" style={{ color: "var(--ink-3)" }}>
                 {frOnly && masques > 0
                   ? `${masques} masqué${masques > 1 ? "s" : ""} · hors streaming FR`
                   : "classé par pertinence"}
@@ -532,7 +533,7 @@ function ResultatCard({ resultat: r, idx }: { resultat: RetrouveurResultat; idx:
           }}
         >
           <span style={{ color: "#9A9282" }}>{TYPE_LABEL[r.type]}</span>
-          {r.annee > 0 && <span style={{ color: "#7C7565" }}>{r.annee}</span>}
+          {r.annee > 0 && <span style={{ color: "var(--ink-3)" }}>{r.annee}</span>}
           {r.note > 0 && <span style={{ color: "#E3A53A" }}>★ {r.note.toFixed(1)}</span>}
         </div>
 
@@ -557,7 +558,7 @@ function ResultatCard({ resultat: r, idx }: { resultat: RetrouveurResultat; idx:
         {r.genres.length > 0 && (
           <div
             className="font-mono-label"
-            style={{ color: "#7C7565", marginBottom: "13px" }}
+            style={{ color: "var(--ink-3)", marginBottom: "13px" }}
           >
             {r.genres.slice(0, 3).join(" · ")}
           </div>
@@ -613,7 +614,7 @@ function ResultatCard({ resultat: r, idx }: { resultat: RetrouveurResultat; idx:
               className="font-mono-label"
               style={{
                 fontSize: "10px",
-                color: "#7C7565",
+                color: "var(--ink-3)",
                 border: "1px solid rgba(236,230,216,0.18)",
                 padding: "3px 8px",
               }}

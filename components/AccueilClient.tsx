@@ -20,10 +20,10 @@ interface Props {
   contexte: ContexteTemporel;
 }
 
-const GENRES_FILTRES = [
-  { val: "tout" as GenreFiltre, label: "Tout" },
-  { val: "documentaire" as GenreFiltre, label: "▣ Documentaires" },
-  { val: "animation" as GenreFiltre, label: "✦ Animation" },
+const GENRES_FILTRES: { val: GenreFiltre; icone: string | null; label: string }[] = [
+  { val: "tout", icone: null, label: "Tout" },
+  { val: "documentaire", icone: "▣", label: "Documentaires" },
+  { val: "animation", icone: "✦", label: "Animation" },
 ];
 
 const MODES_AFFICHAGE: { val: ModeAffichage; icon: string; title: string }[] = [
@@ -66,17 +66,15 @@ export default function AccueilClient({ plateformes, contexte }: Props) {
     [plateformes, typeFiltre, genreFiltre]
   );
 
-  // Réinitialiser le filtre plateforme si la plateforme choisie disparaît
-  useEffect(() => {
-    if (pfFiltre !== null && !pfsDispo.some((p) => p.id === pfFiltre)) {
-      setPfFiltre(null);
-    }
-  }, [pfsDispo, pfFiltre]);
+  // Filtre plateforme effectif : ignoré si la plateforme choisie n'a plus
+  // de contenu pour le type/genre actifs (dérivé au rendu, pas d'effet)
+  const pfFiltreEffectif =
+    pfFiltre !== null && pfsDispo.some((p) => p.id === pfFiltre) ? pfFiltre : null;
 
   // Filtrage des données
   const filtrees = useMemo(() => {
     return plateformes
-      .filter((pf) => pfFiltre === null || pf.plateforme.id === pfFiltre)
+      .filter((pf) => pfFiltreEffectif === null || pf.plateforme.id === pfFiltreEffectif)
       .map((pf) => {
         let series = pf.series;
         let films = pf.films;
@@ -92,7 +90,7 @@ export default function AccueilClient({ plateformes, contexte }: Props) {
         return { ...pf, series, films };
       })
       .filter((pf) => pf.series.length + pf.films.length > 0);
-  }, [plateformes, typeFiltre, genreFiltre, pfFiltre]);
+  }, [plateformes, typeFiltre, genreFiltre, pfFiltreEffectif]);
 
   function toggleType(t: "serie" | "film") {
     setTypeFiltre((prev) => (prev === t ? "tous" : t));
@@ -118,9 +116,10 @@ export default function AccueilClient({ plateformes, contexte }: Props) {
           <div className="flex items-baseline gap-5">
             <button
               onClick={() => toggleType("serie")}
+              aria-pressed={typeFiltre === "serie"}
               className="text-[22px] font-extrabold tracking-[-0.02em] pb-0.5 border-b-2 transition-colors"
               style={{
-                color: typeFiltre === "serie" ? "#ECE6D8" : "#4A4437",
+                color: typeFiltre === "serie" ? "#ECE6D8" : "var(--ink-4)",
                 borderColor: typeFiltre === "serie" ? "#E3A53A" : "transparent",
               }}
             >
@@ -128,9 +127,10 @@ export default function AccueilClient({ plateformes, contexte }: Props) {
             </button>
             <button
               onClick={() => toggleType("film")}
+              aria-pressed={typeFiltre === "film"}
               className="text-[22px] font-extrabold tracking-[-0.02em] pb-0.5 border-b-2 transition-colors"
               style={{
-                color: typeFiltre === "film" ? "#ECE6D8" : "#4A4437",
+                color: typeFiltre === "film" ? "#ECE6D8" : "var(--ink-4)",
                 borderColor: typeFiltre === "film" ? "#E3A53A" : "transparent",
               }}
             >
@@ -140,11 +140,12 @@ export default function AccueilClient({ plateformes, contexte }: Props) {
 
           {/* Filtres genre */}
           <div className="flex items-center gap-2 font-mono-label flex-wrap">
-            <span className="text-[#4A4437]">Filtrer :</span>
-            {GENRES_FILTRES.map(({ val, label }) => (
+            <span className="text-ink-4">Filtrer :</span>
+            {GENRES_FILTRES.map(({ val, icone, label }) => (
               <button
                 key={val}
                 onClick={() => setGenreFiltre((prev) => (prev === val ? "tout" : val))}
+                aria-pressed={genreFiltre === val}
                 className="px-3 py-1.5 border transition-colors"
                 style={{
                   borderColor: genreFiltre === val ? "#E3A53A" : "rgba(236,230,216,0.15)",
@@ -152,6 +153,11 @@ export default function AccueilClient({ plateformes, contexte }: Props) {
                   background: genreFiltre === val ? "rgba(227,165,58,0.06)" : "transparent",
                 }}
               >
+                {icone && (
+                  <span aria-hidden="true" className="mr-1.5">
+                    {icone}
+                  </span>
+                )}
                 {label}
               </button>
             ))}
@@ -167,13 +173,14 @@ export default function AccueilClient({ plateformes, contexte }: Props) {
         <div className="flex items-center justify-between py-2.5 flex-wrap gap-2">
           {/* Chips plateforme */}
           <div className="flex items-center gap-2 flex-wrap font-mono-label">
-            <span className="text-[#4A4437]">Plateforme :</span>
+            <span className="text-ink-4">Plateforme :</span>
             <button
               onClick={() => setPfFiltre(null)}
+              aria-pressed={pfFiltreEffectif === null}
               className="px-3 py-1.5 border transition-colors"
               style={{
-                borderColor: pfFiltre === null ? "rgba(236,230,216,0.6)" : "rgba(236,230,216,0.15)",
-                color: pfFiltre === null ? "#ECE6D8" : "#9A9282",
+                borderColor: pfFiltreEffectif === null ? "rgba(236,230,216,0.6)" : "rgba(236,230,216,0.15)",
+                color: pfFiltreEffectif === null ? "#ECE6D8" : "#9A9282",
               }}
             >
               Toutes
@@ -181,11 +188,12 @@ export default function AccueilClient({ plateformes, contexte }: Props) {
             {pfsDispo.map((pf) => (
               <button
                 key={pf.id}
-                onClick={() => setPfFiltre(pf.id === pfFiltre ? null : pf.id)}
+                onClick={() => setPfFiltre(pf.id === pfFiltreEffectif ? null : pf.id)}
+                aria-pressed={pf.id === pfFiltreEffectif}
                 className="flex items-center gap-1.5 px-3 py-1.5 border transition-colors font-mono-label"
                 style={{
-                  borderColor: pf.id === pfFiltre ? pf.couleur : "rgba(236,230,216,0.15)",
-                  color: pf.id === pfFiltre ? pf.couleur : "#9A9282",
+                  borderColor: pf.id === pfFiltreEffectif ? pf.couleur : "rgba(236,230,216,0.15)",
+                  color: pf.id === pfFiltreEffectif ? pf.couleur : "#9A9282",
                 }}
               >
                 <span
@@ -209,11 +217,13 @@ export default function AccueilClient({ plateformes, contexte }: Props) {
                 key={val}
                 onClick={() => setMode(val)}
                 title={title}
+                aria-label={`Affichage ${title.toLowerCase()}`}
+                aria-pressed={mode === val}
                 className="w-9 h-9 flex items-center justify-center text-lg transition-colors"
                 style={{
                   borderLeft: i > 0 ? "1px solid rgba(236,230,216,0.12)" : "none",
                   background: mode === val ? "rgba(236,230,216,0.08)" : "transparent",
-                  color: mode === val ? "#ECE6D8" : "#4A4437",
+                  color: mode === val ? "#ECE6D8" : "var(--ink-4)",
                 }}
               >
                 {icon}

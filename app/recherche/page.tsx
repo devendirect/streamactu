@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import RechercheClient from "@/components/RechercheClient";
-import { rechercherContenu } from "@/lib/tmdb";
+import { getTendancesSemaine, rechercherContenu } from "@/lib/tmdb";
 
 export const metadata: Metadata = {
   title: "Recherche",
@@ -14,11 +14,19 @@ interface Props {
 export default async function RecherchePage({ searchParams }: Props) {
   const { q } = await searchParams;
   const query = typeof q === "string" ? q.trim() : "";
-  const resultatsInitiaux = query ? await rechercherContenu(query) : [];
+
+  const [resultatsInitiaux, tendances] = await Promise.all([
+    query ? rechercherContenu(query) : Promise.resolve([]),
+    getTendancesSemaine().catch(() => []),
+  ]);
 
   return (
     <div className="sa-container py-8">
-      <RechercheClient queryInitiale={query} resultatsInitiaux={resultatsInitiaux} />
+      <RechercheClient
+        queryInitiale={query}
+        resultatsInitiaux={resultatsInitiaux}
+        tendances={tendances}
+      />
     </div>
   );
 }

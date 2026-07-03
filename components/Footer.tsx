@@ -33,14 +33,14 @@ export default function Footer() {
             </span>
             <Link
               href="/mentions-legales"
-              className="font-mono-label text-[#8E8676] hover:text-foreground transition-colors"
+              className="font-mono-label text-ink-3 hover:text-foreground transition-colors"
             >
               Mentions légales
             </Link>
           </div>
 
           {/* Attribution TMDB obligatoire */}
-          <p className="font-mono-label text-[#6E6857] text-right max-w-[46ch]">
+          <p className="font-mono-label text-ink-3 text-right max-w-[46ch]">
             Données &amp; visuels fournis par{" "}
             <a
               href="https://www.themoviedb.org"

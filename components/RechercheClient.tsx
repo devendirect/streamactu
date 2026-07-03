@@ -9,14 +9,18 @@ import type { ResultatRecherche } from "@/types";
 interface RechercheClientProps {
   queryInitiale: string;
   resultatsInitiaux: ResultatRecherche[];
+  tendances?: string[];
 }
 
-const TENDANCES = ["Severance", "Arcane", "Dune", "Andor"];
+// Repli si TMDB ne répond pas au moment du rendu serveur
+const TENDANCES_DEFAUT = ["Severance", "Arcane", "Dune", "Andor"];
 
 export default function RechercheClient({
   queryInitiale,
   resultatsInitiaux,
+  tendances = [],
 }: RechercheClientProps) {
+  const suggestions = tendances.length > 0 ? tendances : TENDANCES_DEFAUT;
   const [query, setQuery] = useState(queryInitiale);
   const [resultats, setResultats] = useState<ResultatRecherche[]>(resultatsInitiaux);
   const [loading, setLoading] = useState(false);
@@ -64,22 +68,22 @@ export default function RechercheClient({
     <div className="space-y-6">
       {/* Grande barre de recherche */}
       <div>
-        <p className="font-mono-label text-[#7C7565] mb-4">Recherche</p>
+        <p className="font-mono-label text-ink-3 mb-4">Recherche</p>
         <div className="flex items-center gap-4 border-b-2 border-foreground pb-3">
-          <span className="text-primary text-2xl leading-none">⌕</span>
+          <span aria-hidden="true" className="text-primary text-2xl leading-none">⌕</span>
           <input
             type="text"
             value={query}
             onChange={onInput}
             placeholder="Un titre, un genre, un acteur…"
             autoFocus
-            className="flex-1 bg-transparent border-none text-[clamp(20px,4vw,32px)] font-bold tracking-[-0.02em] text-foreground placeholder-[#5C564A] focus:outline-none"
+            className="flex-1 bg-transparent border-none text-[clamp(20px,4vw,32px)] font-bold tracking-[-0.02em] text-foreground placeholder-ink-4 focus:outline-none"
             style={{ fontFamily: "var(--font-bricolage), sans-serif" }}
           />
           {query && (
             <button
               onClick={clear}
-              className="font-mono-label text-[#7C7565] hover:text-foreground transition-colors"
+              className="font-mono-label text-ink-3 hover:text-foreground transition-colors"
             >
               Effacer
             </button>
@@ -93,7 +97,7 @@ export default function RechercheClient({
           <span className="font-mono text-sm text-[#9A9282]">
             {resultats.length} résultat{resultats.length > 1 ? "s" : ""}
           </span>
-          <span className="text-sm text-[#6E6857] italic" style={{ fontFamily: "var(--font-newsreader), serif" }}>
+          <span className="text-sm text-ink-3 italic" style={{ fontFamily: "var(--font-newsreader), serif" }}>
             pour « {query} »
           </span>
         </div>
@@ -101,7 +105,7 @@ export default function RechercheClient({
 
       {/* Loading */}
       {loading && (
-        <p className="text-[#7C7565] italic" style={{ fontFamily: "var(--font-newsreader), serif" }}>
+        <p className="text-ink-3 italic" style={{ fontFamily: "var(--font-newsreader), serif" }}>
           Recherche en cours…
         </p>
       )}
@@ -132,7 +136,7 @@ export default function RechercheClient({
                     {item.type === "serie" ? "▣" : "◈"}
                   </span>
                   {item.type === "serie" ? "Série" : "Film"}
-                  {item.annee > 0 && <span className="text-[#7C7565]">{item.annee}</span>}
+                  {item.annee > 0 && <span className="text-ink-3">{item.annee}</span>}
                 </div>
                 <h3 className="text-[23px] font-semibold tracking-[-0.01em] group-hover:text-primary transition-colors">
                   {item.titre}
@@ -159,14 +163,14 @@ export default function RechercheClient({
           >
             Rien sous ce titre… pour l&apos;instant.
           </p>
-          <p className="font-mono text-sm text-[#7C7565]">
+          <p className="font-mono text-sm text-ink-3">
             Aucune série ni film ne correspond à « {query} ».
           </p>
 
           <div>
-            <p className="font-mono-label text-[#5C564A] mb-3">Tendances cette semaine</p>
+            <p className="font-mono-label text-ink-4 mb-3">Tendances cette semaine</p>
             <div className="flex flex-wrap gap-2 justify-center">
-              {TENDANCES.map((t) => (
+              {suggestions.map((t) => (
                 <button
                   key={t}
                   onClick={() => { setQuery(t); rechercher(t); }}
@@ -190,9 +194,9 @@ export default function RechercheClient({
       {/* État initial vide (pas encore de recherche) */}
       {!query.trim() && !loading && (
         <div className="py-8">
-          <p className="font-mono-label text-[#5C564A] mb-3">Suggestions</p>
+          <p className="font-mono-label text-ink-4 mb-3">Tendances cette semaine</p>
           <div className="flex flex-wrap gap-2">
-            {TENDANCES.map((t) => (
+            {suggestions.map((t) => (
               <button
                 key={t}
                 onClick={() => { setQuery(t); rechercher(t); }}

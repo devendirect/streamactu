@@ -41,7 +41,7 @@ export default function SurpriseClient({ initialContenu }: SurpriseClientProps) 
   return (
     <div className="flex flex-col items-center text-center space-y-6 max-w-sm mx-auto">
       {/* Label */}
-      <p className="font-mono-label text-[#7C7565]">Le tirage du soir</p>
+      <p className="font-mono-label text-ink-3">Le tirage du soir</p>
 
       {/* Toggle filtre */}
       <div className="flex border border-border/50">
@@ -49,6 +49,7 @@ export default function SurpriseClient({ initialContenu }: SurpriseClientProps) 
           <button
             key={f.value}
             onClick={() => setFiltre(f.value)}
+            aria-pressed={filtre === f.value}
             className="px-4 py-2 text-sm font-medium transition-colors border-l border-border/50 first:border-l-0"
             style={{
               background: filtre === f.value ? "#ECE6D8" : "transparent",

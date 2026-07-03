@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getDetailFilm } from "@/lib/tmdb";
 import { idDepuisSlug } from "@/lib/utils";
+import { extraitMeta, jsonLdFiche } from "@/lib/seo";
 import FicheDetail from "@/components/FicheDetail";
 
 export const revalidate = 3600;
@@ -25,14 +26,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const film = await getFilm(slug);
   if (!film) return { title: "Film introuvable" };
 
+  const description = extraitMeta(film.synopsis);
   return {
     title: film.titre,
-    description: film.synopsis?.slice(0, 160),
+    description,
+    alternates: { canonical: `/film/${film.slug}` },
     openGraph: {
       type: "video.movie",
       title: `${film.titre} | StreamActu.fr`,
-      description: film.synopsis?.slice(0, 160),
-      images: film.backdrop ? [{ url: film.backdrop }] : [],
+      description,
+      images: film.backdrop ? [{ url: film.backdrop }] : ["/og-default.png"],
     },
   };
 }
@@ -45,6 +48,10 @@ export default async function FilmPage({ params }: Props) {
 
   return (
     <div className="sa-container py-6 max-w-2xl">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdFiche(film) }}
+      />
       <FicheDetail contenu={film} />
     </div>
   );

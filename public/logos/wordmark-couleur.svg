@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 545 140" width="545" height="140" role="img" aria-label="StreamActu.fr">
+  <title>StreamActu.fr — wordmark (couleur, fond clair)</title>
+  
+  <g fill="none" stroke="#16140F" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+    
+    <path d="M54 56 C 54 48, 20 46, 20 62 C 20 74, 54 72, 54 88 C 54 102, 20 100, 20 88"></path>
+    
+    <path d="M78 50 L78 92 C 78 100, 86 101, 92 97"></path>
+    <path d="M66 62 L90 62"></path>
+    
+    <path d="M104 60 L104 100"></path>
+    <path d="M104 70 C 104 60, 118 58, 124 64"></path>
+    
+    <path d="M133 80 L168 80"></path>
+    <path d="M168 80 C 168 68, 152 62, 142 68 C 132 74, 132 90, 144 96 C 154 100, 164 96, 168 90"></path>
+    
+    <path d="M212 60 L212 100"></path>
+    <path d="M212 70 C 204 62, 188 63, 183 73 C 178 84, 182 96, 192 98 C 201 99, 208 94, 212 88"></path>
+    
+    <path d="M228 100 L228 68 C 228 60, 246 60, 248 70 L248 100"></path>
+    <path d="M248 70 C 250 61, 266 60, 268 70 L268 100"></path>
+    
+    <path d="M286 100 L306 50 L326 100"></path>
+    <path d="M294 82 L318 82"></path>
+    
+    <path d="M372 70 C 366 62, 350 62, 344 70 C 336 78, 336 90, 344 96 C 351 101, 366 100, 372 92"></path>
+    
+    <path d="M392 52 L392 92 C 392 100, 400 101, 406 97"></path>
+    <path d="M380 62 L404 62"></path>
+    
+    <path d="M418 60 L418 88 C 418 98, 434 100, 440 92 L440 60"></path>
+    <path d="M440 60 L440 100"></path>
+  </g>
+  
+  <rect x="284" y="110" width="168" height="9" rx="4.5" fill="#E3A53A"></rect>
+  
+  <circle cx="468" cy="94" r="7" fill="#E3A53A"></circle>
+  
+  <g fill="none" stroke="#8E8676" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+    
+    <path d="M498 50 C 498 44, 490 42, 486 48 C 484 52, 484 56, 484 60 L484 100"></path>
+    <path d="M476 62 L500 62"></path>
+    
+    <path d="M512 60 L512 100"></path>
+    <path d="M512 70 C 512 60, 526 58, 532 64"></path>
+  </g>
+</svg>

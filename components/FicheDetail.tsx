@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import type { Serie, Film } from "@/types";
 import { formatDuree } from "@/lib/utils";
 import ConvaincsMoi from "@/components/ConvaincsMoi";
@@ -20,7 +19,7 @@ export default function FicheDetail({ contenu }: FicheDetailProps) {
         {contenu.backdrop && (
           <Image
             src={contenu.backdrop}
-            alt={`Backdrop ${contenu.titre}`}
+            alt={`Image de ${contenu.titre}`}
             fill
             sizes="100vw"
             className="object-cover opacity-40"
@@ -54,7 +53,7 @@ export default function FicheDetail({ contenu }: FicheDetailProps) {
         {/* Méta */}
         <div className="flex items-center gap-3 flex-wrap pb-5 border-b border-border text-sm">
           <span className="font-mono text-primary text-base">★ {contenu.note.toFixed(1)}</span>
-          <span className="font-mono-label text-[#6E6857]">
+          <span className="font-mono-label text-ink-3">
             TMDB · {contenu.nbVotes.toLocaleString("fr-FR")} votes
           </span>
           <span className="text-border/60">·</span>
@@ -103,7 +102,7 @@ export default function FicheDetail({ contenu }: FicheDetailProps) {
         {/* ── Distribution ── */}
         {contenu.casting.length > 0 && (
           <div>
-            <div className="font-mono-label text-[#7C7565] mb-4">Distribution principale</div>
+            <div className="font-mono-label text-ink-3 mb-4">Distribution principale</div>
             <div className="grid grid-cols-2 gap-3">
               {contenu.casting.slice(0, 6).map((personne) => (
                 <div key={personne.id} className="flex items-center gap-3">
@@ -124,7 +123,7 @@ export default function FicheDetail({ contenu }: FicheDetailProps) {
                     <div className="text-sm font-semibold leading-tight truncate">
                       {personne.nom}
                     </div>
-                    <div className="font-mono-label text-[#7C7565] mt-0.5 truncate">
+                    <div className="font-mono-label text-ink-3 mt-0.5 truncate">
                       {personne.personnage}
                     </div>
                   </div>
@@ -137,7 +136,7 @@ export default function FicheDetail({ contenu }: FicheDetailProps) {
         {/* ── Bande-annonce ── */}
         {contenu.trailer && (
           <div>
-            <div className="font-mono-label text-[#7C7565] mb-3">Bande-annonce</div>
+            <div className="font-mono-label text-ink-3 mb-3">Bande-annonce</div>
             <div className="relative aspect-video border border-border overflow-hidden bg-card">
               <iframe
                 src={`https://www.youtube-nocookie.com/embed/${contenu.trailer.key}?rel=0&modestbranding=1`}

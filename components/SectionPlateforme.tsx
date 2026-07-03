@@ -25,7 +25,7 @@ export default function SectionPlateforme({ data, mode = "liste", priorite = fal
       >
         {plateforme.nom}
       </h2>
-      <span className="font-mono-label text-[#7C7565]">
+      <span className="font-mono-label text-ink-3">
         {total} sortie{total > 1 ? "s" : ""}
       </span>
     </div>

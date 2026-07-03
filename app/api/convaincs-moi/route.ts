@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   const ip = getIp(await headers());
 
   if (!checkRateLimit(`convaincs:${ip}`, 10, 60_000)) {
-    return new Response("Trop de requêtes. Réessaie dans une minute.", { status: 429 });
+    return new Response("Trop de requêtes. Réessayez dans une minute.", { status: 429 });
   }
 
   let body: {

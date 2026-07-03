@@ -1,5 +1,4 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { RetrouveurResultat } from "@/types";
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -8,6 +7,7 @@ const client = new Anthropic({
 const SYSTEM_PROMPT =
   "Tu es un ami cinéphile passionné et enthousiaste. " +
   "Convaincs l'utilisateur de regarder ce contenu ce soir en 3-4 phrases maximum. " +
+  "Vouvoie l'utilisateur. " +
   "Style naturel et chaleureux, pas un communiqué de presse. " +
   "Parle uniquement du ressenti et de l'expérience de visionnage. " +
   "Cite uniquement le titre, les acteurs et les genres. " +
@@ -60,6 +60,7 @@ Règles :
 - suggestions : 3 à 5 titres RÉELS ordonnés par pertinence décroissante
 - type : "film" ou "serie" uniquement
 - pourquoi : 1-2 phrases en français sans commencer par "Ça colle parce que"
+- Si tu t'adresses à l'utilisateur, vouvoie-le
 - Ne suggère que des œuvres qui existent vraiment
 - Tout en français`;
 
@@ -86,7 +87,7 @@ export async function retrouverIA(description: string): Promise<RetrouveurIAResu
   } catch {
     return {
       criteres: [["Erreur", "Analyse impossible"]],
-      raisonnement: "Je n'ai pas réussi à analyser cette description. Essaie de reformuler.",
+      raisonnement: "Je n'ai pas réussi à analyser cette description. Essayez de reformuler.",
       suggestions: [],
     };
   }
@@ -129,7 +130,7 @@ export function convaincseMoiStream(
         if (accumulated) onComplete?.(accumulated);
       } catch {
         controller.enqueue(
-          encoder.encode("Mon enthousiasme bug une seconde — réessaie dans un instant.")
+          encoder.encode("Mon enthousiasme bug une seconde — réessayez dans un instant.")
         );
       } finally {
         controller.close();

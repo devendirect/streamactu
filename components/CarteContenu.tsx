@@ -66,7 +66,7 @@ export default function CarteContenu({ contenu, priorite = false }: Props) {
       <div className="flex-1 min-w-0">
         {/* Badge type + saison */}
         <div className="flex items-baseline gap-1.5 font-mono-label text-[#9A9282] mb-1">
-          <span className="text-[11px] text-foreground/60">{typeIcon}</span>
+          <span aria-hidden="true" className="text-[11px] text-foreground/60">{typeIcon}</span>
           <span className="uppercase tracking-[0.12em] text-[10px]">{typeLabel}</span>
           {saisonLabel && <>&nbsp;&nbsp;{saisonLabel}</>}
         </div>
@@ -78,7 +78,7 @@ export default function CarteContenu({ contenu, priorite = false }: Props) {
 
         {/* Genres */}
         {genresLabel && (
-          <div className="font-mono-label text-[#6E6857] mt-0.5">{genresLabel}</div>
+          <div className="font-mono-label text-ink-3 mt-0.5">{genresLabel}</div>
         )}
       </div>
 

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="StreamActu — Le Repère">
+  <title>StreamActu — Le Repère (mono noir)</title>
+  <g fill="none" stroke="#16140F" stroke-width="6" stroke-linecap="round">
+    <line x1="18" y1="84" x2="102" y2="84"></line>
+    <line x1="34" y1="84" x2="34" y2="74"></line>
+    <line x1="50" y1="84" x2="50" y2="74"></line>
+    <line x1="86" y1="84" x2="86" y2="74"></line>
+    <line x1="68" y1="84" x2="68" y2="42"></line>
+  </g>
+  <circle cx="68" cy="34" r="11" fill="#16140F"></circle>
+</svg>

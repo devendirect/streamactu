@@ -49,7 +49,7 @@ export default function ConvaincsMoi({ contenu }: Props) {
         setPitch(texte);
       }
     } catch {
-      setPitch("Mon enthousiasme bug une seconde — réessaie dans un instant.");
+      setPitch("Mon enthousiasme bug une seconde — réessayez dans un instant.");
       setPitchVisible(true);
     } finally {
       setLoading(false);
@@ -63,7 +63,7 @@ export default function ConvaincsMoi({ contenu }: Props) {
           onClick={lancerConvaincs}
           className="w-full flex items-center justify-center gap-2 border border-primary text-primary font-semibold py-3.5 text-[15px] hover:bg-primary hover:text-background transition-colors"
         >
-          <span>✦</span> Convaincs-moi
+          <span aria-hidden="true">✦</span> Convaincs-moi
         </button>
       )}
 

@@ -75,8 +75,8 @@ export default function CarteContenuPoster({ contenu, priorite = false }: Props)
       {/* ── Texte sous le poster ── */}
       <div>
         {/* Badge type + saison */}
-        <div className="flex items-baseline gap-1.5 font-mono-label text-[#7C7565] mb-0.5 leading-tight flex-wrap">
-          <span className="text-[10px] text-foreground/50">{typeIcon}</span>
+        <div className="flex items-baseline gap-1.5 font-mono-label text-ink-3 mb-0.5 leading-tight flex-wrap">
+          <span aria-hidden="true" className="text-[10px] text-foreground/50">{typeIcon}</span>
           <span className="uppercase tracking-[0.1em] text-[9px]">{typeLabel}</span>
           {saisonNode && <>&nbsp;{saisonNode}</>}
         </div>
@@ -88,7 +88,7 @@ export default function CarteContenuPoster({ contenu, priorite = false }: Props)
 
         {/* Genres */}
         {genresLabel && (
-          <p className="font-mono-label text-[#5C564A] leading-tight line-clamp-2">
+          <p className="font-mono-label text-ink-4 leading-tight line-clamp-2">
             {genresLabel}
           </p>
         )}

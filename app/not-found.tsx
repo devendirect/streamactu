@@ -29,9 +29,9 @@ export default function NotFound() {
             >
               404
             </span>
-            <span className="font-mono-label text-[#8E8676] mt-3">Pochette indisponible</span>
+            <span className="font-mono-label text-ink-3 mt-3">Pochette indisponible</span>
           </div>
-          <div className="absolute left-3 bottom-3 font-mono-label text-[#5C564A]">
+          <div className="absolute left-3 bottom-3 font-mono-label text-ink-4">
             NR · ?? min
           </div>
         </div>
@@ -39,7 +39,7 @@ export default function NotFound() {
         {/* Texte */}
         <div className="flex-1 min-w-0 text-center md:text-left">
           <div className="flex items-center gap-3 mb-4 justify-center md:justify-start font-mono-label text-[#B8AF9D]">
-            <span className="text-[13px] text-foreground">⌗</span>
+            <span aria-hidden="true" className="text-[13px] text-foreground">⌗</span>
             Page fantôme
             <span className="border-l border-border/40 pl-3 text-primary italic" style={{ fontFamily: "var(--font-newsreader), serif" }}>
               Jamais diffusée
@@ -59,7 +59,7 @@ export default function NotFound() {
           >
             Annoncée, jamais tournée, probablement coincée en <em>development hell</em>. Le lien que vous suivez ne figure à aucune grille de programme.
           </p>
-          <p className="font-mono text-sm text-[#7C7565] mb-8">
+          <p className="font-mono text-sm text-ink-3 mb-8">
             Statut TMDB : <span className="text-[#9A9282]">introuvable</span>
             &nbsp;·&nbsp; Note : <span className="text-[#9A9282]">— / 10</span>
           </p>

@@ -21,6 +21,7 @@ export default function JeuxClient({ contenu, dateISO }: JeuxClientProps) {
       <div className="flex border border-border/50">
         <button
           onClick={() => setOnglet("titre")}
+          aria-pressed={onglet === "titre"}
           className="flex-1 py-3 text-sm font-medium transition-colors border-r border-border/50"
           style={{
             background: onglet === "titre" ? "#ECE6D8" : "transparent",
@@ -32,6 +33,7 @@ export default function JeuxClient({ contenu, dateISO }: JeuxClientProps) {
         </button>
         <button
           onClick={() => setOnglet("pochette")}
+          aria-pressed={onglet === "pochette"}
           className="flex-1 py-3 text-sm font-medium transition-colors"
           style={{
             background: onglet === "pochette" ? "#ECE6D8" : "transparent",

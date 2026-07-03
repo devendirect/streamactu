@@ -92,8 +92,8 @@ export default function WordleJour({ contenu, dateISO }: WordleJourProps) {
       {/* Barre de progression */}
       <div>
         <div className="flex items-baseline justify-between mb-2">
-          <span className="font-mono-label text-[#7C7565]">Le titre du jour</span>
-          <span className="font-mono-label text-[#6E6857]">
+          <span className="font-mono-label text-ink-3">Le titre du jour</span>
+          <span className="font-mono-label text-ink-3">
             {nbEssais}/{MAX_ESSAIS} essai{nbEssais !== 1 ? "s" : ""}
           </span>
         </div>
@@ -122,7 +122,7 @@ export default function WordleJour({ contenu, dateISO }: WordleJourProps) {
             key={i}
             className="flex items-baseline justify-between py-3 border-b border-border/40"
           >
-            <span className="font-mono-label text-[#7C7565]">
+            <span className="font-mono-label text-ink-3">
               Indice {i + 1} · {INDICES_LABELS[i]}
             </span>
             <span className="text-base font-semibold">
@@ -154,7 +154,7 @@ export default function WordleJour({ contenu, dateISO }: WordleJourProps) {
               onChange={(e) => setValeur(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && tenter()}
               placeholder="Votre réponse…"
-              className="flex-1 border border-border/40 bg-white/[0.03] px-4 py-3 font-mono text-sm text-[#6E6857] placeholder-[#5C564A] focus:outline-none focus:border-primary transition-colors"
+              className="flex-1 border border-border/40 bg-white/[0.03] px-4 py-3 font-mono text-sm text-ink-3 placeholder-ink-4 focus:outline-none focus:border-primary transition-colors"
             />
             <button
               onClick={tenter}

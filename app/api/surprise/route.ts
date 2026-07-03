@@ -10,7 +10,7 @@ export async function GET(request: Request) {
 
   // 20 requêtes par minute — le bouton "Nouvelle surprise" peut être cliqué souvent
   if (!checkRateLimit(`surprise:${ip}`, 20, 60_000)) {
-    return new Response("Trop de requêtes. Réessaie dans une minute.", { status: 429 });
+    return new Response("Trop de requêtes. Réessayez dans une minute.", { status: 429 });
   }
 
   const { searchParams } = new URL(request.url);

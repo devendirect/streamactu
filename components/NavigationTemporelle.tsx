@@ -1,9 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { ContexteTemporel } from "@/types";
 import {
   toISO,
+  parseISO,
+  decalerSemaineISO,
   formatDateFR,
   formatDateURL,
   formatJourSemaineFR,
@@ -21,7 +23,6 @@ interface Props {
 }
 
 export default function NavigationTemporelle({ contexte }: Props) {
-  const router = useRouter();
   const now = new Date();
   const todayISO = toISO(now);
   const { semaine: semaineAujourd, annee: anneeAujourdSem } = getISOWeek(now);
@@ -32,52 +33,26 @@ export default function NavigationTemporelle({ contexte }: Props) {
   const semaineCouranteURL = `/${formatSemaineURL(semaineAujourd, anneeAujourdSem)}`;
   const moisCourantURL = `/${formatMoisURL(moisAujourd, anneeAujourdMois)}`;
 
-  function goJour(delta: number) {
-    if (contexte.mode !== "jour") return;
-    const d = new Date(contexte.dateISO + "T12:00:00Z");
-    d.setUTCDate(d.getUTCDate() + delta);
-    const iso = toISO(d);
-    router.push(iso === todayISO ? "/" : `/${formatDateURL(d)}`);
-  }
-
-  function goSemaine(delta: number) {
-    if (contexte.mode !== "semaine") return;
-    let { semaine, annee } = contexte;
-    semaine += delta;
-    if (semaine < 1) { annee--; semaine = 52; }
-    else if (semaine > 53) { annee++; semaine = 1; }
-    router.push(`/${formatSemaineURL(semaine, annee)}`);
-  }
-
-  function goMois(delta: number) {
-    if (contexte.mode !== "mois") return;
-    let { mois, annee } = contexte;
-    mois += delta;
-    if (mois < 1) { annee--; mois = 12; }
-    else if (mois > 12) { annee++; mois = 1; }
-    router.push(`/${formatMoisURL(mois, annee)}`);
-  }
-
   // Infos de navigation selon le mode
   let navLabel = "";
   let navSub = "";
   let prevLabel = "";
   let nextLabel = "";
+  let prevHref = "/";
+  let nextHref = "/";
   let canGoForward = false;
-  let goPrev = () => {};
-  let goNext = () => {};
 
   if (contexte.mode === "jour") {
-    const d = new Date(contexte.dateISO + "T12:00:00Z");
+    const d = parseISO(contexte.dateISO);
     navLabel = formatJourSemaineFR(d);
     navSub = `streamactu.fr/${formatDateURL(d)}`;
     const prev = new Date(d); prev.setUTCDate(d.getUTCDate() - 1);
     const next = new Date(d); next.setUTCDate(d.getUTCDate() + 1);
+    prevHref = toISO(prev) === todayISO ? "/" : `/${formatDateURL(prev)}`;
+    nextHref = toISO(next) === todayISO ? "/" : `/${formatDateURL(next)}`;
     prevLabel = `← Hier`;
     nextLabel = `Demain →`;
     canGoForward = contexte.dateISO < todayISO;
-    goPrev = () => goJour(-1);
-    goNext = () => goJour(1);
     // Affiner avec les noms courts sauf pour hier/demain adjacents
     const diffPrev = (now.getTime() - prev.getTime()) / 86400000;
     const diffNext = (next.getTime() - now.getTime()) / 86400000;
@@ -87,26 +62,30 @@ export default function NavigationTemporelle({ contexte }: Props) {
     const { semaine, annee } = contexte;
     navLabel = `Semaine du ${formatSemaineFR(semaine, annee)}`;
     navSub = `streamactu.fr/${formatSemaineURL(semaine, annee)}`;
+    const prev = decalerSemaineISO(semaine, annee, -1);
+    const next = decalerSemaineISO(semaine, annee, 1);
+    prevHref = `/${formatSemaineURL(prev.semaine, prev.annee)}`;
+    nextHref = `/${formatSemaineURL(next.semaine, next.annee)}`;
     prevLabel = "← Semaine préc.";
     nextLabel = "Semaine suiv. →";
     canGoForward =
       annee < anneeAujourdSem ||
       (annee === anneeAujourdSem && semaine < semaineAujourd);
-    goPrev = () => goSemaine(-1);
-    goNext = () => goSemaine(1);
   } else {
     const { mois, annee } = contexte;
     navLabel = formatMoisFR(mois, annee);
     navSub = `streamactu.fr/${formatMoisURL(mois, annee)}`;
     const mP = mois === 1 ? 12 : mois - 1;
+    const aP = mois === 1 ? annee - 1 : annee;
     const mS = mois === 12 ? 1 : mois + 1;
+    const aS = mois === 12 ? annee + 1 : annee;
+    prevHref = `/${formatMoisURL(mP, aP)}`;
+    nextHref = `/${formatMoisURL(mS, aS)}`;
     prevLabel = `← ${MOIS_COURTS[mP]}`;
     nextLabel = `${MOIS_COURTS[mS]} →`;
     canGoForward =
       annee < anneeAujourdMois ||
       (annee === anneeAujourdMois && mois < moisAujourd);
-    goPrev = () => goMois(-1);
-    goNext = () => goMois(1);
   }
 
   const isAujourd = contexte.mode === "jour" && contexte.dateISO === todayISO;
@@ -122,9 +101,10 @@ export default function NavigationTemporelle({ contexte }: Props) {
           { label: "Cette semaine", active: isSemaine, href: semaineCouranteURL },
           { label: "Ce mois", active: isMois, href: moisCourantURL },
         ].map((tab) => (
-          <button
+          <Link
             key={tab.label}
-            onClick={() => router.push(tab.href)}
+            href={tab.href}
+            aria-current={tab.active ? "page" : undefined}
             className="px-4 py-2.5 text-sm font-semibold transition-colors"
             style={{
               background: tab.active ? "#ECE6D8" : "transparent",
@@ -132,29 +112,37 @@ export default function NavigationTemporelle({ contexte }: Props) {
             }}
           >
             {tab.label}
-          </button>
+          </Link>
         ))}
       </div>
 
       {/* Navigation contextuelle */}
       <div className="flex items-center gap-5">
-        <button
-          onClick={goPrev}
+        <Link
+          href={prevHref}
           className="font-mono text-sm text-[#9A9282] hover:text-foreground transition-colors whitespace-nowrap"
         >
           {prevLabel}
-        </button>
+        </Link>
         <div className="text-center min-w-0">
           <div className="font-bold leading-tight text-base">{navLabel}</div>
-          <div className="font-mono text-[10px] text-[#4A4437] mt-0.5">{navSub}</div>
+          <div className="font-mono text-[10px] text-ink-4 mt-0.5">{navSub}</div>
         </div>
-        <button
-          onClick={goNext}
-          disabled={!canGoForward}
-          className="font-mono text-sm text-[#9A9282] hover:text-foreground disabled:opacity-20 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
-        >
-          {nextLabel}
-        </button>
+        {canGoForward ? (
+          <Link
+            href={nextHref}
+            className="font-mono text-sm text-[#9A9282] hover:text-foreground transition-colors whitespace-nowrap"
+          >
+            {nextLabel}
+          </Link>
+        ) : (
+          <span
+            aria-disabled="true"
+            className="font-mono text-sm text-[#9A9282] opacity-20 cursor-not-allowed whitespace-nowrap"
+          >
+            {nextLabel}
+          </span>
+        )}
       </div>
     </div>
   );

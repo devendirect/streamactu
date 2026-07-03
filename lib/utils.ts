@@ -126,6 +126,20 @@ export function bornesSemaine(semaine: number, annee: number): { debut: string; 
   return { debut: toISO(lundi), fin: toISO(dimanche) };
 }
 
+/**
+ * Semaine ISO décalée de `delta` semaines, calculée sur les dates réelles.
+ * Gère correctement les années à 53 semaines (2026 en est une).
+ */
+export function decalerSemaineISO(
+  semaine: number,
+  annee: number,
+  delta: number
+): { semaine: number; annee: number } {
+  const lundi = parseISO(bornesSemaine(semaine, annee).debut);
+  lundi.setUTCDate(lundi.getUTCDate() + delta * 7);
+  return getISOWeek(lundi);
+}
+
 /** "semaine-26-2026" */
 export function formatSemaineURL(semaine: number, annee: number): string {
   return `semaine-${semaine}-${annee}`;

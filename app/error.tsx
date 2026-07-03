@@ -1,13 +1,20 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 
 export default function Error({
+  error,
   reset,
 }: {
   error: Error;
   reset: () => void;
 }) {
+  useEffect(() => {
+    // Trace côté client pour le diagnostic (l'UI reste générique)
+    console.error(error);
+  }, [error]);
+
   return (
     <div className="sa-container py-16 flex-1 flex items-center">
       <div className="flex gap-12 items-center w-full flex-wrap md:flex-nowrap">
@@ -26,13 +33,13 @@ export default function Error({
             >
               ERR
             </span>
-            <span className="font-mono-label text-[#8E8676] mt-3">Signal perdu</span>
+            <span className="font-mono-label text-ink-3 mt-3">Signal perdu</span>
           </div>
         </div>
 
         <div className="flex-1 min-w-0 text-center md:text-left">
           <div className="flex items-center gap-3 mb-4 justify-center md:justify-start font-mono-label text-[#B8AF9D]">
-            <span className="text-[13px] text-foreground">⌗</span>
+            <span aria-hidden="true" className="text-[13px] text-foreground">⌗</span>
             Erreur serveur
           </div>
 
@@ -47,7 +54,7 @@ export default function Error({
             className="mb-8 max-w-[46ch] text-[#B6AD9B] leading-relaxed"
             style={{ fontFamily: "var(--font-newsreader), serif", fontSize: "18px" }}
           >
-            Une erreur inattendue s&apos;est produite. Tu peux réessayer ou revenir à l&apos;accueil.
+            Une erreur inattendue s&apos;est produite. Vous pouvez réessayer ou revenir à l&apos;accueil.
           </p>
 
           <div className="flex items-center gap-3 flex-wrap justify-center md:justify-start">

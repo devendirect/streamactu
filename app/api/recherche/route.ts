@@ -7,7 +7,7 @@ export async function GET(request: Request) {
 
   // 30 requêtes par minute — la recherche se déclenche à chaque frappe (debounce côté client)
   if (!checkRateLimit(`recherche:${ip}`, 30, 60_000)) {
-    return new Response("Trop de requêtes. Réessaie dans une minute.", { status: 429 });
+    return new Response("Trop de requêtes. Réessayez dans une minute.", { status: 429 });
   }
 
   const { searchParams } = new URL(request.url);
