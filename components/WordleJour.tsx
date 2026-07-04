@@ -20,13 +20,25 @@ const INDICES_LABELS = [
   "Note",
 ];
 
+function echapperRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function getIndice(contenu: WordleJourProps["contenu"], n: number): string {
   switch (n) {
     case 0: return String(contenu.annee || "?");
     case 1: return contenu.genres.map((g) => g.nom).join(", ") || "?";
     case 2: return contenu.casting?.slice(0, 2).map((p) => p.nom).join(", ") || "?";
-    case 3: return contenu.synopsis ? contenu.synopsis.slice(0, 80) + "…" : "?";
-    case 4: return contenu.plateforme?.nom || "Voir TMDB";
+    case 3: {
+      if (!contenu.synopsis) return "?";
+      // Masque le titre s'il apparaît dans le synopsis — sinon l'indice donne la réponse
+      const masque = contenu.synopsis.replace(
+        new RegExp(echapperRegex(contenu.titre), "gi"),
+        "▮▮▮"
+      );
+      return masque.slice(0, 80) + "…";
+    }
+    case 4: return contenu.dispo?.length ? contenu.dispo.slice(0, 2).join(", ") : "Voir TMDB";
     case 5: return `${contenu.note.toFixed(1)} / 10`;
     default: return "?";
   }

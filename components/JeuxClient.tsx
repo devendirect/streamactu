@@ -8,11 +8,14 @@ import PochetteMystere from "@/components/PochetteMystere";
 type Onglet = "titre" | "pochette";
 
 interface JeuxClientProps {
-  contenu: Contenu;
+  /** Contenu du Titre du jour (enrichi : casting + plateformes pour les indices) */
+  contenuTitre: Contenu;
+  /** Contenu de la Pochette mystère — différent du premier pour éviter le spoil croisé */
+  contenuPochette: Contenu;
   dateISO: string;
 }
 
-export default function JeuxClient({ contenu, dateISO }: JeuxClientProps) {
+export default function JeuxClient({ contenuTitre, contenuPochette, dateISO }: JeuxClientProps) {
   const [onglet, setOnglet] = useState<Onglet>("titre");
 
   return (
@@ -47,9 +50,9 @@ export default function JeuxClient({ contenu, dateISO }: JeuxClientProps) {
 
       {/* Contenu de l'onglet */}
       {onglet === "titre" ? (
-        <WordleJour contenu={contenu} dateISO={dateISO} />
+        <WordleJour contenu={contenuTitre} dateISO={dateISO} />
       ) : (
-        <PochetteMystere contenu={contenu} dateISO={dateISO} />
+        <PochetteMystere contenu={contenuPochette} dateISO={dateISO} />
       )}
     </div>
   );
