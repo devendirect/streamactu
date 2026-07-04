@@ -1,0 +1,70 @@
+import type { Contenu } from "@/types";
+import { getTopAnnee, getTopMois } from "@/lib/tmdb";
+import { formatMoisFR } from "@/lib/utils";
+
+// 24h : mêmes caches que les pages top (getTopAnnee / getNouveautesMois)
+export const revalidate = 86400;
+
+const SITE_URL = process.env.SITE_URL ?? "https://streamactu.fr";
+
+function ligne(c: Contenu, position: number): string {
+  const note = c.nbVotes > 0 ? ` — ${c.note.toFixed(1)}/10 (${c.nbVotes.toLocaleString("fr-FR")} votes TMDB)` : "";
+  return `${position}. [${c.titre}](${SITE_URL}/${c.type}/${c.slug})${note}`;
+}
+
+function section(titre: string, contenus: Contenu[]): string {
+  if (contenus.length === 0) return "";
+  return `## ${titre}\n\n${contenus.map((c, i) => ligne(c, i + 1)).join("\n")}\n`;
+}
+
+export async function GET() {
+  const now = new Date();
+  const annee = now.getUTCFullYear();
+
+  // Dernier mois révolu — même choix que llms.txt et le footer
+  const dernierMois = new Date(now);
+  dernierMois.setUTCDate(15);
+  dernierMois.setUTCMonth(dernierMois.getUTCMonth() - 1);
+  const mois = dernierMois.getUTCMonth() + 1;
+  const anneeMois = dernierMois.getUTCFullYear();
+  const moisFR = formatMoisFR(mois, anneeMois);
+
+  let seriesAnnee: Contenu[] = [];
+  let filmsAnnee: Contenu[] = [];
+  let seriesMois: Contenu[] = [];
+  let filmsMois: Contenu[] = [];
+  try {
+    [seriesAnnee, filmsAnnee, seriesMois, filmsMois] = await Promise.all([
+      getTopAnnee("serie", annee),
+      getTopAnnee("film", annee),
+      getTopMois("serie", mois, anneeMois),
+      getTopMois("film", mois, anneeMois),
+    ]);
+  } catch (err) {
+    console.error("[llms-full] tops indisponibles :", err instanceof Error ? err.message : err);
+  }
+
+  const texte = `# StreamActu.fr — classements en cours
+
+> Les séries et films les mieux notés disponibles en streaming par abonnement en France
+> (Netflix, Prime Video, Disney+, Apple TV+, Canal+, Max, Paramount+).
+> Classements établis d'après la note des spectateurs sur TMDB, pondérée par le
+> nombre de votes. Mise à jour quotidienne. Version condensée : ${SITE_URL}/llms.txt
+
+${section(`Top séries ${annee}`, seriesAnnee)}
+${section(`Top films ${annee}`, filmsAnnee)}
+${section(`Top séries ${moisFR}`, seriesMois)}
+${section(`Top films ${moisFR}`, filmsMois)}
+## Autres ressources
+
+- [Sitemap](${SITE_URL}/sitemap.xml) : toutes les fiches films et séries
+- [Flux RSS](${SITE_URL}/flux.xml) : les nouveautés des 7 derniers jours
+`;
+
+  return new Response(texte, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
+}

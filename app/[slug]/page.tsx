@@ -31,6 +31,7 @@ import EnTeteNouveautes from "@/components/EnTeteNouveautes";
 import SectionPlateforme from "@/components/SectionPlateforme";
 import MaillagePlateformes from "@/components/MaillagePlateformes";
 import ArchivesMoisPlateforme from "@/components/ArchivesMoisPlateforme";
+import FaqPlateforme from "@/components/FaqPlateforme";
 
 // 1h : les pages plateforme suivent la fraîcheur des données semaine
 export const revalidate = 3600;
@@ -224,6 +225,12 @@ export default async function SlugPage({ params }: Props) {
 
           {data && <SectionPlateforme data={data} priorite lienTitre={false} />}
 
+          <FaqPlateforme
+            plateforme={pf}
+            series={data?.series ?? []}
+            films={data?.films ?? []}
+            periodeIntro={periodeIntro}
+          />
           <ArchivesMoisPlateforme plateforme={pf} />
           <MaillagePlateformes actuelle={pf.id} />
         </div>

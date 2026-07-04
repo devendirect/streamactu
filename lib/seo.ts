@@ -32,8 +32,19 @@ export function jsonLdFiche(contenu: Serie | Film): string {
 
   if (contenu.synopsis) data.description = contenu.synopsis;
   if (contenu.poster) data.image = contenu.poster;
-  if (contenu.annee) data.datePublished = String(contenu.annee);
+  // dateCreated : propriété attendue par Google pour Movie — date complète si connue
+  const date = contenu.dateSortie ?? (contenu.annee ? String(contenu.annee) : undefined);
+  if (date) {
+    data.dateCreated = date;
+    data.datePublished = date;
+  }
   if (contenu.genres.length > 0) data.genre = contenu.genres.map((g) => g.nom);
+  if (!isSerie && (contenu as Film).realisateurs.length > 0) {
+    data.director = (contenu as Film).realisateurs.map((nom) => ({
+      "@type": "Person",
+      name: nom,
+    }));
+  }
   if (contenu.casting.length > 0) {
     data.actor = contenu.casting
       .slice(0, 6)
@@ -61,6 +72,20 @@ export function jsonLdFiche(contenu: Serie | Film): string {
   }
 
   // < : empêche un éventuel "</script>" dans un synopsis TMDB de casser la page
+  return JSON.stringify(data).replace(/</g, "\\u003c");
+}
+
+/** JSON-LD FAQPage — le texte doit refléter les questions/réponses visibles */
+export function jsonLdFaq(entrees: { question: string; reponse: string }[]): string {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: entrees.map((e) => ({
+      "@type": "Question",
+      name: e.question,
+      acceptedAnswer: { "@type": "Answer", text: e.reponse },
+    })),
+  };
   return JSON.stringify(data).replace(/</g, "\\u003c");
 }
 

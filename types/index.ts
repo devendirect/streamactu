@@ -77,6 +77,7 @@ export interface Film extends Contenu {
   type: "film";
   duree: number;   // minutes
   casting: PersonneCasting[];
+  realisateurs: string[];
   trailer: Video | null;
 }
 
@@ -194,6 +195,10 @@ export interface TMDBCredits {
     character: string;
     profile_path: string | null;
     order: number;
+  }[];
+  crew?: {
+    name: string;
+    job: string;
   }[];
 }
 

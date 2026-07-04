@@ -97,6 +97,12 @@ export default function Footer() {
               Stream<span className="text-[#9A8A5A]">Actu</span>.fr
             </span>
             <Link
+              href="/a-propos"
+              className="font-mono-label text-ink-3 hover:text-foreground transition-colors"
+            >
+              À propos
+            </Link>
+            <Link
               href="/mentions-legales"
               className="font-mono-label text-ink-3 hover:text-foreground transition-colors"
             >

@@ -2,13 +2,12 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { Contenu, MediaType } from "@/types";
-import { getNouveautesMois, getTopAnnee } from "@/lib/tmdb";
+import { getTopAnnee, getTopMois } from "@/lib/tmdb";
 import {
   bornesMois,
   formatMoisFR,
   formatMoisURL,
   parseMoisURL,
-  scoreBayesien,
   toISO,
 } from "@/lib/utils";
 import { jsonLdClassement } from "@/lib/seo";
@@ -20,7 +19,6 @@ export const revalidate = 86400;
 
 const OG_IMAGES = ["/og-default.png"];
 const MIN_CONTENUS = 5; // garde-fou anti-contenu maigre
-const MAX_TOP = 20;
 
 type TopParams =
   | { type: MediaType; portee: "mois"; mois: number; annee: number }
@@ -66,28 +64,6 @@ function libelles(params: TopParams) {
         ? `Le classement des ${nomType} sorti${estSeries ? "es" : "s"} en ${periode} les mieux noté${estSeries ? "es" : "s"} sur les plateformes de streaming en France.`
         : `Le classement des ${nomType} de ${periode} les mieux noté${estSeries ? "es" : "s"} disponibles en streaming en France.`,
   };
-}
-
-/** Top du mois : agrège les nouveautés du mois toutes plateformes, note pondérée */
-async function getTopMois(type: MediaType, mois: number, annee: number): Promise<Contenu[]> {
-  const plateformes = await getNouveautesMois(mois, annee);
-  const vus = new Set<number>();
-  const contenus: Contenu[] = [];
-
-  for (const pf of plateformes) {
-    for (const c of type === "serie" ? pf.series : pf.films) {
-      if (vus.has(c.id)) continue;
-      vus.add(c.id);
-      contenus.push(c);
-    }
-  }
-
-  return contenus
-    .sort(
-      (a, b) =>
-        scoreBayesien(b.note, b.nbVotes) - scoreBayesien(a.note, a.nbVotes)
-    )
-    .slice(0, MAX_TOP);
 }
 
 interface Props {
@@ -160,7 +136,7 @@ export default async function TopPage({ params }: Props) {
     <>
       <EnTeteNouveautes
         titre={titre}
-        intro={`${description}${anneeEnCours ? " Classement de l'année en cours, mis à jour chaque jour." : ""}`}
+        intro={`${description} Classement établi d'après la note des spectateurs sur TMDB, pondérée par le nombre de votes.${anneeEnCours ? " Classement de l'année en cours, mis à jour chaque jour." : ""}`}
       />
       <div className="sa-container py-4 space-y-10">
         <script

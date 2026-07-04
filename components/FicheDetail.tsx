@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Serie, Film } from "@/types";
-import { formatDuree } from "@/lib/utils";
+import { formatDuree, formatDateFR } from "@/lib/utils";
 import { slugPourGenreId } from "@/lib/genres";
 import ConvaincsMoi from "@/components/ConvaincsMoi";
 import BoutonMaListe from "@/components/BoutonMaListe";
@@ -14,6 +14,27 @@ export default function FicheDetail({ contenu }: FicheDetailProps) {
   const isSerie = contenu.type === "serie";
   const serie = isSerie ? (contenu as Serie) : null;
   const film = !isSerie ? (contenu as Film) : null;
+
+  // Phrase-réponse explicite (« où regarder X ? ») — c'est elle que les
+  // moteurs et assistants IA citent, pas les badges.
+  const plateformesFR =
+    contenu.dispo && contenu.dispo.length > 0
+      ? contenu.dispo.length === 1
+        ? contenu.dispo[0]
+        : `${contenu.dispo.slice(0, -1).join(", ")} et ${contenu.dispo.at(-1)}`
+      : null;
+  const sortie = isSerie
+    ? contenu.annee
+      ? `série diffusée depuis ${contenu.annee}`
+      : "série"
+    : contenu.dateSortie
+      ? `film sorti le ${formatDateFR(contenu.dateSortie)}`
+      : contenu.annee
+        ? `film sorti en ${contenu.annee}`
+        : "film";
+  const phraseDispo = plateformesFR
+    ? `« ${contenu.titre} », ${sortie}, est disponible en streaming sur ${plateformesFR} en France.`
+    : `« ${contenu.titre} », ${sortie}, n'est actuellement disponible sur aucune plateforme de streaming par abonnement en France.`;
 
   return (
     <article>
@@ -101,6 +122,13 @@ export default function FicheDetail({ contenu }: FicheDetailProps) {
             Toutes les options →
           </a>
         </div>
+
+        <p
+          className="text-[15px] leading-relaxed text-[#9A9282]"
+          style={{ fontFamily: "var(--font-newsreader), serif" }}
+        >
+          {phraseDispo}
+        </p>
 
         {/* Genres — cliquables quand une page genre existe */}
         {contenu.genres.length > 0 && (

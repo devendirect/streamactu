@@ -474,6 +474,7 @@ export const getDetailSerie = unstable_cache(
       note: Math.round(detail.vote_average * 10) / 10,
       nbVotes: detail.vote_count,
       annee: detail.first_air_date ? new Date(detail.first_air_date).getFullYear() : 0,
+      dateSortie: detail.first_air_date || undefined,
       genres,
       synopsis: detail.overview,
       nbSaisons: detail.number_of_seasons,
@@ -521,10 +522,14 @@ export const getDetailFilm = unstable_cache(
       note: Math.round(detail.vote_average * 10) / 10,
       nbVotes: detail.vote_count,
       annee: detail.release_date ? new Date(detail.release_date).getFullYear() : 0,
+      dateSortie: detail.release_date || undefined,
       genres,
       synopsis: detail.overview,
       duree: detail.runtime,
       casting,
+      realisateurs: (credits.crew ?? [])
+        .filter((c) => c.job === "Director")
+        .map((c) => c.name),
       trailer,
       dispo,
     };
@@ -672,6 +677,37 @@ export const getTopAnnee = unstable_cache(
   ["top-annee"],
   { revalidate: 86400 }
 );
+
+/**
+ * Top du mois : agrège les nouveautés du mois toutes plateformes, note
+ * pondérée. Réutilise les caches de getNouveautesMois — aucun appel TMDB
+ * supplémentaire. Utilisé par la page top et llms-full.txt.
+ */
+export async function getTopMois(
+  type: "serie" | "film",
+  mois: number,
+  annee: number,
+  max = 20
+): Promise<Contenu[]> {
+  const plateformes = await getNouveautesMois(mois, annee);
+  const vus = new Set<number>();
+  const contenus: Contenu[] = [];
+
+  for (const pf of plateformes) {
+    for (const c of type === "serie" ? pf.series : pf.films) {
+      if (vus.has(c.id)) continue;
+      vus.add(c.id);
+      contenus.push(c);
+    }
+  }
+
+  return contenus
+    .sort(
+      (a, b) =>
+        scoreBayesien(b.note, b.nbVotes) - scoreBayesien(a.note, a.nbVotes)
+    )
+    .slice(0, max);
+}
 
 // ──────────────────────────────────────────────
 // Contenus par genre (cache 24h) — pages /genre/[slug]
