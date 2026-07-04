@@ -68,8 +68,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       try {
         const nouveautes = await getNouveautesJour(iso);
         vide = nouveautes.length === 0;
-      } catch {
+      } catch (err) {
         // au doute, on laisse indexable
+        console.error(`[metadata] comptage du jour ${iso} indisponible :`, err instanceof Error ? err.message : err);
       }
     }
 

@@ -17,7 +17,10 @@ export default async function RecherchePage({ searchParams }: Props) {
 
   const [resultatsInitiaux, tendances] = await Promise.all([
     query ? rechercherContenu(query) : Promise.resolve([]),
-    getTendancesSemaine().catch(() => []),
+    getTendancesSemaine().catch((err) => {
+      console.error("[recherche] tendances indisponibles :", err instanceof Error ? err.message : err);
+      return [];
+    }),
   ]);
 
   return (

@@ -66,7 +66,8 @@ export async function POST(request: Request) {
         for (const fiche of fiches) {
           if (fiche) controller.enqueue(send({ type: "match", data: fiche }));
         }
-      } catch {
+      } catch (err) {
+        console.error("[retrouver] échec du pipeline :", err instanceof Error ? err.message : err);
         controller.enqueue(
           send({ type: "error", message: "Une erreur est survenue. Réessayez dans un instant." })
         );

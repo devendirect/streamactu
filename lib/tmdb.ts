@@ -46,6 +46,8 @@ function buildUrl(
   return url.toString();
 }
 
+const MAX_TENTATIVES = 2;
+
 async function tmdbGet<T>(
   path: string,
   params: Record<string, string | number | boolean> = {},
@@ -63,15 +65,38 @@ async function tmdbGet<T>(
     url.searchParams.set("api_key", process.env.TMDB_API_KEY!);
   }
 
-  const res = await fetch(url.toString(), {
-    headers,
-    next: { revalidate: ttl },
-    signal: AbortSignal.timeout(10000),
-  });
-  if (!res.ok) {
-    throw new Error(`TMDB ${res.status} sur ${path}`);
+  // Une relance sur erreur transitoire (429, 5xx, réseau/timeout) : protège
+  // le build et les régénérations ISR d'un raté ponctuel de TMDB.
+  for (let tentative = 1; tentative <= MAX_TENTATIVES; tentative++) {
+    let res: Response;
+    try {
+      res = await fetch(url.toString(), {
+        headers,
+        next: { revalidate: ttl },
+        signal: AbortSignal.timeout(10000),
+      });
+    } catch (err) {
+      if (tentative === MAX_TENTATIVES) throw err;
+      console.error(
+        `[tmdb] échec réseau sur ${path} (tentative ${tentative}) :`,
+        err instanceof Error ? err.message : err
+      );
+      await new Promise((r) => setTimeout(r, 400 * tentative));
+      continue;
+    }
+
+    if (res.ok) return res.json() as Promise<T>;
+
+    const transitoire = res.status === 429 || res.status >= 500;
+    if (!transitoire || tentative === MAX_TENTATIVES) {
+      throw new Error(`TMDB ${res.status} sur ${path}`);
+    }
+    console.error(`[tmdb] ${res.status} sur ${path} (tentative ${tentative}), relance…`);
+    await new Promise((r) => setTimeout(r, 400 * tentative));
   }
-  return res.json() as Promise<T>;
+
+  // Jamais atteint (la boucle lance ou retourne), mais TypeScript l'exige
+  throw new Error(`TMDB inaccessible sur ${path}`);
 }
 
 // ──────────────────────────────────────────────
@@ -369,7 +394,8 @@ export async function getProvidersFR(
   try {
     const providers = await tmdbGet<TMDBProviders>(`/${media}/${id}/watch/providers`);
     return providers.results?.FR?.flatrate?.map((p) => p.provider_name) ?? [];
-  } catch {
+  } catch (err) {
+    console.error(`[tmdb] providers indisponibles pour ${media}/${id} :`, err instanceof Error ? err.message : err);
     return [];
   }
 }

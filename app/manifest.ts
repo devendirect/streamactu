@@ -9,7 +9,7 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     display: "standalone",
     background_color: "#100E0A",
-    theme_color: "#100E0A",
+    theme_color: "#16140F", // aligné sur le fond des pages et le viewport
     icons: [
       {
         src: "/icons/repere-pwa-192.png",

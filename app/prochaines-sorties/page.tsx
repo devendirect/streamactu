@@ -18,8 +18,9 @@ export async function generateMetadata(): Promise<Metadata> {
   try {
     const donnees = await getSortiesAVenir();
     vide = agregerSortiesParJour(donnees).length === 0;
-  } catch {
+  } catch (err) {
     // au doute, on laisse indexable
+    console.error("[metadata] sorties à venir indisponibles :", err instanceof Error ? err.message : err);
   }
 
   return {

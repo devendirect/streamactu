@@ -109,8 +109,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let aVenir: NouveautesParPlateforme[] = [];
   try {
     aVenir = await getSortiesAVenir();
-  } catch {
-    // fail-open
+  } catch (err) {
+    console.error("[sitemap] sorties à venir indisponibles (fail-open) :", err instanceof Error ? err.message : err);
   }
 
   for (const pf of PLATEFORMES) {
@@ -184,8 +184,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         }
       }
     }
-  } catch {
+  } catch (err) {
     // TMDB indisponible — on n'ajoute pas les fiches cette fois-ci.
+    console.error("[sitemap] fiches récentes indisponibles :", err instanceof Error ? err.message : err);
   }
 
   return entries;

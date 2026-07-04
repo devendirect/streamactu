@@ -61,8 +61,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     try {
       const donnees = await getSortiesAVenir();
       vide = agregerSortiesParJour(donnees, pf.id).length === 0;
-    } catch {
+    } catch (err) {
       // au doute, on laisse indexable
+      console.error(`[metadata] sorties à venir ${pf.slug} indisponibles :`, err instanceof Error ? err.message : err);
     }
 
     return {

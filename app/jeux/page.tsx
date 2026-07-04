@@ -61,8 +61,9 @@ export default async function JeuxPage() {
   try {
     contenuTitre =
       base.type === "film" ? await getDetailFilm(base.id) : await getDetailSerie(base.id);
-  } catch {
+  } catch (err) {
     // indices casting/plateforme dégradés si TMDB échoue — le jeu reste jouable
+    console.error("[jeux] détail du titre du jour indisponible :", err instanceof Error ? err.message : err);
   }
 
   return (

@@ -86,6 +86,7 @@ export async function retrouverIA(description: string): Promise<RetrouveurIAResu
   try {
     return JSON.parse(raw) as RetrouveurIAResult;
   } catch {
+    console.error("[retrouver] réponse IA non-JSON :", raw.slice(0, 200));
     return {
       criteres: [["Erreur", "Analyse impossible"]],
       raisonnement: "Je n'ai pas réussi à analyser cette description. Essayez de reformuler.",
@@ -129,7 +130,8 @@ export function convaincseMoiStream(
         }
 
         if (accumulated) onComplete?.(accumulated);
-      } catch {
+      } catch (err) {
+        console.error("[convaincs-moi] échec du stream Anthropic :", err instanceof Error ? err.message : err);
         controller.enqueue(
           encoder.encode("Mon enthousiasme bug une seconde — réessayez dans un instant.")
         );

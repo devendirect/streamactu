@@ -1,10 +1,3 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
 // ──────────────────────────────────────────────
 // Slugs
 // ──────────────────────────────────────────────
@@ -183,13 +176,6 @@ export function formatSemaineFR(semaine: number, annee: number): string {
 // ──────────────────────────────────────────────
 // Affichage
 // ──────────────────────────────────────────────
-
-/** Couleur Tailwind selon la note TMDB */
-export function getNoteColor(note: number): string {
-  if (note >= 7) return "text-green-500";
-  if (note >= 5) return "text-amber-500";
-  return "text-red-500";
-}
 
 /** "stranger-things-66732" → 66732 | null */
 export function idDepuisSlug(slug: string): number | null {
