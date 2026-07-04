@@ -101,6 +101,12 @@ export default function Footer() {
             >
               Mentions légales
             </Link>
+            <a
+              href="/flux.xml"
+              className="font-mono-label text-ink-3 hover:text-foreground transition-colors"
+            >
+              Flux RSS
+            </a>
           </div>
 
           {/* Attribution TMDB obligatoire */}

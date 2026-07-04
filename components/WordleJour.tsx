@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import type { Contenu } from "@/types";
-import { normaliser } from "@/lib/utils";
+import { formatDateFR, normaliser } from "@/lib/utils";
+import PartagerResultat from "@/components/PartagerResultat";
 
 interface WordleJourProps {
   contenu: Contenu & { casting?: { nom: string }[] };
@@ -146,15 +147,28 @@ export default function WordleJour({ contenu, dateISO }: WordleJourProps) {
 
       {/* Fin de partie */}
       {etat.etat !== "en-cours" ? (
-        <div
-          className="p-4 border text-sm font-mono"
-          style={{
-            borderColor: etat.etat === "gagne" ? "#E3A53A" : "rgba(194,98,78,0.5)",
-            color: etat.etat === "gagne" ? "#E3A53A" : "#C2624E",
-          }}
-        >
-          {feedback}
-        </div>
+        <>
+          <div
+            className="p-4 border text-sm font-mono"
+            style={{
+              borderColor: etat.etat === "gagne" ? "#E3A53A" : "rgba(194,98,78,0.5)",
+              color: etat.etat === "gagne" ? "#E3A53A" : "#C2624E",
+            }}
+          >
+            {/* feedback vide après rechargement de la page → texte reconstruit */}
+            {feedback ||
+              (etat.etat === "gagne" ? "🎉 Bravo !" : `La réponse était : ${contenu.titre}`)}
+          </div>
+          <PartagerResultat
+            texte={[
+              `Le titre du jour · ${formatDateFR(dateISO)} — StreamActu.fr`,
+              `${etat.resultats.map((ok) => (ok ? "🟨" : "⬛")).join("")} ${
+                etat.etat === "gagne" ? `${etat.essais.length}/${MAX_ESSAIS}` : `✗/${MAX_ESSAIS}`
+              }`,
+              "streamactu.fr/jeux",
+            ].join("\n")}
+          />
+        </>
       ) : (
         /* Input */
         <div className="space-y-3">

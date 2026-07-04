@@ -77,6 +77,11 @@ export const metadata: Metadata = {
   },
   // Pas de canonical ici : il serait hérité par toutes les pages qui ne le
   // redéfinissent pas, les faisant passer pour des doublons de l'accueil.
+  // (les pages qui définissent leur propre `alternates` perdent le lien RSS :
+  // sans conséquence, sa découverte se fait via l'accueil et le footer)
+  alternates: {
+    types: { "application/rss+xml": "/flux.xml" },
+  },
   icons: {
     apple: "/icons/repere-apple-touch-180.png",
   },

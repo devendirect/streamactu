@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import type { Contenu } from "@/types";
-import { normaliser } from "@/lib/utils";
+import { formatDateFR, normaliser } from "@/lib/utils";
+import PartagerResultat from "@/components/PartagerResultat";
 
 interface PochetteMystereProps {
   contenu: Contenu;
@@ -117,15 +118,32 @@ export default function PochetteMystere({ contenu, dateISO }: PochetteMysterePro
 
       {/* État fin de partie */}
       {partie.etat !== "en-cours" ? (
-        <div
-          className="p-4 border font-mono text-sm text-center"
-          style={{
-            borderColor: partie.etat === "gagne" ? "#E3A53A" : "rgba(194,98,78,0.5)",
-            color: partie.etat === "gagne" ? "#E3A53A" : "#C2624E",
-          }}
-        >
-          {feedback}
-        </div>
+        <>
+          <div
+            className="p-4 border font-mono text-sm text-center"
+            style={{
+              borderColor: partie.etat === "gagne" ? "#E3A53A" : "rgba(194,98,78,0.5)",
+              color: partie.etat === "gagne" ? "#E3A53A" : "#C2624E",
+            }}
+          >
+            {/* feedback vide après rechargement de la page → texte reconstruit */}
+            {feedback ||
+              (partie.etat === "gagne"
+                ? "🎉 Bravo, pochette trouvée !"
+                : `C'était : ${contenu.titre}`)}
+          </div>
+          <PartagerResultat
+            texte={[
+              `Pochette mystère · ${formatDateFR(dateISO)} — StreamActu.fr`,
+              `${Array.from({ length: partie.nbEssais }, (_, i) =>
+                partie.etat === "gagne" && i === partie.nbEssais - 1 ? "🟨" : "⬛"
+              ).join("")} ${
+                partie.etat === "gagne" ? `${partie.nbEssais}/${MAX_ESSAIS}` : `✗/${MAX_ESSAIS}`
+              }`,
+              "streamactu.fr/jeux",
+            ].join("\n")}
+          />
+        </>
       ) : (
         <div className="space-y-3">
           <div className="flex gap-2">
