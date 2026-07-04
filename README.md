@@ -41,16 +41,19 @@
 Chaque plateforme, chaque jour — séries et films triés par popularité, avec note, genres et casting. Navigation par jour, semaine ou mois.
 
 ### ✦ Convaincs-moi
-Sur chaque fiche, un ami cinéphile IA te pitch le contenu en 3-4 phrases pour te convaincre de le regarder ce soir.
+Sur chaque fiche, un ami cinéphile IA vous pitche le contenu en 3-4 phrases pour vous convaincre de le regarder ce soir.
 
 ### ✦ Retrouveur
-Tu te souviens vaguement d'un film — une ambiance, un acteur, une scène — mais plus du titre ? Décris-le, l'IA le retrouve et l'enrichit via TMDB.
+Vous vous souvenez vaguement d'un film — une ambiance, un acteur, une scène — mais plus du titre ? Décrivez-le, l'IA le retrouve et l'enrichit via TMDB.
 
 ### À la surprise
 Un contenu aléatoire disponible en streaming FR, pour les indécis.
 
 ### Jeux quotidiens
-Deux jeux renouvelés chaque jour : deviner le titre du jour ou reconnaître une pochette floutée.
+Deux jeux renouvelés chaque jour : deviner le titre du jour ou reconnaître une pochette floutée — avec partage du résultat façon grille d'emojis.
+
+### Et aussi
+Pages par plateforme et par genre, calendrier des prochaines sorties, tops mensuels et annuels, « Ma liste » sans compte (localStorage), flux RSS.
 
 ---
 

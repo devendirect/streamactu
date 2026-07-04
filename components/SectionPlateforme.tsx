@@ -1,8 +1,8 @@
-import Link from "next/link";
 import type { NouveautesParPlateforme, ModeAffichage } from "@/types";
 import CarteContenu from "@/components/CarteContenu";
 import CarteContenuPoster from "@/components/CarteContenuPoster";
 import SkeletonCarte from "@/components/SkeletonCarte";
+import EnTeteSection from "@/components/EnTeteSection";
 
 interface Props {
   data: NouveautesParPlateforme;
@@ -23,40 +23,18 @@ export default function SectionPlateforme({
   const total = contenus.length;
   if (total === 0) return null;
 
-  // En-tête identique pour les 3 modes
-  const header = (
-    <div className="flex items-end justify-between mb-1">
-      <h2
-        id={`pf-${plateforme.slug}`}
-        className="text-[28px] font-extrabold tracking-[-0.025em] leading-none"
-        style={{ color: plateforme.couleur }}
-      >
-        {lienTitre ? (
-          <Link
-            href={`/${plateforme.slug}`}
-            className="hover:underline underline-offset-4"
-            title={`Toutes les nouveautés ${plateforme.nom}`}
-          >
-            {plateforme.nom}
-          </Link>
-        ) : (
-          plateforme.nom
-        )}
-      </h2>
-      <span className="font-mono-label text-ink-3">
-        {total} sortie{total > 1 ? "s" : ""}
-      </span>
-    </div>
-  );
-
-  const bar = (
-    <div className="sa-platform-bar mb-3" style={{ background: plateforme.couleur }} />
-  );
-
   return (
     <section aria-labelledby={`pf-${plateforme.slug}`}>
-      {header}
-      {bar}
+      <EnTeteSection
+        id={`pf-${plateforme.slug}`}
+        titre={plateforme.nom}
+        compte={total}
+        compteLabel="sortie"
+        couleur={plateforme.couleur}
+        grand
+        lienHref={lienTitre ? `/${plateforme.slug}` : undefined}
+        lienTitle={`Toutes les nouveautés ${plateforme.nom}`}
+      />
 
       {/* ─── LISTE ─── */}
       {mode === "liste" && (

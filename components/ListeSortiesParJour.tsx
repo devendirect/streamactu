@@ -1,5 +1,6 @@
 import type { Contenu, NouveautesParPlateforme } from "@/types";
 import CarteContenu from "@/components/CarteContenu";
+import EnTeteSection from "@/components/EnTeteSection";
 import { formatJourSemaineFR } from "@/lib/utils";
 
 export interface SortiesJour {
@@ -57,18 +58,12 @@ export default function ListeSortiesParJour({ jours }: Props) {
     <div className="space-y-10">
       {jours.map(({ dateISO, contenus }) => (
         <section key={dateISO} aria-labelledby={`jour-${dateISO}`}>
-          <div className="flex items-end justify-between mb-1">
-            <h2
-              id={`jour-${dateISO}`}
-              className="text-[24px] font-extrabold tracking-[-0.025em] leading-none"
-            >
-              {formatJourSemaineFR(dateISO)}
-            </h2>
-            <span className="font-mono-label text-ink-3">
-              {contenus.length} sortie{contenus.length > 1 ? "s" : ""}
-            </span>
-          </div>
-          <div className="sa-platform-bar mb-3 bg-primary/50" />
+          <EnTeteSection
+            id={`jour-${dateISO}`}
+            titre={formatJourSemaineFR(dateISO)}
+            compte={contenus.length}
+            compteLabel="sortie"
+          />
           {contenus.map((c) => (
             <CarteContenu key={`${c.type}-${c.id}`} contenu={c} />
           ))}
