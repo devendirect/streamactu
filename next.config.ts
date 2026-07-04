@@ -38,6 +38,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' https://image.tmdb.org data:",
               "frame-src https://www.youtube-nocookie.com",
               "connect-src 'self'",
+              "frame-ancestors 'none'",
             ].join("; "),
           },
         ],

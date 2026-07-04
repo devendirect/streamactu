@@ -12,26 +12,17 @@ export default function ConvaincsMoi({ contenu }: Props) {
   const [loading, setLoading] = useState(false);
   const [pitchVisible, setPitchVisible] = useState(false);
 
-  const isSerie = contenu.type === "serie";
-
   async function lancerConvaincs() {
     setLoading(true);
     setPitch("");
     setPitchVisible(false);
 
     try {
+      // Le serveur reconstruit lui-même les données du pitch depuis TMDB
       const res = await fetch("/api/convaincs-moi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          slug: contenu.slug,
-          titre: contenu.titre,
-          type: isSerie ? "Série" : "Film",
-          genres: contenu.genres.map((g) => g.nom).join(", "),
-          note: contenu.note.toFixed(1),
-          casting: contenu.casting.slice(0, 3).map((p) => p.nom).join(", "),
-          synopsis: contenu.synopsis,
-        }),
+        body: JSON.stringify({ slug: contenu.slug, type: contenu.type }),
       });
 
       if (!res.ok || !res.body) throw new Error("Erreur API");
