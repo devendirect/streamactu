@@ -46,7 +46,31 @@ function buildUrl(
   return url.toString();
 }
 
-const MAX_TENTATIVES = 2;
+// ── Limiteur de concurrence global ────────────
+// Le build Next parallélise fortement (workers × Promise.all de 14 requêtes) :
+// sans garde-fou, des dizaines de connexions simultanées partent vers TMDB,
+// qui répond 429 en rafale. On sérialise à N requêtes simultanées par
+// processus (le build utilise plusieurs workers — les retries font le reste).
+const MAX_CONCURRENCE = 4;
+let requetesEnCours = 0;
+const fileAttente: (() => void)[] = [];
+
+async function acquerirSlot(): Promise<void> {
+  if (requetesEnCours < MAX_CONCURRENCE) {
+    requetesEnCours++;
+    return;
+  }
+  await new Promise<void>((resolve) => fileAttente.push(resolve));
+  // le slot est transmis directement par libererSlot, sans repasser par le compteur
+}
+
+function libererSlot(): void {
+  const suivant = fileAttente.shift();
+  if (suivant) suivant();
+  else requetesEnCours--;
+}
+
+const MAX_TENTATIVES = 4;
 
 async function tmdbGet<T>(
   path: string,
@@ -65,10 +89,12 @@ async function tmdbGet<T>(
     url.searchParams.set("api_key", process.env.TMDB_API_KEY!);
   }
 
-  // Une relance sur erreur transitoire (429, 5xx, réseau/timeout) : protège
-  // le build et les régénérations ISR d'un raté ponctuel de TMDB.
+  // Relances sur erreur transitoire (429, 5xx, réseau/timeout) : backoff
+  // exponentiel avec jitter pour désynchroniser les vagues du build, et
+  // respect du Retry-After envoyé par TMDB sur les 429.
   for (let tentative = 1; tentative <= MAX_TENTATIVES; tentative++) {
     let res: Response;
+    await acquerirSlot();
     try {
       res = await fetch(url.toString(), {
         headers,
@@ -81,8 +107,10 @@ async function tmdbGet<T>(
         `[tmdb] échec réseau sur ${path} (tentative ${tentative}) :`,
         err instanceof Error ? err.message : err
       );
-      await new Promise((r) => setTimeout(r, 400 * tentative));
+      await attendre(delaiBackoff(tentative));
       continue;
+    } finally {
+      libererSlot();
     }
 
     if (res.ok) return res.json() as Promise<T>;
@@ -91,12 +119,29 @@ async function tmdbGet<T>(
     if (!transitoire || tentative === MAX_TENTATIVES) {
       throw new Error(`TMDB ${res.status} sur ${path}`);
     }
-    console.error(`[tmdb] ${res.status} sur ${path} (tentative ${tentative}), relance…`);
-    await new Promise((r) => setTimeout(r, 400 * tentative));
+
+    const retryAfter = Number(res.headers.get("retry-after"));
+    const delai =
+      res.status === 429 && retryAfter > 0
+        ? retryAfter * 1000 + Math.random() * 500
+        : delaiBackoff(tentative);
+    console.error(
+      `[tmdb] ${res.status} sur ${path} (tentative ${tentative}/${MAX_TENTATIVES}), relance dans ${Math.round(delai)}ms`
+    );
+    await attendre(delai);
   }
 
   // Jamais atteint (la boucle lance ou retourne), mais TypeScript l'exige
   throw new Error(`TMDB inaccessible sur ${path}`);
+}
+
+/** Backoff exponentiel avec jitter : ~600ms, ~1,2s, ~2,4s */
+function delaiBackoff(tentative: number): number {
+  return 300 * 2 ** tentative + Math.random() * 400;
+}
+
+function attendre(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
 }
 
 // ──────────────────────────────────────────────
