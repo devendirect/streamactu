@@ -37,7 +37,7 @@ function buildDataPrompt(p: ConvaincsParams): string {
 // Retrouver — analyse sémantique de la description
 // ──────────────────────────────────────────────
 
-const RETROUVER_SYSTEM = `Tu es un expert en cinéma et séries TV, très cultivé, et tu réponds UNIQUEMENT en JSON valide — aucun texte avant ni après.
+const RETROUVER_SYSTEM = `Tu es un expert en cinéma et séries TV, très cultivé, et tu réponds UNIQUEMENT en JSON valide — aucun texte avant ni après, pas de bloc de code Markdown (pas de \`\`\`).
 
 Quand l'utilisateur décrit un film ou une série dont il se souvient vaguement, tu dois répondre avec cet objet JSON exact :
 {
@@ -75,7 +75,7 @@ export async function retrouverIA(description: string): Promise<RetrouveurIAResu
   const response = await client.messages.create(
     {
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 1024,
+      max_tokens: 2048, // 1024 tronquait les réponses à 5 suggestions
       system: RETROUVER_SYSTEM,
       messages: [{ role: "user", content: description }],
     },
@@ -83,10 +83,20 @@ export async function retrouverIA(description: string): Promise<RetrouveurIAResu
   );
 
   const raw = response.content[0].type === "text" ? response.content[0].text.trim() : "{}";
+
+  // Claude enveloppe régulièrement le JSON dans des clôtures Markdown malgré
+  // la consigne : on isole ce qui se trouve entre la première et la dernière accolade
+  const debut = raw.indexOf("{");
+  const fin = raw.lastIndexOf("}");
+  const json = debut !== -1 && fin > debut ? raw.slice(debut, fin + 1) : raw;
+
   try {
-    return JSON.parse(raw) as RetrouveurIAResult;
+    return JSON.parse(json) as RetrouveurIAResult;
   } catch {
-    console.error("[retrouver] réponse IA non-JSON :", raw.slice(0, 200));
+    console.error(
+      `[retrouver] réponse IA non-JSON (stop_reason: ${response.stop_reason}) :`,
+      raw.slice(0, 200)
+    );
     return {
       criteres: [["Erreur", "Analyse impossible"]],
       raisonnement: "Je n'ai pas réussi à analyser cette description. Essayez de reformuler.",
