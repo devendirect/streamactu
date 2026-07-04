@@ -39,7 +39,6 @@ function buildUrl(
   params: Record<string, string | number | boolean> = {}
 ): string {
   const url = new URL(`${BASE}${path}`);
-  url.searchParams.set("api_key", process.env.TMDB_API_KEY!);
   url.searchParams.set("language", "fr-FR");
   for (const [k, v] of Object.entries(params)) {
     url.searchParams.set(k, String(v));
@@ -52,7 +51,20 @@ async function tmdbGet<T>(
   params: Record<string, string | number | boolean> = {},
   ttl = 3600
 ): Promise<T> {
-  const res = await fetch(buildUrl(path, params), {
+  // Authentification par Bearer token (API Read Access Token) : la clé ne
+  // transite plus dans les URLs, donc plus dans les logs. Repli sur l'ancienne
+  // clé v3 en query string si le token n'est pas configuré.
+  const token = process.env.TMDB_API_TOKEN;
+  const headers: Record<string, string> = { Accept: "application/json" };
+  const url = new URL(buildUrl(path, params));
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  } else {
+    url.searchParams.set("api_key", process.env.TMDB_API_KEY!);
+  }
+
+  const res = await fetch(url.toString(), {
+    headers,
     next: { revalidate: ttl },
     signal: AbortSignal.timeout(10000),
   });
