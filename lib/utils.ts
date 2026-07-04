@@ -131,6 +131,20 @@ export function bornesSemaine(semaine: number, annee: number): { debut: string; 
 }
 
 /**
+ * Horizon de navigation dans le futur : les pages jour/semaine à venir montrent
+ * les diffusions programmées (épisodes des séries en cours) et sont en noindex.
+ * Au-delà, les calendriers TMDB ne sont plus fiables → 404.
+ */
+export const HORIZON_FUTUR_JOURS = 28;
+
+/** Date ISO du dernier jour navigable dans le futur */
+export function horizonFuturISO(depuis: Date = new Date()): string {
+  const d = new Date(depuis);
+  d.setUTCDate(d.getUTCDate() + HORIZON_FUTUR_JOURS);
+  return toISO(d);
+}
+
+/**
  * Semaine ISO décalée de `delta` semaines, calculée sur les dates réelles.
  * Gère correctement les années à 53 semaines (2026 en est une).
  */

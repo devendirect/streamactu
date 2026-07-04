@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   slugify,
   idDepuisSlug,
+  horizonFuturISO,
   formatDateFR,
   formatDateURL,
   parseDateURL,
@@ -101,6 +102,12 @@ describe("affichage", () => {
     expect(libelleComptes(1, 0)).toBe("1 série");
     expect(libelleComptes(0, 2)).toBe("2 films");
     expect(libelleComptes(0, 0)).toBe("");
+  });
+});
+
+describe("horizonFuturISO", () => {
+  it("borne le futur à 28 jours, débordement de mois compris", () => {
+    expect(horizonFuturISO(new Date(Date.UTC(2026, 6, 4)))).toBe("2026-08-01");
   });
 });
 

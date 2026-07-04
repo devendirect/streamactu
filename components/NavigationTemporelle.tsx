@@ -5,6 +5,7 @@ import type { ContexteTemporel } from "@/types";
 import {
   toISO,
   parseISO,
+  bornesSemaine,
   decalerSemaineISO,
   formatDateFR,
   formatDateURL,
@@ -14,6 +15,7 @@ import {
   formatMoisURL,
   formatMoisFR,
   getISOWeek,
+  horizonFuturISO,
 } from "@/lib/utils";
 
 const MOIS_COURTS = ["", "Jan.", "Fév.", "Mar.", "Avr.", "Mai", "Juin", "Juil.", "Août", "Sep.", "Oct.", "Nov.", "Déc."];
@@ -25,6 +27,7 @@ interface Props {
 export default function NavigationTemporelle({ contexte }: Props) {
   const now = new Date();
   const todayISO = toISO(now);
+  const horizonISO = horizonFuturISO(now);
   const { semaine: semaineAujourd, annee: anneeAujourdSem } = getISOWeek(now);
   const moisAujourd = now.getUTCMonth() + 1;
   const anneeAujourdMois = now.getUTCFullYear();
@@ -52,7 +55,8 @@ export default function NavigationTemporelle({ contexte }: Props) {
     nextHref = toISO(next) === todayISO ? "/" : `/${formatDateURL(next)}`;
     prevLabel = `← Hier`;
     nextLabel = `Demain →`;
-    canGoForward = contexte.dateISO < todayISO;
+    // Navigable dans le futur jusqu'à l'horizon (diffusions programmées)
+    canGoForward = contexte.dateISO < horizonISO;
     // Affiner avec les noms courts sauf pour hier/demain adjacents
     const diffPrev = (now.getTime() - prev.getTime()) / 86400000;
     const diffNext = (next.getTime() - now.getTime()) / 86400000;
@@ -68,9 +72,8 @@ export default function NavigationTemporelle({ contexte }: Props) {
     nextHref = `/${formatSemaineURL(next.semaine, next.annee)}`;
     prevLabel = "← Semaine préc.";
     nextLabel = "Semaine suiv. →";
-    canGoForward =
-      annee < anneeAujourdSem ||
-      (annee === anneeAujourdSem && semaine < semaineAujourd);
+    // Navigable tant que la semaine suivante commence dans l'horizon
+    canGoForward = bornesSemaine(next.semaine, next.annee).debut <= horizonISO;
   } else {
     const { mois, annee } = contexte;
     navLabel = formatMoisFR(mois, annee);

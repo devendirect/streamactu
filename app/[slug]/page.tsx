@@ -19,9 +19,11 @@ import {
   formatMoisURL,
   formatSemaineURL,
   formatSemaineFR,
+  horizonFuturISO,
   libelleComptes,
   toISO,
   bornesMois,
+  bornesSemaine,
   getISOWeek,
 } from "@/lib/utils";
 import AccueilClient from "@/components/AccueilClient";
@@ -57,14 +59,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const date = parseDateURL(slug);
   if (date) {
     const label = formatJourSemaineFR(date);
+    const iso = toISO(date);
+    const futur = iso > toISO(new Date());
     const title = `Nouveautés streaming — ${label}`;
-    const description = `Toutes les séries et films sortis le ${label} sur les plateformes de streaming.`;
+    const description = futur
+      ? `Les épisodes et sorties annoncés le ${label} sur les plateformes de streaming — programme susceptible de changer.`
+      : `Toutes les séries et films sortis le ${label} sur les plateformes de streaming.`;
 
     // Jour vide → noindex (la page reste servie aux visiteurs).
     // Même cache que le rendu de la page : aucun appel supplémentaire.
     let vide = false;
-    const iso = toISO(date);
-    if (iso <= toISO(new Date())) {
+    if (!futur) {
       try {
         const nouveautes = await getNouveautesJour(iso);
         vide = nouveautes.length === 0;
@@ -79,20 +84,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       openGraph: { title, description, images: OG_IMAGES },
       alternates: { canonical: `/${slug}` },
-      ...(vide ? { robots: { index: false } } : {}),
+      // Futur : contenu prévisionnel et changeant — jamais indexé
+      ...(vide || futur ? { robots: { index: false } } : {}),
     };
   }
 
   const sem = parseSemaineURL(slug);
   if (sem) {
     const label = `Semaine du ${formatSemaineFR(sem.semaine, sem.annee)}`;
+    const futur = bornesSemaine(sem.semaine, sem.annee).debut > toISO(new Date());
     const title = `Nouveautés streaming — ${label}`;
-    const description = `Toutes les séries et films sortis pendant la ${label.toLowerCase()} sur les plateformes de streaming.`;
+    const description = futur
+      ? `Les épisodes et sorties annoncés pendant la ${label.toLowerCase()} sur les plateformes de streaming — programme susceptible de changer.`
+      : `Toutes les séries et films sortis pendant la ${label.toLowerCase()} sur les plateformes de streaming.`;
     return {
       title,
       description,
       openGraph: { title, description, images: OG_IMAGES },
       alternates: { canonical: `/${slug}` },
+      ...(futur ? { robots: { index: false } } : {}),
     };
   }
 
@@ -225,7 +235,9 @@ export default async function SlugPage({ params }: Props) {
   const date = parseDateURL(slug);
   if (date) {
     const iso = toISO(date);
-    if (iso > aujourdhui) notFound();
+    // Le futur est navigable jusqu'à l'horizon (épisodes programmés), noindex
+    if (iso > horizonFuturISO()) notFound();
+    const futur = iso > aujourdhui;
 
     const nouveautes = await getNouveautesJour(iso);
     const label = formatJourSemaineFR(date);
@@ -233,7 +245,11 @@ export default async function SlugPage({ params }: Props) {
       <>
         <EnTeteNouveautes
           titre={`Nouveautés streaming — ${label}`}
-          intro={`Les séries et films sortis ce jour-là sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, Max et Paramount+.`}
+          intro={
+            futur
+              ? "Les épisodes et sorties annoncés ce jour-là sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, Max et Paramount+ — programme susceptible de changer."
+              : "Les séries et films sortis ce jour-là sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, Max et Paramount+."
+          }
         />
         <AccueilClient
           plateformes={nouveautes}
@@ -247,18 +263,21 @@ export default async function SlugPage({ params }: Props) {
   const semData = parseSemaineURL(slug);
   if (semData) {
     const { semaine, annee } = semData;
-    const { semaine: semAujourd, annee: anneeAujourd } = getISOWeek(new Date());
-    const estFutur =
-      annee > anneeAujourd ||
-      (annee === anneeAujourd && semaine > semAujourd);
-    if (estFutur) notFound();
+    const { debut } = bornesSemaine(semaine, annee);
+    // Semaines futures navigables tant qu'elles commencent dans l'horizon
+    if (debut > horizonFuturISO()) notFound();
+    const futur = debut > aujourdhui;
 
     const nouveautes = await getNouveautesSemaine(semaine, annee);
     return (
       <>
         <EnTeteNouveautes
           titre={`Nouveautés streaming — Semaine du ${formatSemaineFR(semaine, annee)}`}
-          intro="Les séries et films sortis cette semaine-là sur les sept grandes plateformes de streaming disponibles en France."
+          intro={
+            futur
+              ? "Les épisodes et sorties annoncés cette semaine-là sur les sept grandes plateformes — programme susceptible de changer."
+              : "Les séries et films sortis cette semaine-là sur les sept grandes plateformes de streaming disponibles en France."
+          }
         />
         <AccueilClient
           plateformes={nouveautes}
