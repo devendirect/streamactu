@@ -53,7 +53,7 @@ export default function MentionsLegalesPage() {
       <section className="space-y-4 border-t border-border pt-6" id="rgpd">
         <h2 className="font-mono-label text-[#9A9282]">Données personnelles (RGPD)</h2>
         <p className="text-[#C4BBA9] leading-relaxed" style={{ fontFamily: "var(--font-newsreader), serif", fontSize: "17px" }}>
-          Aucun cookie de traçage n&apos;est utilisé. Les données de jeu (Titre du jour, Pochette mystère) sont stockées uniquement dans le <em>localStorage</em> de votre navigateur et ne sont jamais transmises à nos serveurs. Les adresses IP sont traitées temporairement en mémoire pour limiter les abus techniques ; elles ne sont ni enregistrées sur disque, ni conservées au-delà de quelques minutes, ni transmises à des tiers.
+          Aucun cookie de traçage n&apos;est utilisé. Les données de jeu (Titre du jour, Pochette mystère) sont stockées uniquement dans le <em>localStorage</em> de votre navigateur et ne sont jamais transmises à nos serveurs. Les adresses IP sont traitées temporairement en mémoire pour limiter les abus techniques ; elles ne sont ni enregistrées sur disque, ni conservées au-delà de 24 heures, ni transmises à des tiers.
         </p>
       </section>
 
