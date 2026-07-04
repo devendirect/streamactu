@@ -18,7 +18,14 @@ import type {
   Genre,
 } from "@/types";
 import { PLATEFORMES } from "@/lib/plateformes";
-import { slugify, bornesMois, bornesSemaine } from "@/lib/utils";
+import {
+  slugify,
+  bornesMois,
+  bornesSemaine,
+  decalerSemaineISO,
+  getISOWeek,
+  scoreBayesien,
+} from "@/lib/utils";
 
 const BASE = "https://api.themoviedb.org/3";
 export const TMDB_IMG = "https://image.tmdb.org/t/p";
@@ -179,6 +186,38 @@ export const getNouveautesJour = unstable_cache(
 );
 
 // ──────────────────────────────────────────────
+// Compte des sorties d'un jour (cache 24h) — 2 appels légers, toutes
+// plateformes confondues. Sert au sitemap pour écarter les jours creux.
+// ──────────────────────────────────────────────
+
+const TOUS_PROVIDERS = PLATEFORMES.map((p) => p.id).join("|");
+
+export const getCompteJour = unstable_cache(
+  async (dateISO: string): Promise<number> => {
+    const base = {
+      with_watch_providers: TOUS_PROVIDERS,
+      watch_region: "FR",
+      "vote_count.gte": 5,
+    };
+    const [tv, film] = await Promise.all([
+      tmdbGet<ReponseTMDB<TMDBSerie>>("/discover/tv", {
+        ...base,
+        "air_date.gte": dateISO,
+        "air_date.lte": dateISO,
+      }, 86400),
+      tmdbGet<ReponseTMDB<TMDBFilm>>("/discover/movie", {
+        ...base,
+        "primary_release_date.gte": dateISO,
+        "primary_release_date.lte": dateISO,
+      }, 86400),
+    ]);
+    return tv.total_results + film.total_results;
+  },
+  ["compte-jour"],
+  { revalidate: 86400 }
+);
+
+// ──────────────────────────────────────────────
 // Nouveautés par mois (cache 24h)
 // ──────────────────────────────────────────────
 
@@ -266,15 +305,74 @@ export const getNouveautesSemaine = unstable_cache(
 );
 
 // ──────────────────────────────────────────────
+// Sorties récentes d'une plateforme (N dernières semaines, dédupliquées,
+// récent d'abord). Réutilise les caches semaine — aucun appel propre.
+// ──────────────────────────────────────────────
+
+export async function getSortiesRecentesPlateforme(
+  plateformeId: number,
+  nbSemaines = 4
+): Promise<{ series: Contenu[]; films: Contenu[] }> {
+  const { semaine, annee } = getISOWeek(new Date());
+  const semaines = Array.from({ length: nbSemaines }, (_, i) =>
+    decalerSemaineISO(semaine, annee, -i)
+  );
+  const donnees = await Promise.all(
+    semaines.map((s) => getNouveautesSemaine(s.semaine, s.annee))
+  );
+
+  const vus = new Set<number>();
+  const series: Contenu[] = [];
+  const films: Contenu[] = [];
+  for (const plateformes of donnees) {
+    const data = plateformes.find((p) => p.plateforme.id === plateformeId);
+    if (!data) continue;
+    for (const s of data.series) {
+      if (!vus.has(s.id)) { vus.add(s.id); series.push(s); }
+    }
+    for (const f of data.films) {
+      if (!vus.has(f.id)) { vus.add(f.id); films.push(f); }
+    }
+  }
+  return { series, films };
+}
+
+// ──────────────────────────────────────────────
+// Disponibilité streaming FR (watch providers)
+// ──────────────────────────────────────────────
+
+interface TMDBProviders {
+  results: {
+    FR?: {
+      flatrate?: { provider_id: number; provider_name: string }[];
+    };
+  };
+}
+
+/** Plateformes FR (abonnement) où un contenu est disponible. [] si aucune ou en cas d'erreur. */
+export async function getProvidersFR(
+  media: "movie" | "tv",
+  id: number
+): Promise<string[]> {
+  try {
+    const providers = await tmdbGet<TMDBProviders>(`/${media}/${id}/watch/providers`);
+    return providers.results?.FR?.flatrate?.map((p) => p.provider_name) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+// ──────────────────────────────────────────────
 // Détail série
 // ──────────────────────────────────────────────
 
 export const getDetailSerie = unstable_cache(
   async (id: number): Promise<Serie> => {
-    const [detail, credits, videos] = await Promise.all([
+    const [detail, credits, videos, dispo] = await Promise.all([
       tmdbGet<TMDBSerieDetail>(`/tv/${id}`),
       tmdbGet<TMDBCredits>(`/tv/${id}/credits`),
       tmdbGet<TMDBVideos>(`/tv/${id}/videos`),
+      getProvidersFR("tv", id),
     ]);
 
     const trailer = trouverTrailer(videos.results);
@@ -306,6 +404,7 @@ export const getDetailSerie = unstable_cache(
       })),
       casting,
       trailer,
+      dispo,
     };
   },
   ["detail-serie"],
@@ -318,10 +417,11 @@ export const getDetailSerie = unstable_cache(
 
 export const getDetailFilm = unstable_cache(
   async (id: number): Promise<Film> => {
-    const [detail, credits, videos] = await Promise.all([
+    const [detail, credits, videos, dispo] = await Promise.all([
       tmdbGet<TMDBFilmDetail>(`/movie/${id}`),
       tmdbGet<TMDBCredits>(`/movie/${id}/credits`),
       tmdbGet<TMDBVideos>(`/movie/${id}/videos`),
+      getProvidersFR("movie", id),
     ]);
 
     const trailer = trouverTrailer(videos.results);
@@ -343,6 +443,7 @@ export const getDetailFilm = unstable_cache(
       duree: detail.runtime,
       casting,
       trailer,
+      dispo,
     };
   },
   ["detail-film"],
@@ -388,6 +489,153 @@ export async function rechercherContenu(query: string): Promise<ResultatRecherch
       };
     });
 }
+
+// ──────────────────────────────────────────────
+// Sorties à venir (28 prochains jours, cache 6h)
+// Périmètre : nouvelles séries (first_air_date) et films (primary_release_date)
+// — les dates sont fiables, contrairement aux retours de saisons.
+// Pas de filtre sur les votes : les contenus futurs n'en ont pas encore.
+// ──────────────────────────────────────────────
+
+export const getSortiesAVenir = unstable_cache(
+  async (): Promise<NouveautesParPlateforme[]> => {
+    const now = new Date();
+    const demain = new Date(now);
+    demain.setUTCDate(now.getUTCDate() + 1);
+    const fin = new Date(now);
+    fin.setUTCDate(now.getUTCDate() + 28);
+    const debutISO = demain.toISOString().slice(0, 10);
+    const finISO = fin.toISOString().slice(0, 10);
+
+    const [genresTv, genresFilm] = await Promise.all([getGenresTv(), getGenresFilm()]);
+
+    return Promise.all(
+      PLATEFORMES.map(async (plateforme) => {
+        const base = {
+          with_watch_providers: plateforme.id,
+          watch_region: "FR",
+        };
+        const [tvData, filmData] = await Promise.all([
+          tmdbGet<ReponseTMDB<TMDBSerie>>("/discover/tv", {
+            ...base,
+            sort_by: "first_air_date.asc",
+            "first_air_date.gte": debutISO,
+            "first_air_date.lte": finISO,
+          }, 21600),
+          tmdbGet<ReponseTMDB<TMDBFilm>>("/discover/movie", {
+            ...base,
+            sort_by: "primary_release_date.asc",
+            "primary_release_date.gte": debutISO,
+            "primary_release_date.lte": finISO,
+          }, 21600),
+        ]);
+
+        return {
+          plateforme,
+          series: tvData.results.slice(0, 20).map((s) => ({
+            ...mapSerie(s, genresTv),
+            plateforme,
+            dateSortie: s.first_air_date || undefined,
+          })),
+          films: filmData.results.slice(0, 20).map((f) => ({
+            ...mapFilm(f, genresFilm),
+            plateforme,
+            dateSortie: f.release_date || undefined,
+          })),
+        };
+      })
+    );
+  },
+  ["sorties-a-venir"],
+  { revalidate: 21600 }
+);
+
+// ──────────────────────────────────────────────
+// Top annuel (cache 24h) — contenus les mieux notés de l'année,
+// disponibles en streaming FR (abonnement)
+// ──────────────────────────────────────────────
+
+export const getTopAnnee = unstable_cache(
+  async (type: "serie" | "film", annee: number): Promise<Contenu[]> => {
+    const [genresTv, genresFilm] = await Promise.all([getGenresTv(), getGenresFilm()]);
+    const base = {
+      sort_by: "vote_average.desc",
+      "vote_count.gte": 200,
+      watch_region: "FR",
+      with_watch_monetization_types: "flatrate",
+    };
+
+    // Re-tri bayésien des résultats reçus : le tri brut de TMDB fait passer
+    // un 8,6 à 210 votes devant un 8,4 à 50 000 (même logique que les tops mensuels)
+    const trier = (contenus: Contenu[]) =>
+      contenus
+        .sort((a, b) => scoreBayesien(b.note, b.nbVotes) - scoreBayesien(a.note, a.nbVotes))
+        .slice(0, 20);
+
+    if (type === "serie") {
+      const data = await tmdbGet<ReponseTMDB<TMDBSerie>>("/discover/tv", {
+        ...base,
+        first_air_date_year: annee,
+      }, 86400);
+      return trier(data.results.map((s) => mapSerie(s, genresTv)));
+    }
+
+    const data = await tmdbGet<ReponseTMDB<TMDBFilm>>("/discover/movie", {
+      ...base,
+      primary_release_year: annee,
+    }, 86400);
+    return trier(data.results.map((f) => mapFilm(f, genresFilm)));
+  },
+  ["top-annee"],
+  { revalidate: 86400 }
+);
+
+// ──────────────────────────────────────────────
+// Contenus par genre (cache 24h) — pages /genre/[slug]
+// Catalogue disponible en streaming FR, trié par popularité.
+// ──────────────────────────────────────────────
+
+export const getContenusGenre = unstable_cache(
+  async (
+    idsTv: number[],
+    idsFilm: number[],
+    plateformeId?: number
+  ): Promise<{ series: Contenu[]; films: Contenu[] }> => {
+    const [genresTv, genresFilm] = await Promise.all([getGenresTv(), getGenresFilm()]);
+
+    const provider: Record<string, string | number> = plateformeId
+      ? { with_watch_providers: plateformeId }
+      : { with_watch_monetization_types: "flatrate" };
+    const base = {
+      watch_region: "FR",
+      ...provider,
+      sort_by: "popularity.desc",
+      "vote_count.gte": 50,
+    };
+
+    const [tvData, filmData] = await Promise.all([
+      idsTv.length > 0
+        ? tmdbGet<ReponseTMDB<TMDBSerie>>("/discover/tv", {
+            ...base,
+            with_genres: idsTv.join("|"),
+          }, 86400)
+        : Promise.resolve({ results: [] as TMDBSerie[] }),
+      idsFilm.length > 0
+        ? tmdbGet<ReponseTMDB<TMDBFilm>>("/discover/movie", {
+            ...base,
+            with_genres: idsFilm.join("|"),
+          }, 86400)
+        : Promise.resolve({ results: [] as TMDBFilm[] }),
+    ]);
+
+    return {
+      series: tvData.results.slice(0, 20).map((s) => mapSerie(s, genresTv)),
+      films: filmData.results.slice(0, 20).map((f) => mapFilm(f, genresFilm)),
+    };
+  },
+  ["contenus-genre"],
+  { revalidate: 86400 }
+);
 
 // ──────────────────────────────────────────────
 // Tendances de la semaine (cache 24h) — chips de la page recherche
@@ -514,14 +762,6 @@ interface TMDBMultiResult {
   genre_ids: number[];
 }
 
-interface TMDBProviders {
-  results: {
-    FR?: {
-      flatrate?: { provider_id: number; provider_name: string }[];
-    };
-  };
-}
-
 export async function retrouverFiche(
   titre: string,
   typeHint: "film" | "serie",
@@ -544,16 +784,7 @@ export async function retrouverFiche(
   const genreMap = isFilm ? genresFilm : genresTv;
   const genres = (match.genre_ids ?? []).map((id) => genreMap[id]).filter(Boolean);
 
-  let dispo: string[] = [];
-  try {
-    const path = isFilm
-      ? `/movie/${match.id}/watch/providers`
-      : `/tv/${match.id}/watch/providers`;
-    const providers = await tmdbGet<TMDBProviders>(path);
-    dispo = providers.results?.FR?.flatrate?.map((p) => p.provider_name) ?? [];
-  } catch {
-    // pas bloquant si les providers échouent
-  }
+  const dispo = await getProvidersFR(isFilm ? "movie" : "tv", match.id);
 
   const titreFinal = isFilm ? (match.title ?? titre) : (match.name ?? titre);
 

@@ -1,4 +1,4 @@
-import type { Serie, Film } from "@/types";
+import type { Contenu, Serie, Film } from "@/types";
 
 const SITE_URL = process.env.SITE_URL ?? "https://streamactu.fr";
 
@@ -53,7 +53,31 @@ export function jsonLdFiche(contenu: Serie | Film): string {
     if (serie.nbSaisons) data.numberOfSeasons = serie.nbSaisons;
     if (serie.nbEpisodes) data.numberOfEpisodes = serie.nbEpisodes;
   }
+  if (contenu.dispo && contenu.dispo.length > 0) {
+    data.potentialAction = {
+      "@type": "WatchAction",
+      target: `https://www.themoviedb.org/${isSerie ? "tv" : "movie"}/${contenu.id}/watch?locale=FR`,
+    };
+  }
 
   // < : empêche un éventuel "</script>" dans un synopsis TMDB de casser la page
+  return JSON.stringify(data).replace(/</g, "\\u003c");
+}
+
+/** JSON-LD ItemList pour les pages de classement (tops) */
+export function jsonLdClassement(nom: string, url: string, contenus: Contenu[]): string {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: nom,
+    url: `${SITE_URL}${url}`,
+    numberOfItems: contenus.length,
+    itemListElement: contenus.map((c, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: c.titre,
+      url: `${SITE_URL}/${c.type}/${c.slug}`,
+    })),
+  };
   return JSON.stringify(data).replace(/</g, "\\u003c");
 }

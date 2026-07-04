@@ -1,6 +1,8 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { Serie, Film } from "@/types";
 import { formatDuree } from "@/lib/utils";
+import { slugPourGenreId } from "@/lib/genres";
 import ConvaincsMoi from "@/components/ConvaincsMoi";
 
 interface FicheDetailProps {
@@ -74,17 +76,53 @@ export default function FicheDetail({ contenu }: FicheDetailProps) {
           )}
         </div>
 
-        {/* Genres */}
+        {/* ── Où regarder ── */}
+        <div className="flex items-baseline gap-3 flex-wrap">
+          <span className="font-mono-label text-ink-4">
+            {contenu.dispo && contenu.dispo.length > 0 ? "Disponible sur" : "Hors abonnement streaming FR"}
+          </span>
+          {contenu.dispo?.slice(0, 4).map((nom) => (
+            <span
+              key={nom}
+              className="font-mono-label px-2 py-0.5"
+              style={{ background: "#C7BEAC", color: "#16140F", fontSize: "10px", letterSpacing: "0.1em" }}
+            >
+              {nom}
+            </span>
+          ))}
+          {/* Lien requis par TMDB pour les données de disponibilité (source JustWatch) */}
+          <a
+            href={`https://www.themoviedb.org/${isSerie ? "tv" : "movie"}/${contenu.id}/watch?locale=FR`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono-label text-ink-3 underline hover:text-foreground transition-colors"
+          >
+            Toutes les options →
+          </a>
+        </div>
+
+        {/* Genres — cliquables quand une page genre existe */}
         {contenu.genres.length > 0 && (
           <div className="flex gap-2 flex-wrap">
-            {contenu.genres.map((g) => (
-              <span
-                key={g.id}
-                className="font-mono-label text-[#B8AF9D] px-3 py-1 border border-border/50"
-              >
-                {g.nom}
-              </span>
-            ))}
+            {contenu.genres.map((g) => {
+              const slugGenre = slugPourGenreId(g.id);
+              return slugGenre ? (
+                <Link
+                  key={g.id}
+                  href={`/genre/${slugGenre}`}
+                  className="font-mono-label text-[#B8AF9D] px-3 py-1 border border-border/50 hover:border-primary hover:text-primary transition-colors"
+                >
+                  {g.nom}
+                </Link>
+              ) : (
+                <span
+                  key={g.id}
+                  className="font-mono-label text-[#B8AF9D] px-3 py-1 border border-border/50"
+                >
+                  {g.nom}
+                </span>
+              );
+            })}
           </div>
         )}
 
@@ -129,6 +167,32 @@ export default function FicheDetail({ contenu }: FicheDetailProps) {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Saisons ── */}
+        {serie && serie.saisons.filter((s) => s.numero > 0).length > 0 && (
+          <div>
+            <div className="font-mono-label text-ink-3 mb-3">Saisons</div>
+            <div>
+              {serie.saisons
+                .filter((s) => s.numero > 0)
+                .map((s) => (
+                  <div
+                    key={s.numero}
+                    className="flex items-baseline justify-between gap-4 py-2.5 border-t border-border/50"
+                  >
+                    <span className="text-sm font-semibold truncate">{s.nom}</span>
+                    <span className="font-mono text-sm text-[#9A9282] whitespace-nowrap shrink-0">
+                      {s.nbEpisodes > 0
+                        ? `${s.nbEpisodes} épisode${s.nbEpisodes > 1 ? "s" : ""}`
+                        : "épisodes à venir"}
+                      {" · "}
+                      {s.dateDiffusion ? s.dateDiffusion.slice(0, 4) : "à venir"}
+                    </span>
+                  </div>
+                ))}
             </div>
           </div>
         )}

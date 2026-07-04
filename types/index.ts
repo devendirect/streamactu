@@ -57,6 +57,8 @@ export interface Contenu {
   plateforme?: Plateforme;
   saisonActuelle?: number;
   premiereDiffusion?: string; // first_air_date YYYY-MM-DD — pour détecter les nouvelles séries
+  dispo?: string[]; // plateformes FR (flatrate TMDB) — renseigné sur les fiches détail
+  dateSortie?: string; // YYYY-MM-DD — renseigné sur les sorties à venir (groupement par jour)
 }
 
 /** Fiche complète d'une série */

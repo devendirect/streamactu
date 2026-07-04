@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { NouveautesParPlateforme, ModeAffichage } from "@/types";
 import CarteContenu from "@/components/CarteContenu";
 import CarteContenuPoster from "@/components/CarteContenuPoster";
@@ -7,9 +8,16 @@ interface Props {
   data: NouveautesParPlateforme;
   mode?: ModeAffichage;
   priorite?: boolean;
+  /** Titre cliquable vers /{slug-plateforme} — désactivé sur la page plateforme elle-même */
+  lienTitre?: boolean;
 }
 
-export default function SectionPlateforme({ data, mode = "liste", priorite = false }: Props) {
+export default function SectionPlateforme({
+  data,
+  mode = "liste",
+  priorite = false,
+  lienTitre = true,
+}: Props) {
   const { plateforme, series, films } = data;
   const contenus = [...series, ...films].sort((a, b) => b.note - a.note);
   const total = contenus.length;
@@ -23,7 +31,17 @@ export default function SectionPlateforme({ data, mode = "liste", priorite = fal
         className="text-[28px] font-extrabold tracking-[-0.025em] leading-none"
         style={{ color: plateforme.couleur }}
       >
-        {plateforme.nom}
+        {lienTitre ? (
+          <Link
+            href={`/${plateforme.slug}`}
+            className="hover:underline underline-offset-4"
+            title={`Toutes les nouveautés ${plateforme.nom}`}
+          >
+            {plateforme.nom}
+          </Link>
+        ) : (
+          plateforme.nom
+        )}
       </h2>
       <span className="font-mono-label text-ink-3">
         {total} sortie{total > 1 ? "s" : ""}

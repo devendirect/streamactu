@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function CarteContenu({ contenu, priorite = false }: Props) {
-  const { type, titre, slug, poster, note, genres, saisonActuelle, premiereDiffusion } = contenu;
+  const { type, titre, slug, poster, note, genres, saisonActuelle, premiereDiffusion, plateforme } = contenu;
   const href = `/${type}/${slug}`;
 
   // Animation détectée via les genres
@@ -69,6 +69,14 @@ export default function CarteContenu({ contenu, priorite = false }: Props) {
           <span aria-hidden="true" className="text-[11px] text-foreground/60">{typeIcon}</span>
           <span className="uppercase tracking-[0.12em] text-[10px]">{typeLabel}</span>
           {saisonLabel && <>&nbsp;&nbsp;{saisonLabel}</>}
+          {plateforme && (
+            <span
+              className="uppercase tracking-[0.12em] text-[10px]"
+              style={{ color: plateforme.couleur }}
+            >
+              &nbsp;{plateforme.nom}
+            </span>
+          )}
         </div>
 
         {/* Titre */}

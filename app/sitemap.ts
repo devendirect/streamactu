@@ -1,14 +1,25 @@
 import type { MetadataRoute } from "next";
-import { getNouveautesSemaine } from "@/lib/tmdb";
+import type { NouveautesParPlateforme } from "@/types";
+import { getCompteJour, getNouveautesSemaine, getSortiesAVenir } from "@/lib/tmdb";
+import { PLATEFORMES } from "@/lib/plateformes";
+import { GENRES_SEO } from "@/lib/genres";
 import {
   decalerSemaineISO,
   formatDateURL,
   formatMoisURL,
   formatSemaineURL,
   getISOWeek,
+  toISO,
 } from "@/lib/utils";
 
 const BASE = process.env.SITE_URL ?? "https://streamactu.fr";
+// En dessous de ce nombre de sorties, une page jour est jugée trop maigre
+// pour être poussée à Google
+const MIN_SORTIES_JOUR = 3;
+
+// Régénération quotidienne garantie, indépendamment des déploiements :
+// les fenêtres (30 jours, semaines, mois) doivent glisser chaque jour.
+export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -22,14 +33,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: now,
   });
 
-  // ── 30 derniers jours ──
-  for (let i = 1; i <= 30; i++) {
-    const d = new Date(now);
-    d.setUTCDate(d.getUTCDate() - i);
+  // ── 30 derniers jours — les jours creux sont écartés ──
+  // (2 appels légers par jour, cache 24h ; en cas d'échec du comptage,
+  // le jour est inclus quand même — on préfère une page maigre à un trou)
+  const jours = await Promise.all(
+    Array.from({ length: 30 }, (_, k) => {
+      const d = new Date(now);
+      d.setUTCDate(d.getUTCDate() - (k + 1));
+      return getCompteJour(toISO(d))
+        .catch(() => MIN_SORTIES_JOUR)
+        .then((compte) => ({ d, position: k + 1, compte }));
+    })
+  );
+  for (const { d, position, compte } of jours) {
+    if (compte < MIN_SORTIES_JOUR) continue;
     entries.push({
       url: `${BASE}/${formatDateURL(d)}`,
       changeFrequency: "weekly",
-      priority: i <= 7 ? 0.9 : 0.7,
+      priority: position <= 7 ? 0.9 : 0.7,
       lastModified: d,
     });
   }
@@ -54,6 +75,86 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${BASE}/${formatMoisURL(d.getUTCMonth() + 1, d.getUTCFullYear())}`,
       changeFrequency: "monthly",
       priority: i === 1 ? 0.7 : 0.5,
+    });
+  }
+
+  // ── Prochaines sorties ──
+  entries.push({
+    url: `${BASE}/prochaines-sorties`,
+    changeFrequency: "daily",
+    priority: 0.8,
+    lastModified: now,
+  });
+
+  // ── Tops (3 derniers mois révolus + année en cours) ──
+  for (let i = 1; i <= 3; i++) {
+    const d = new Date(now);
+    d.setUTCDate(15);
+    d.setUTCMonth(d.getUTCMonth() - i);
+    const mois = formatMoisURL(d.getUTCMonth() + 1, d.getUTCFullYear());
+    entries.push(
+      { url: `${BASE}/top/series-${mois}`, changeFrequency: "monthly", priority: i === 1 ? 0.7 : 0.5 },
+      { url: `${BASE}/top/films-${mois}`, changeFrequency: "monthly", priority: i === 1 ? 0.7 : 0.5 }
+    );
+  }
+  const anneeCourante = now.getUTCFullYear();
+  entries.push(
+    { url: `${BASE}/top/series-${anneeCourante}`, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${BASE}/top/films-${anneeCourante}`, changeFrequency: "weekly", priority: 0.7 }
+  );
+
+  // ── Pages plateforme (hub + types + prochaines sorties + 3 mois d'archives) ──
+  // Les prochaines-sorties d'une plateforme sans rien d'annoncé sont exclues
+  // (elles sont noindex) ; en cas d'échec du fetch, on inclut tout (fail-open).
+  let aVenir: NouveautesParPlateforme[] = [];
+  try {
+    aVenir = await getSortiesAVenir();
+  } catch {
+    // fail-open
+  }
+
+  for (const pf of PLATEFORMES) {
+    entries.push({
+      url: `${BASE}/${pf.slug}`,
+      changeFrequency: "daily",
+      priority: 0.9,
+      lastModified: now,
+    });
+    entries.push(
+      { url: `${BASE}/${pf.slug}/series`, changeFrequency: "weekly", priority: 0.7 },
+      { url: `${BASE}/${pf.slug}/films`, changeFrequency: "weekly", priority: 0.7 }
+    );
+
+    const pfAVenir = aVenir.find((p) => p.plateforme.id === pf.id);
+    const aDesSortiesAVenir =
+      aVenir.length === 0 || // comptage indisponible → fail-open
+      (pfAVenir?.series.length ?? 0) + (pfAVenir?.films.length ?? 0) > 0;
+    if (aDesSortiesAVenir) {
+      entries.push({
+        url: `${BASE}/${pf.slug}/prochaines-sorties`,
+        changeFrequency: "daily",
+        priority: 0.6,
+      });
+    }
+    for (let i = 1; i <= 3; i++) {
+      const d = new Date(now);
+      d.setUTCDate(15);
+      d.setUTCMonth(d.getUTCMonth() - i);
+      entries.push({
+        url: `${BASE}/${pf.slug}/${formatMoisURL(d.getUTCMonth() + 1, d.getUTCFullYear())}`,
+        changeFrequency: "monthly",
+        priority: 0.5,
+      });
+    }
+  }
+
+  // ── Genres (hubs uniquement — les croisements genre×plateforme sont
+  // découverts par le maillage interne et se 404-ent quand ils sont maigres) ──
+  for (const g of GENRES_SEO) {
+    entries.push({
+      url: `${BASE}/genre/${g.slug}`,
+      changeFrequency: "weekly",
+      priority: 0.6,
     });
   }
 

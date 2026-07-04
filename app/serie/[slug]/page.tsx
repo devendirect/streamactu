@@ -26,7 +26,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const serie = await getSerie(slug);
   if (!serie) return { title: "Série introuvable" };
 
-  const description = extraitMeta(serie.synopsis);
+  // La disponibilité en tête de description cible la requête « où regarder X »
+  const prefixe = serie.dispo?.length ? `À voir sur ${serie.dispo.slice(0, 2).join(" et ")}. ` : "";
+  const description = prefixe + (extraitMeta(serie.synopsis, 160 - prefixe.length) ?? "");
   return {
     title: serie.titre,
     description,

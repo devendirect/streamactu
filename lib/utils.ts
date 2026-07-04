@@ -38,8 +38,18 @@ export function formatMoisURL(mois: number, annee: number): string {
   return `${MOIS_FR[mois - 1]}-${annee}`;
 }
 
+/** Décode un segment d'URL potentiellement percent-encodé ("f%C3%A9vrier" → "février") */
+function decoderSegment(slug: string): string {
+  try {
+    return decodeURIComponent(slug);
+  } catch {
+    return slug;
+  }
+}
+
 /** "juin-2026" → { mois: 6, annee: 2026 } | null */
-export function parseMoisURL(slug: string): { mois: number; annee: number } | null {
+export function parseMoisURL(brut: string): { mois: number; annee: number } | null {
+  const slug = decoderSegment(brut);
   const tiret = slug.lastIndexOf("-");
   if (tiret === -1) return null;
   const nomMois = slug.slice(0, tiret);
@@ -56,7 +66,8 @@ export function formatDateURL(date: Date | string): string {
 }
 
 /** "27-juin-2026" → Date | null */
-export function parseDateURL(slug: string): Date | null {
+export function parseDateURL(brut: string): Date | null {
+  const slug = decoderSegment(brut);
   const parts = slug.split("-");
   if (parts.length < 3) return null;
   // le mois peut être multi-mots (ex: "north-star" n'est pas une date)
@@ -193,6 +204,24 @@ export function formatDuree(minutes: number): string {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
   return h > 0 ? (m > 0 ? `${h}h ${m}min` : `${h}h`) : `${m}min`;
+}
+
+/**
+ * Note pondérée par le volume de votes (moyenne bayésienne) — évite qu'un
+ * contenu à 9,0 avec 12 votes écrase les classements.
+ * m = poids du prior, C = note moyenne typique TMDB.
+ */
+export function scoreBayesien(note: number, votes: number, m = 100, C = 7): number {
+  if (votes <= 0) return C;
+  return (votes / (votes + m)) * note + (m / (votes + m)) * C;
+}
+
+/** Accord simple pour les intros : "3 séries et 1 film" ("" si tout est vide) */
+export function libelleComptes(nbSeries: number, nbFilms: number): string {
+  const parts: string[] = [];
+  if (nbSeries > 0) parts.push(`${nbSeries} série${nbSeries > 1 ? "s" : ""}`);
+  if (nbFilms > 0) parts.push(`${nbFilms} film${nbFilms > 1 ? "s" : ""}`);
+  return parts.join(" et ");
 }
 
 export const TYPE_ICONS: Record<string, string> = { serie: "▣", film: "◈" };
