@@ -53,17 +53,14 @@ interface PartieState {
   etat: EtatJeu;
 }
 
+const ETAT_INITIAL: PartieState = { essais: [], resultats: [], etat: "en-cours" };
+
 export default function WordleJour({ contenu, dateISO }: WordleJourProps) {
   const cleLS = `wordle-${dateISO}`;
-  const [etat, setEtat] = useState<PartieState>(() => {
-    if (typeof window === "undefined")
-      return { essais: [], resultats: [], etat: "en-cours" };
-    try {
-      const saved = localStorage.getItem(cleLS);
-      if (saved) return JSON.parse(saved) as PartieState;
-    } catch { /* ignore */ }
-    return { essais: [], resultats: [], etat: "en-cours" };
-  });
+  // Le premier rendu doit être identique côté serveur et client (hydratation) :
+  // la partie sauvegardée est restaurée après montage, pas dans l'initialiseur.
+  const [etat, setEtat] = useState<PartieState>(ETAT_INITIAL);
+  const restaureRef = useRef(false);
 
   const [valeur, setValeur] = useState("");
   const [feedback, setFeedback] = useState("");
@@ -73,6 +70,20 @@ export default function WordleJour({ contenu, dateISO }: WordleJourProps) {
   const indicesVisibles = Math.max(0, nbEssais - 1);
 
   useEffect(() => {
+    try {
+      const saved = localStorage.getItem(cleLS);
+      if (saved) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- restauration localStorage post-hydratation, un seul re-rendu
+        setEtat(JSON.parse(saved) as PartieState);
+      }
+    } catch {
+      // sauvegarde corrompue — on repart de zéro
+    }
+    restaureRef.current = true;
+  }, [cleLS]);
+
+  useEffect(() => {
+    if (!restaureRef.current) return;
     localStorage.setItem(cleLS, JSON.stringify(etat));
   }, [etat, cleLS]);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import type { Contenu } from "@/types";
 import { formatDateFR, normaliser } from "@/lib/utils";
@@ -21,21 +21,33 @@ interface PartieState {
   etat: EtatJeu;
 }
 
+const ETAT_INITIAL: PartieState = { nbEssais: 0, etat: "en-cours" };
+
 export default function PochetteMystere({ contenu, dateISO }: PochetteMystereProps) {
   const cleLS = `pochette-${dateISO}`;
-  const [partie, setPartie] = useState<PartieState>(() => {
-    if (typeof window === "undefined") return { nbEssais: 0, etat: "en-cours" };
-    try {
-      const saved = localStorage.getItem(cleLS);
-      if (saved) return JSON.parse(saved) as PartieState;
-    } catch { /* ignore */ }
-    return { nbEssais: 0, etat: "en-cours" };
-  });
+  // Le premier rendu doit être identique côté serveur et client (hydratation) :
+  // la partie sauvegardée est restaurée après montage, pas dans l'initialiseur.
+  const [partie, setPartie] = useState<PartieState>(ETAT_INITIAL);
+  const restaureRef = useRef(false);
 
   const [valeur, setValeur] = useState("");
   const [feedback, setFeedback] = useState("");
 
   useEffect(() => {
+    try {
+      const saved = localStorage.getItem(cleLS);
+      if (saved) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- restauration localStorage post-hydratation, un seul re-rendu
+        setPartie(JSON.parse(saved) as PartieState);
+      }
+    } catch {
+      // sauvegarde corrompue — on repart de zéro
+    }
+    restaureRef.current = true;
+  }, [cleLS]);
+
+  useEffect(() => {
+    if (!restaureRef.current) return;
     localStorage.setItem(cleLS, JSON.stringify(partie));
   }, [partie, cleLS]);
 
