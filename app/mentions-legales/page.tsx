@@ -53,7 +53,22 @@ export default function MentionsLegalesPage() {
       <section className="space-y-4 border-t border-border pt-6" id="rgpd">
         <h2 className="font-mono-label text-[#9A9282]">Données personnelles (RGPD)</h2>
         <p className="text-[#C4BBA9] leading-relaxed" style={{ fontFamily: "var(--font-newsreader), serif", fontSize: "17px" }}>
-          Aucun cookie de traçage n&apos;est utilisé. Les données de jeu (Titre du jour, Pochette mystère) sont stockées uniquement dans le <em>localStorage</em> de votre navigateur et ne sont jamais transmises à nos serveurs. Les adresses IP sont traitées temporairement en mémoire pour limiter les abus techniques ; elles ne sont ni enregistrées sur disque, ni conservées au-delà de 24 heures, ni transmises à des tiers.
+          <strong className="text-foreground">Mesure d&apos;audience.</strong> Avec votre
+          consentement uniquement, le site utilise Google Analytics 4 pour compter les
+          visites et comprendre quelles pages sont consultées. Tant que vous n&apos;avez
+          pas accepté, aucun script Google n&apos;est chargé et aucun cookie n&apos;est
+          déposé. Si vous acceptez, des cookies <code>_ga</code> sont déposés (durée
+          maximale : 13 mois) et les données sont conservées 14 mois. Vous pouvez retirer
+          votre consentement à tout moment via le lien « Gérer les cookies » en pied de
+          page — les cookies de mesure sont alors supprimés.
+        </p>
+        <p className="text-[#C4BBA9] leading-relaxed" style={{ fontFamily: "var(--font-newsreader), serif", fontSize: "17px" }}>
+          En dehors de cette mesure d&apos;audience, aucun cookie de traçage n&apos;est
+          utilisé. Les données de jeu (Titre du jour, Pochette mystère) sont stockées
+          uniquement dans le <em>localStorage</em> de votre navigateur et ne sont jamais
+          transmises à nos serveurs. Les adresses IP sont traitées temporairement en
+          mémoire pour limiter les abus techniques ; elles ne sont ni enregistrées sur
+          disque, ni conservées au-delà de 24 heures, ni transmises à des tiers.
         </p>
       </section>
 

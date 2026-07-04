@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BoutonGererCookies } from "@/components/ConsentAnalytics";
 import { PLATEFORMES } from "@/lib/plateformes";
 import { GENRES_SEO } from "@/lib/genres";
 import { formatMoisFR, formatMoisURL } from "@/lib/utils";
@@ -114,6 +115,7 @@ export default function Footer() {
             >
               Flux RSS
             </a>
+            <BoutonGererCookies />
           </div>
 
           {/* Attribution TMDB obligatoire */}

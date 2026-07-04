@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { RetrouveurResultat } from "@/types";
+import { evenementGA } from "@/lib/ga";
 
 const EXEMPLES = [
   "un thriller dont la fin retourne complètement le cerveau",
@@ -61,6 +62,7 @@ export default function RetrouveurClient() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
+      let nbTrouves = 0;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -83,6 +85,7 @@ export default function RetrouveurClient() {
             } else if (chunk.type === "reasoning") {
               setState((s) => ({ ...s, raisonnement: chunk.text }));
             } else if (chunk.type === "match") {
+              nbTrouves++;
               setState((s) => ({ ...s, resultats: [...s.resultats, chunk.data] }));
             } else if (chunk.type === "error") {
               setState((s) => ({ ...s, phase: "error", erreur: chunk.message }));
@@ -93,9 +96,11 @@ export default function RetrouveurClient() {
         }
       }
 
+      evenementGA("retrouveur_utilise", { resultats: nbTrouves });
       setState((s) => ({ ...s, phase: "done" }));
     } catch (err: unknown) {
       if (err instanceof Error && err.name === "AbortError") return;
+      evenementGA("retrouveur_utilise", { resultats: 0, erreur: 1 });
       setState((s) => ({ ...s, phase: "error", erreur: "Une erreur est survenue. Réessayez." }));
     }
   }, [state.phase]);

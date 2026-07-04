@@ -3,6 +3,7 @@ import { Bricolage_Grotesque, Newsreader, Spline_Sans_Mono } from "next/font/goo
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SplashScreenLoader from "@/components/SplashScreenLoader";
+import ConsentAnalytics from "@/components/ConsentAnalytics";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -108,6 +109,10 @@ export default function RootLayout({
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        {/* GA4 derrière consentement CNIL — inerte si NEXT_PUBLIC_GA_ID absent */}
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <ConsentAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+        )}
       </body>
     </html>
   );

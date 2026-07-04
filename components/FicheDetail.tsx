@@ -5,6 +5,7 @@ import { formatDuree, formatDateFR } from "@/lib/utils";
 import { slugPourGenreId } from "@/lib/genres";
 import ConvaincsMoi from "@/components/ConvaincsMoi";
 import BoutonMaListe from "@/components/BoutonMaListe";
+import LienGA from "@/components/LienGA";
 
 interface FicheDetailProps {
   contenu: Serie | Film;
@@ -113,14 +114,20 @@ export default function FicheDetail({ contenu }: FicheDetailProps) {
             </span>
           ))}
           {/* Lien requis par TMDB pour les données de disponibilité (source JustWatch) */}
-          <a
+          <LienGA
             href={`https://www.themoviedb.org/${isSerie ? "tv" : "movie"}/${contenu.id}/watch?locale=FR`}
             target="_blank"
             rel="noopener noreferrer"
             className="font-mono-label text-ink-3 underline hover:text-foreground transition-colors"
+            evenement="clic_plateforme"
+            params={{
+              titre: contenu.titre,
+              type: contenu.type,
+              plateformes: contenu.dispo?.join(", ") || "aucune",
+            }}
           >
             Toutes les options →
-          </a>
+          </LienGA>
         </div>
 
         <p
@@ -254,14 +261,16 @@ export default function FicheDetail({ contenu }: FicheDetailProps) {
             Fiche TMDB →
           </a>
           {contenu.trailer && (
-            <a
+            <LienGA
               href={`https://www.youtube.com/watch?v=${contenu.trailer.key}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 bg-primary text-background font-mono-label font-semibold px-5 py-3 hover:opacity-90 transition-opacity"
+              evenement="lecture_trailer"
+              params={{ titre: contenu.titre, type: contenu.type }}
             >
               ▶ Bande-annonce
-            </a>
+            </LienGA>
           )}
         </div>
       </div>

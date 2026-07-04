@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ResultatRecherche } from "@/types";
+import { evenementGA } from "@/lib/ga";
 
 interface RechercheClientProps {
   queryInitiale: string;
@@ -41,6 +42,10 @@ export default function RechercheClient({
       const res = await fetch(`/api/recherche?q=${encodeURIComponent(q)}`);
       const data = (await res.json()) as ResultatRecherche[];
       setResultats(data);
+      // ≥ 3 caractères : évite d'envoyer chaque étape de la frappe débouncée
+      if (q.trim().length >= 3) {
+        evenementGA("search", { search_term: q.trim(), resultats: data.length });
+      }
     } catch {
       setResultats([]);
     } finally {
