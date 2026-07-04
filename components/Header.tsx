@@ -40,6 +40,13 @@ export default function Header() {
           </Link>
         ))}
         <Link
+          href="/ma-liste"
+          aria-label="Ma liste"
+          className="text-[#9A9282] hover:text-foreground transition-colors"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4.5L5 21V4a1 1 0 0 1 1-1z"/></svg>
+        </Link>
+        <Link
           href="/recherche"
           aria-label="Rechercher"
           className="text-[#9A9282] hover:text-foreground transition-colors"

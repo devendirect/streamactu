@@ -12,6 +12,7 @@ const NAV = [
   { href: "/retrouver", label: "Retrouver" },
   { href: "/surprise", label: "À la surprise" },
   { href: "/jeux", label: "Jeux" },
+  { href: "/ma-liste", label: "Ma liste" },
   { href: "/recherche", label: "Recherche" },
 ];
 

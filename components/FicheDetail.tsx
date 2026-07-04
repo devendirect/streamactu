@@ -4,6 +4,7 @@ import type { Serie, Film } from "@/types";
 import { formatDuree } from "@/lib/utils";
 import { slugPourGenreId } from "@/lib/genres";
 import ConvaincsMoi from "@/components/ConvaincsMoi";
+import BoutonMaListe from "@/components/BoutonMaListe";
 
 interface FicheDetailProps {
   contenu: Serie | Film;
@@ -215,6 +216,7 @@ export default function FicheDetail({ contenu }: FicheDetailProps) {
 
         {/* ── Actions ── */}
         <div className="flex items-center gap-3 flex-wrap pb-2">
+          <BoutonMaListe contenu={contenu} />
           <a
             href={`https://www.themoviedb.org/${isSerie ? "tv" : "movie"}/${contenu.id}`}
             target="_blank"
