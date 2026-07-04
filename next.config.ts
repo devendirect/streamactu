@@ -3,6 +3,10 @@ import type { NextConfig } from "next";
 const isDev = process.env.NODE_ENV === "development";
 
 const nextConfig: NextConfig = {
+  // Déploiement VPS/Plesk : build autonome (.next/standalone + server.js).
+  // ⚠️ Après le build, copier public/ et .next/static dans le dossier standalone.
+  output: "standalone",
+
   images: {
     remotePatterns: [
       {
