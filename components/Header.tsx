@@ -10,9 +10,9 @@ const NAV = [
 
 export default function Header() {
   return (
-    <header className="sa-container w-full py-6 flex items-center justify-between gap-4">
+    <header className="sa-container w-full py-6 flex flex-wrap items-center gap-x-6 gap-y-3 md:flex-nowrap">
       {/* Logo */}
-      <Link href="/" className="flex items-center gap-3 leading-none" aria-label="StreamActu.fr — Accueil">
+      <Link href="/" className="flex items-center gap-3 leading-none shrink-0" aria-label="StreamActu.fr — Accueil">
         <svg data-logo-header width="34" height="34" viewBox="0 0 120 120" fill="none" aria-hidden="true">
           <g stroke="#ECE6D8" strokeWidth="6" strokeLinecap="round">
             <line x1="18" y1="84" x2="102" y2="84" />
@@ -28,8 +28,11 @@ export default function Header() {
         </span>
       </Link>
 
-      {/* Nav + recherche */}
-      <nav aria-label="Navigation principale" className="flex items-center gap-6 flex-wrap">
+      {/* Rubriques : barre défilante pleine largeur sous le logo en mobile, inline à droite en desktop */}
+      <nav
+        aria-label="Navigation principale"
+        className="order-2 w-full flex items-center gap-6 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-8 px-8 max-[600px]:-mx-5 max-[600px]:px-5 md:order-none md:w-auto md:ml-auto md:mx-0 md:px-0 md:overflow-visible"
+      >
         {NAV.map((item) => (
           <Link
             key={item.href}
@@ -39,6 +42,10 @@ export default function Header() {
             {item.label}
           </Link>
         ))}
+      </nav>
+
+      {/* Actions : ma liste + recherche */}
+      <div className="order-1 ml-auto flex items-center gap-6 md:order-none md:ml-0">
         <Link
           href="/ma-liste"
           aria-label="Ma liste"
@@ -53,7 +60,7 @@ export default function Header() {
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </Link>
-      </nav>
+      </div>
     </header>
   );
 }

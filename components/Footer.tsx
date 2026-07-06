@@ -35,67 +35,67 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-border mt-auto">
-      <div className="sa-container py-8">
-        {/* Liens nav */}
-        <nav aria-label="Pages du site" className="flex items-center gap-6 flex-wrap pb-5 border-b border-border/50">
-          {NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="font-mono-label text-[#B8AF9D] hover:text-foreground transition-colors"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+      <div className="sa-container py-10">
+        {/* Colonnes titrées : Site / Nouveautés / Classements / Genres */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4 md:gap-x-10">
+          <nav aria-label="Pages du site" className="flex flex-col gap-2.5">
+            <span className="font-mono-label text-[#B8AF9D] mb-1">Site</span>
+            {NAV.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
 
-        {/* Nouveautés par plateforme */}
-        <nav aria-label="Nouveautés par plateforme" className="flex items-center gap-x-5 gap-y-2 flex-wrap py-4 border-b border-border/50">
-          <span className="font-mono-label text-ink-4">Nouveautés :</span>
-          {PLATEFORMES.map((pf) => (
-            <Link
-              key={pf.id}
-              href={`/${pf.slug}`}
-              className="font-mono-label text-[#9A9282] hover:text-foreground transition-colors"
-            >
-              {pf.nom}
-            </Link>
-          ))}
-        </nav>
+          <nav aria-label="Nouveautés par plateforme" className="flex flex-col gap-2.5">
+            <span className="font-mono-label text-[#B8AF9D] mb-1">Nouveautés</span>
+            {PLATEFORMES.map((pf) => (
+              <Link
+                key={pf.id}
+                href={`/${pf.slug}`}
+                className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {pf.nom}
+              </Link>
+            ))}
+          </nav>
 
-        {/* Classements */}
-        <nav aria-label="Classements" className="flex items-center gap-x-5 gap-y-2 flex-wrap py-4 border-b border-border/50">
-          <span className="font-mono-label text-ink-4">Classements :</span>
-          {TOPS.map((t) => (
-            <Link
-              key={t.href}
-              href={t.href}
-              className="font-mono-label text-[#9A9282] hover:text-foreground transition-colors"
-            >
-              {t.label}
-            </Link>
-          ))}
-        </nav>
+          <nav aria-label="Classements" className="flex flex-col gap-2.5">
+            <span className="font-mono-label text-[#B8AF9D] mb-1">Classements</span>
+            {TOPS.map((t) => (
+              <Link
+                key={t.href}
+                href={t.href}
+                className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {t.label}
+              </Link>
+            ))}
+          </nav>
 
-        {/* Genres */}
-        <nav aria-label="Genres" className="flex items-center gap-x-5 gap-y-2 flex-wrap py-4 border-b border-border/50">
-          <span className="font-mono-label text-ink-4">Genres :</span>
-          {GENRES_SEO.filter((g) => GENRES_FOOTER.includes(g.slug)).map((g) => (
-            <Link
-              key={g.slug}
-              href={`/genre/${g.slug}`}
-              className="font-mono-label text-[#9A9282] hover:text-foreground transition-colors"
-            >
-              {g.nom}
-            </Link>
-          ))}
-        </nav>
+          <nav aria-label="Genres" className="flex flex-col gap-2.5">
+            <span className="font-mono-label text-[#B8AF9D] mb-1">Genres</span>
+            {GENRES_SEO.filter((g) => GENRES_FOOTER.includes(g.slug)).map((g) => (
+              <Link
+                key={g.slug}
+                href={`/genre/${g.slug}`}
+                className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {g.nom}
+              </Link>
+            ))}
+          </nav>
+        </div>
 
         {/* Bas de footer */}
-        <div className="flex items-center justify-between gap-4 flex-wrap pt-5">
-          <div className="flex items-center gap-5 flex-wrap">
+        <div className="mt-10 pt-5 border-t border-border/50 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="flex items-center gap-x-5 gap-y-2 flex-wrap">
             <span className="text-sm font-bold text-[#6F6856]">
-              Stream<span className="text-[#9A8A5A]">Actu</span>.fr
+              © {annee} Stream<span className="text-[#9A8A5A]">Actu</span>.fr
             </span>
             <Link
               href="/a-propos"
@@ -119,7 +119,7 @@ export default function Footer() {
           </div>
 
           {/* Attribution TMDB obligatoire */}
-          <p className="font-mono-label text-ink-3 text-right max-w-[46ch]">
+          <p className="font-mono-label text-ink-3 max-w-[46ch] md:text-right">
             Données &amp; visuels fournis par{" "}
             <a
               href="https://www.themoviedb.org"
