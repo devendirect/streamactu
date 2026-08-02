@@ -7,10 +7,17 @@ interface Props {
   /** Mois affiché sur la page courante (exclu des liens), format "mois-annee" */
   moisActuel?: string;
   nb?: number;
+  /** Année pointée par le lien récapitulatif (défaut : l'année en cours) */
+  annee?: number;
 }
 
 /** Liens vers les archives mensuelles d'une plateforme (/netflix/juin-2026, …) */
-export default function ArchivesMoisPlateforme({ plateforme, moisActuel, nb = 3 }: Props) {
+export default function ArchivesMoisPlateforme({
+  plateforme,
+  moisActuel,
+  nb = 3,
+  annee,
+}: Props) {
   const liens: { slug: string; label: string }[] = [];
   const now = new Date();
 
@@ -22,6 +29,8 @@ export default function ArchivesMoisPlateforme({ plateforme, moisActuel, nb = 3 
     if (slug === moisActuel) continue;
     liens.push({ slug, label: formatMoisFR(d.getUTCMonth() + 1, d.getUTCFullYear()) });
   }
+
+  const anneeLien = annee ?? now.getUTCFullYear();
 
   return (
     <nav aria-label={`Archives ${plateforme.nom}`} className="border-t border-border pt-5">
@@ -36,6 +45,12 @@ export default function ArchivesMoisPlateforme({ plateforme, moisActuel, nb = 3 
             {l.label}
           </Link>
         ))}
+        <Link
+          href={`/${plateforme.slug}/${anneeLien}`}
+          className="px-3 py-1.5 border border-border/50 font-mono-label text-foreground hover:text-primary hover:border-border transition-colors"
+        >
+          Toute l&apos;année {anneeLien} →
+        </Link>
       </div>
     </nav>
   );

@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getDetailFilm } from "@/lib/tmdb";
 import { idDepuisSlug } from "@/lib/utils";
-import { extraitMeta, jsonLdFiche } from "@/lib/seo";
+import { descriptionFiche, jsonLdFiche } from "@/lib/seo";
 import FicheDetail from "@/components/FicheDetail";
 
 export const revalidate = 3600;
@@ -26,9 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const film = await getFilm(slug);
   if (!film) return { title: "Film introuvable" };
 
-  // La disponibilité en tête de description cible la requête « où regarder X »
-  const prefixe = film.dispo?.length ? `À voir sur ${film.dispo.slice(0, 2).join(" et ")}. ` : "";
-  const description = prefixe + (extraitMeta(film.synopsis, 160 - prefixe.length) ?? "");
+  const description = descriptionFiche(film);
   return {
     title: film.titre,
     description,

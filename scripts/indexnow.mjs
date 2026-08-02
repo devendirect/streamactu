@@ -32,13 +32,10 @@ const PLATEFORMES = [
 
 /** Pages mises à jour quotidiennement — toujours soumises */
 function pagesChaudes() {
-  const now = new Date();
-  const jour = now.toISOString().slice(0, 10); // même convention UTC que le site
-  const annee = now.getUTCFullYear();
+  const annee = new Date().getUTCFullYear();
   return [
     `${SITE}/`,
     ...PLATEFORMES.map((slug) => `${SITE}/${slug}`),
-    `${SITE}/${jour}`,
     `${SITE}/prochaines-sorties`,
     `${SITE}/top/series-${annee}`,
     `${SITE}/top/films-${annee}`,

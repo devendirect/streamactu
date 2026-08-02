@@ -27,7 +27,7 @@ const splineMono = Spline_Sans_Mono({
 
 const SITE_URL = process.env.SITE_URL ?? "https://streamactu.fr";
 const DESCRIPTION =
-  "Retrouvez chaque jour les nouvelles séries et films disponibles sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, Max et Paramount+.";
+  "Retrouvez chaque jour les nouvelles séries et films disponibles sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, HBO Max et Paramount+.";
 
 const jsonLd = [
   {

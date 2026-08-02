@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Contenu } from "@/types";
-import { TYPE_ICONS, TYPE_LABELS, isNouvelleSerieCheck } from "@/lib/utils";
+import { TYPE_ICONS, TYPE_LABELS, altAffiche, isNouvelleSerieCheck } from "@/lib/utils";
 
 interface Props {
   contenu: Contenu;
@@ -51,7 +51,7 @@ export default function CarteContenu({ contenu, priorite = false }: Props) {
         {poster ? (
           <Image
             src={poster}
-            alt={titre}
+            alt={altAffiche(titre, type)}
             fill
             sizes="54px"
             className="object-cover"

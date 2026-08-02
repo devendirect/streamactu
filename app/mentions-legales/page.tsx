@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 
+const DESCRIPTION = "Informations légales, données personnelles et attribution TMDB pour StreamActu.fr.";
+
 export const metadata: Metadata = {
   title: "Mentions légales",
+  description: DESCRIPTION,
   alternates: { canonical: "/mentions-legales" },
   openGraph: {
     title: "Mentions légales | StreamActu.fr",
-    description: "Informations légales, données personnelles et attribution TMDB pour StreamActu.fr.",
+    description: DESCRIPTION,
     images: ["/og-default.png"],
   },
 };
@@ -21,7 +24,7 @@ export default function MentionsLegalesPage() {
       <section className="space-y-4 border-t border-border pt-6">
         <h2 className="font-mono-label text-[#9A9282]">Éditeur</h2>
         <p className="text-[#C4BBA9] leading-relaxed" style={{ fontFamily: "var(--font-newsreader), serif", fontSize: "17px" }}>
-          StreamActu.fr est un site personnel de veille streaming. Il n&apos;est affilié à aucune plateforme de diffusion (Netflix, Prime Video, Disney+, Apple TV+, Canal+, Max, Paramount+).
+          StreamActu.fr est un site personnel de veille streaming. Il n&apos;est affilié à aucune plateforme de diffusion (Netflix, Prime Video, Disney+, Apple TV+, Canal+, HBO Max, Paramount+).
         </p>
       </section>
 

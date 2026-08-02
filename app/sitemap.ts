@@ -1,6 +1,11 @@
 import type { MetadataRoute } from "next";
 import type { NouveautesParPlateforme } from "@/types";
-import { getCompteJour, getNouveautesSemaine, getSortiesAVenir } from "@/lib/tmdb";
+import {
+  getCompteJour,
+  getNouveautesMois,
+  getNouveautesSemaine,
+  getSortiesAVenir,
+} from "@/lib/tmdb";
 import { PLATEFORMES } from "@/lib/plateformes";
 import { GENRES_SEO } from "@/lib/genres";
 import {
@@ -103,7 +108,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/top/films-${anneeCourante}`, changeFrequency: "weekly", priority: 0.7 }
   );
 
-  // ── Pages plateforme (hub + types + prochaines sorties + 3 mois d'archives) ──
+  // ── Pages plateforme (hub + types + prochaines sorties + archives + récaps) ──
   // Les prochaines-sorties d'une plateforme sans rien d'annoncé sont exclues
   // (elles sont noindex) ; en cas d'échec du fetch, on inclut tout (fail-open).
   let aVenir: NouveautesParPlateforme[] = [];
@@ -112,6 +117,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } catch (err) {
     console.error("[sitemap] sorties à venir indisponibles (fail-open) :", err instanceof Error ? err.message : err);
   }
+
+  // ── Archives mensuelles : 13 mois, filtrés par contenu réel ──
+  // Le trafic des requêtes datées (« nouveautés netflix janvier 2026 ») est
+  // saisonnier : il revient chaque année. La fenêtre de 3 mois laissait ces
+  // pages sortir de l'index entre deux saisons.
+  //
+  // On déclare donc 13 mois, mais seulement les couples plateforme×mois qui
+  // ont du contenu : la route 404 les autres (garde-fou anti-page-maigre) et
+  // un sitemap qui pointe vers des 404 est un mauvais signal. 14 appels
+  // partagés par les sept plateformes, déjà en cache si une page mois ou
+  // année a été rendue (getNouveautesMois, cache 24h).
+  const NB_MOIS_ARCHIVES = 13;
+  const moisArchives = await Promise.all(
+    // k = 0 est le mois en cours : jamais déclaré comme archive, mais il
+    // compte pour décider si l'année en cours a de quoi remplir une page.
+    Array.from({ length: NB_MOIS_ARCHIVES + 1 }, (_, k) => {
+      const d = new Date(now);
+      d.setUTCDate(15); // évite le débordement de fin de mois
+      d.setUTCMonth(d.getUTCMonth() - k);
+      const mois = d.getUTCMonth() + 1;
+      const annee = d.getUTCFullYear();
+      return getNouveautesMois(mois, annee)
+        .then((par) => ({ mois, annee, position: k, par }))
+        .catch(() => ({ mois, annee, position: k, par: null }));
+    })
+  );
+
+  /** Nombre de sorties d'une plateforme sur un mois ; null = comptage indisponible */
+  const compteMois = (
+    entree: (typeof moisArchives)[number],
+    plateformeId: number
+  ): number | null => {
+    if (entree.par === null) return null; // fail-open, comme pour les jours
+    const data = entree.par.find((p) => p.plateforme.id === plateformeId);
+    return (data?.series.length ?? 0) + (data?.films.length ?? 0);
+  };
 
   for (const pf of PLATEFORMES) {
     entries.push({
@@ -136,14 +177,38 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.6,
       });
     }
-    for (let i = 1; i <= 3; i++) {
-      const d = new Date(now);
-      d.setUTCDate(15);
-      d.setUTCMonth(d.getUTCMonth() - i);
+    for (const entree of moisArchives) {
+      if (entree.position === 0) continue; // mois en cours : pas une archive
+      const compte = compteMois(entree, pf.id);
+      if (compte === 0) continue; // la route 404 cette page
       entries.push({
-        url: `${BASE}/${pf.slug}/${formatMoisURL(d.getUTCMonth() + 1, d.getUTCFullYear())}`,
-        changeFrequency: "monthly",
-        priority: 0.5,
+        url: `${BASE}/${pf.slug}/${formatMoisURL(entree.mois, entree.annee)}`,
+        // Le trimestre récent bouge encore (TMDB complète les fiches) ;
+        // au-delà, le mois est figé.
+        changeFrequency: entree.position <= 3 ? "monthly" : "yearly",
+        priority: entree.position <= 3 ? 0.5 : 0.4,
+      });
+    }
+
+    // Récaps annuels : l'année en cours (encore alimentée) et la précédente
+    // (figée mais recherchée toute l'année). Les années plus anciennes restent
+    // atteignables par le maillage — comme les croisements genre×plateforme.
+    //
+    // Même filtre que les mois : une année dont aucun mois connu n'a de
+    // contenu ne remplirait pas une page. Le test peut être faussement négatif
+    // sur l'année précédente, dont la fenêtre de 13 mois ne couvre pas le
+    // début — on omet alors une page valide du sitemap, ce qui est moins
+    // coûteux que d'en déclarer une qui 404.
+    for (const annee of [anneeCourante, anneeCourante - 1]) {
+      const comptes = moisArchives
+        .filter((e) => e.annee === annee)
+        .map((e) => compteMois(e, pf.id));
+      const connu = comptes.some((c) => c !== null);
+      if (connu && !comptes.some((c) => c !== null && c > 0)) continue;
+      entries.push({
+        url: `${BASE}/${pf.slug}/${annee}`,
+        changeFrequency: annee === anneeCourante ? "weekly" : "monthly",
+        priority: annee === anneeCourante ? 0.6 : 0.5,
       });
     }
   }

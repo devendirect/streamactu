@@ -6,6 +6,7 @@ import type {
   PersonneCasting,
   Video,
   NouveautesParPlateforme,
+  NouveautesAnnee,
   ResultatRecherche,
   ReponseTMDB,
   TMDBSerie,
@@ -17,7 +18,7 @@ import type {
   TMDBGenreList,
   Genre,
 } from "@/types";
-import { PLATEFORMES } from "@/lib/plateformes";
+import { PLATEFORMES, PLATEFORME_PAR_ID } from "@/lib/plateformes";
 import {
   slugify,
   bornesMois,
@@ -344,6 +345,82 @@ export const getNouveautesMois = unstable_cache(
   ["nouveautes-mois"],
   { revalidate: 86400 }
 );
+
+/**
+ * Vue « année » d'une plateforme : agrège les 12 mois de l'année (bornés au
+ * mois en cours pour l'année courante) et en tire un palmarès annuel trié par
+ * note pondérée, plus le détail mois par mois qui sert de maillage vers les
+ * archives mensuelles.
+ *
+ * Réutilise les caches de getNouveautesMois — aucun appel TMDB supplémentaire
+ * une fois les mois en cache, et le limiteur de concurrence encaisse la montée
+ * en charge du premier rendu.
+ */
+export async function getNouveautesAnnee(
+  plateformeId: number,
+  annee: number,
+  max = 20
+): Promise<NouveautesAnnee | null> {
+  const now = new Date();
+  const dernierMois =
+    annee === now.getUTCFullYear() ? now.getUTCMonth() + 1 : 12;
+  if (annee > now.getUTCFullYear() || dernierMois < 1) return null;
+
+  const parMois = await Promise.all(
+    Array.from({ length: dernierMois }, (_, i) =>
+      getNouveautesMois(i + 1, annee)
+    )
+  );
+
+  const plateforme = PLATEFORME_PAR_ID[plateformeId];
+  if (!plateforme) return null;
+
+  const mois: NouveautesAnnee["mois"] = [];
+  const series: Contenu[] = [];
+  const films: Contenu[] = [];
+  const vusSeries = new Set<number>();
+  const vusFilms = new Set<number>();
+
+  // Du plus récent au plus ancien : l'archive la plus fraîche en tête de liste.
+  for (let i = parMois.length - 1; i >= 0; i--) {
+    const data = parMois[i].find((p) => p.plateforme.id === plateformeId);
+    if (!data) continue;
+    if (data.series.length + data.films.length === 0) continue;
+
+    mois.push({
+      mois: i + 1,
+      annee,
+      nbSeries: data.series.length,
+      nbFilms: data.films.length,
+    });
+
+    // Un titre peut ressortir sur deux mois consécutifs (date de sortie
+    // révisée chez TMDB) : on ne le compte qu'une fois dans le palmarès.
+    for (const s of data.series) {
+      if (vusSeries.has(s.id)) continue;
+      vusSeries.add(s.id);
+      series.push(s);
+    }
+    for (const f of data.films) {
+      if (vusFilms.has(f.id)) continue;
+      vusFilms.add(f.id);
+      films.push(f);
+    }
+  }
+
+  const parNote = (a: Contenu, b: Contenu) =>
+    scoreBayesien(b.note, b.nbVotes) - scoreBayesien(a.note, a.nbVotes);
+
+  return {
+    plateforme,
+    annee,
+    mois,
+    series: [...series].sort(parNote).slice(0, max),
+    films: [...films].sort(parNote).slice(0, max),
+    totalSeries: series.length,
+    totalFilms: films.length,
+  };
+}
 
 // ──────────────────────────────────────────────
 // Nouveautés par semaine (cache 1h)

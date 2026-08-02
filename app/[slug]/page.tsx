@@ -254,8 +254,8 @@ export default async function SlugPage({ params }: Props) {
           titre={`Nouveautés streaming — ${label}`}
           intro={
             futur
-              ? "Les épisodes et sorties annoncés ce jour-là sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, Max et Paramount+ — programme susceptible de changer."
-              : "Les séries et films sortis ce jour-là sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, Max et Paramount+."
+              ? "Les épisodes et sorties annoncés ce jour-là sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, HBO Max et Paramount+ — programme susceptible de changer."
+              : "Les séries et films sortis ce jour-là sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, HBO Max et Paramount+."
           }
         />
         <AccueilClient

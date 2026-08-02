@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
+  getNouveautesAnnee,
   getNouveautesMois,
   getSortiesAVenir,
   getSortiesRecentesPlateforme,
@@ -12,6 +13,7 @@ import {
   formatMoisFR,
   formatMoisURL,
   libelleComptes,
+  parseAnneeURL,
   parseMoisURL,
   toISO,
 } from "@/lib/utils";
@@ -19,6 +21,7 @@ import EnTeteNouveautes from "@/components/EnTeteNouveautes";
 import SectionPlateforme from "@/components/SectionPlateforme";
 import MaillagePlateformes from "@/components/MaillagePlateformes";
 import ArchivesMoisPlateforme from "@/components/ArchivesMoisPlateforme";
+import MoisDeLAnnee from "@/components/MoisDeLAnnee";
 import ListeSortiesParJour, { agregerSortiesParJour } from "@/components/ListeSortiesParJour";
 
 export const revalidate = 3600;
@@ -88,6 +91,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
+  const annee = parseAnneeURL(sous);
+  if (annee && annee <= new Date().getUTCFullYear()) {
+    const title = `Nouveautés ${pf.nom} ${annee}`;
+    const description = `Toutes les séries et films arrivés sur ${pf.nom} en France en ${annee}, mois par mois.`;
+    return {
+      title,
+      description,
+      openGraph: { title, description, images: OG_IMAGES },
+      alternates: { canonical: `/${pf.slug}/${annee}` },
+    };
+  }
+
   return { title: "Page non trouvée" };
 }
 
@@ -110,6 +125,10 @@ export async function generateStaticParams() {
         sous: formatMoisURL(d.getUTCMonth() + 1, d.getUTCFullYear()),
       });
     }
+
+    // Récaps annuels déclarés au sitemap : année en cours et précédente
+    params.push({ slug: pf.slug, sous: String(now.getUTCFullYear()) });
+    params.push({ slug: pf.slug, sous: String(now.getUTCFullYear() - 1) });
   }
 
   return params;
@@ -242,7 +261,47 @@ export default async function SousPlateformePage({ params }: Props) {
 
           <SectionPlateforme data={data} priorite lienTitre={false} />
 
-          <ArchivesMoisPlateforme plateforme={pf} moisActuel={sous} />
+          <ArchivesMoisPlateforme plateforme={pf} moisActuel={sous} annee={mois.annee} />
+          <MaillagePlateformes actuelle={pf.id} />
+        </div>
+      </>
+    );
+  }
+
+  // ── Année ─────────────────────────────────────
+  const annee = parseAnneeURL(sous);
+  if (annee) {
+    // Année future : rien à inventorier (même règle que /top/[slug])
+    if (annee > new Date().getUTCFullYear()) notFound();
+
+    const data = await getNouveautesAnnee(pf.id, annee);
+    // Garde-fou anti-contenu maigre : c'est lui qui rend la page sûre sur les
+    // plateformes à petit catalogue, où l'année peut être vide.
+    if (!data || data.totalSeries + data.totalFilms === 0) notFound();
+
+    return (
+      <>
+        <EnTeteNouveautes
+          titre={`Nouveautés ${pf.nom} ${annee}`}
+          intro={`${libelleComptes(data.totalSeries, data.totalFilms)} arrivés sur ${pf.nom} en ${annee}. Les mieux notés d'abord, puis le détail mois par mois.`}
+        />
+        <div className="sa-container py-4 space-y-10">
+          <nav aria-label={`Navigation ${pf.nom}`}>
+            <Link
+              href={`/${pf.slug}`}
+              className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
+            >
+              ← Nouveautés {pf.nom} de la semaine
+            </Link>
+          </nav>
+
+          <SectionPlateforme
+            data={{ plateforme: pf, series: data.series, films: data.films }}
+            priorite
+            lienTitre={false}
+          />
+
+          <MoisDeLAnnee plateforme={pf} mois={data.mois} />
           <MaillagePlateformes actuelle={pf.id} />
         </div>
       </>

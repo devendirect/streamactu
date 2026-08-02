@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { RetrouveurResultat } from "@/types";
 import { evenementGA } from "@/lib/ga";
+import { altAffiche } from "@/lib/utils";
 
 const EXEMPLES = [
   "un thriller dont la fin retourne complètement le cerveau",
@@ -302,7 +303,7 @@ function ResultatCard({ resultat: r, idx }: { resultat: RetrouveurResultat; idx:
       <Link href={`/${r.type}/${r.slug}`} className="shrink-0">
         <div className="relative w-[84px] h-[126px] shrink-0 overflow-hidden border border-[rgba(236,230,216,0.14)] bg-gradient-to-br from-[#2A2620] to-[#120F0B]">
           {r.poster ? (
-            <Image src={r.poster} alt={r.titre} fill sizes="84px" className="object-cover" />
+            <Image src={r.poster} alt={altAffiche(r.titre, r.type)} fill sizes="84px" className="object-cover" />
           ) : (
             <>
               {/* Placeholder stylisé comme la maquette */}

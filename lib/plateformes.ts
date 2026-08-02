@@ -8,7 +8,10 @@ export const PLATEFORMES: Plateforme[] = [
   { id: 337,  nom: "Disney+",     slug: "disney-plus",   couleur: "var(--platform-disney)" },
   { id: 350,  nom: "Apple TV+",   slug: "apple-tv-plus", couleur: "var(--platform-apple)" },
   { id: 381,  nom: "Canal+",      slug: "canal-plus",    couleur: "var(--platform-canal)" },
-  { id: 1899, nom: "Max",         slug: "max",           couleur: "var(--platform-max)" },
+  // Nom d'affichage « HBO Max » : c'est la forme cherchée (Google Trends FR
+  // 08/2026 ne renvoie que « hbo max », jamais « max » seul). Le slug reste
+  // "max" — le changer serait une migration d'URL publique.
+  { id: 1899, nom: "HBO Max",     slug: "max",           couleur: "var(--platform-max)" },
   { id: 582,  nom: "Paramount+",  slug: "paramount-plus", couleur: "var(--platform-paramount)" },
 ];
 

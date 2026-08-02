@@ -85,7 +85,7 @@ export async function GET() {
   <channel>
     <title>StreamActu.fr — Nouveautés streaming</title>
     <link>${SITE_URL}</link>
-    <description>Les nouvelles séries et films disponibles sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, Max et Paramount+.</description>
+    <description>Les nouvelles séries et films disponibles sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, HBO Max et Paramount+.</description>
     <language>fr</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
 ${xmlItems}

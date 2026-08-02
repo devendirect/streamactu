@@ -68,6 +68,10 @@ export default async function JeuxPage() {
 
   return (
     <div className="sa-container py-8 max-w-xl">
+      <p className="font-mono-label text-ink-3 mb-3">Jeux quotidiens</p>
+      <h1 className="text-4xl font-extrabold tracking-[-0.025em] mb-6">
+        Titre du jour &amp; Pochette mystère
+      </h1>
       <JeuxClient contenuTitre={contenuTitre} contenuPochette={pochette} dateISO={dateISO} />
     </div>
   );

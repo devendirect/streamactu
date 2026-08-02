@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Contenu } from "@/types";
-import { TYPE_ICONS, TYPE_LABELS, isNouvelleSerieCheck } from "@/lib/utils";
+import { TYPE_ICONS, TYPE_LABELS, altAffiche, isNouvelleSerieCheck } from "@/lib/utils";
 
 interface Props {
   contenu: Contenu;
@@ -46,7 +46,7 @@ export default function CarteContenuPoster({ contenu, priorite = false }: Props)
         {poster ? (
           <Image
             src={poster}
-            alt={titre}
+            alt={altAffiche(titre, type)}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
             className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"

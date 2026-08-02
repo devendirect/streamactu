@@ -10,7 +10,7 @@ export const revalidate = 21600;
 
 const TITLE = "Prochaines sorties streaming — le calendrier des 4 semaines à venir";
 const DESCRIPTION =
-  "Le calendrier des prochaines sorties en streaming en France : nouvelles séries et films annoncés sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, Max et Paramount+.";
+  "Le calendrier des prochaines sorties en streaming en France : nouvelles séries et films annoncés sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, HBO Max et Paramount+.";
 
 export async function generateMetadata(): Promise<Metadata> {
   // Calendrier vide → noindex (même cache que le rendu, aucun appel en plus)

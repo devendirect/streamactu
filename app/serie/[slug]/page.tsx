@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getDetailSerie } from "@/lib/tmdb";
 import { idDepuisSlug } from "@/lib/utils";
-import { extraitMeta, jsonLdFiche } from "@/lib/seo";
+import { descriptionFiche, jsonLdFiche } from "@/lib/seo";
 import FicheDetail from "@/components/FicheDetail";
 
 export const revalidate = 3600;
@@ -26,9 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const serie = await getSerie(slug);
   if (!serie) return { title: "Série introuvable" };
 
-  // La disponibilité en tête de description cible la requête « où regarder X »
-  const prefixe = serie.dispo?.length ? `À voir sur ${serie.dispo.slice(0, 2).join(" et ")}. ` : "";
-  const description = prefixe + (extraitMeta(serie.synopsis, 160 - prefixe.length) ?? "");
+  const description = descriptionFiche(serie);
   return {
     title: serie.titre,
     description,

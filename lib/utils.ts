@@ -52,6 +52,15 @@ export function parseMoisURL(brut: string): { mois: number; annee: number } | nu
   return { mois: moisIdx + 1, annee };
 }
 
+/** "2026" → 2026 | null (mêmes bornes que parseMoisURL) */
+export function parseAnneeURL(brut: string): number | null {
+  const slug = decoderSegment(brut);
+  if (!/^\d{4}$/.test(slug)) return null;
+  const annee = parseInt(slug, 10);
+  if (annee < 2000 || annee > 2100) return null;
+  return annee;
+}
+
 /** Date → "27-juin-2026" */
 export function formatDateURL(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date + "T12:00:00Z") : date;
@@ -226,6 +235,11 @@ export function libelleComptes(nbSeries: number, nbFilms: number): string {
 
 export const TYPE_ICONS: Record<string, string> = { serie: "▣", film: "◈" };
 export const TYPE_LABELS: Record<string, string> = { serie: "Série", film: "Film" };
+
+/** Alt text des posters : explicite la relation image/contenu pour la recherche d'images */
+export function altAffiche(titre: string, type: "serie" | "film"): string {
+  return `Affiche de ${type === "serie" ? "série" : "film"} — ${titre}`;
+}
 
 export function isNouvelleSerieCheck(saisonActuelle?: number, premiereDiffusion?: string): boolean {
   if (saisonActuelle === 1) return true;

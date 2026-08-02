@@ -17,6 +17,24 @@ export function extraitMeta(
 }
 
 /**
+ * Meta description d'une fiche : disponibilité + extrait du synopsis. Repli sur
+ * titre/année/genres quand TMDB ne fournit aucun synopsis (fréquent pour les
+ * stand-up et documentaires) — sinon deux fiches sans résumé partageant la même
+ * dispo se retrouvent avec une description strictement identique.
+ */
+export function descriptionFiche(contenu: Serie | Film): string {
+  const prefixe = contenu.dispo?.length
+    ? `À voir sur ${contenu.dispo.slice(0, 2).join(" et ")}. `
+    : "";
+  const extrait = extraitMeta(contenu.synopsis, 160 - prefixe.length);
+  if (extrait) return prefixe + extrait;
+
+  const genresLabel = contenu.genres.slice(0, 2).map((g) => g.nom).join(", ");
+  const type = contenu.type === "serie" ? "Série" : "Film";
+  return `${prefixe}${type} ${contenu.titre} (${contenu.annee})${genresLabel ? ` — ${genresLabel}` : ""}.`;
+}
+
+/**
  * JSON-LD Movie / TVSeries pour les fiches — éligibilité aux résultats
  * enrichis Google (note, genres, casting).
  */

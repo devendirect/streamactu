@@ -24,16 +24,28 @@ export async function GET() {
   const moisURL = formatMoisURL(mois, anneeMois);
   const moisFR = formatMoisFR(mois, anneeMois);
 
+  const recapsAnnuels = PLATEFORMES.map(
+    (pf) => `- [Nouveautés ${pf.nom} ${annee}](${SITE_URL}/${pf.slug}/${annee}) : tout ce qui est arrivé sur ${pf.nom} en ${annee}, mois par mois`
+  ).join("\n");
+
   const texte = `# StreamActu.fr
 
 > Les nouveautés séries et films du streaming en France, mises à jour chaque jour :
-> Netflix, Prime Video, Disney+, Apple TV+, Canal+, Max et Paramount+.
+> Netflix, Prime Video, Disney+, Apple TV+, Canal+, HBO Max et Paramount+.
 > Chaque fiche indique la note des spectateurs, le casting, la bande-annonce
 > et les plateformes où regarder le titre en France.
 
 ## Nouveautés par plateforme
 
 ${plateformes}
+
+## Récaps annuels et mensuels
+
+Chaque plateforme a une page par année et une page par mois :
+\`/{plateforme}/{année}\` (ex. ${SITE_URL}/netflix/${annee}) et
+\`/{plateforme}/{mois}-{année}\` (ex. ${SITE_URL}/netflix/${moisURL}).
+
+${recapsAnnuels}
 
 ## Classements
 

@@ -36,8 +36,8 @@ export default function Footer() {
   return (
     <footer className="border-t border-border mt-auto">
       <div className="sa-container py-10">
-        {/* Colonnes titrées : Site / Nouveautés / Classements / Genres */}
-        <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4 md:gap-x-10">
+        {/* Colonnes titrées : Site / Nouveautés / Récaps / Classements / Genres */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4 lg:grid-cols-5 md:gap-x-10">
           <nav aria-label="Pages du site" className="flex flex-col gap-2.5">
             <span className="font-mono-label text-[#B8AF9D] mb-1">Site</span>
             {NAV.map((item) => (
@@ -60,6 +60,19 @@ export default function Footer() {
                 className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
               >
                 {pf.nom}
+              </Link>
+            ))}
+          </nav>
+
+          <nav aria-label={`Récaps ${annee} par plateforme`} className="flex flex-col gap-2.5">
+            <span className="font-mono-label text-[#B8AF9D] mb-1">Récaps {annee}</span>
+            {PLATEFORMES.map((pf) => (
+              <Link
+                key={pf.id}
+                href={`/${pf.slug}/${annee}`}
+                className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {pf.nom} {annee}
               </Link>
             ))}
           </nav>

@@ -1,5 +1,6 @@
 import type { Contenu } from "@/types";
 import { getTopAnnee, getTopMois } from "@/lib/tmdb";
+import { PLATEFORMES } from "@/lib/plateformes";
 import { formatMoisFR } from "@/lib/utils";
 
 // 24h : mêmes caches que les pages top (getTopAnnee / getNouveautesMois)
@@ -47,7 +48,7 @@ export async function GET() {
   const texte = `# StreamActu.fr — classements en cours
 
 > Les séries et films les mieux notés disponibles en streaming par abonnement en France
-> (Netflix, Prime Video, Disney+, Apple TV+, Canal+, Max, Paramount+).
+> (Netflix, Prime Video, Disney+, Apple TV+, Canal+, HBO Max, Paramount+).
 > Classements établis d'après la note des spectateurs sur TMDB, pondérée par le
 > nombre de votes. Mise à jour quotidienne. Version condensée : ${SITE_URL}/llms.txt
 
@@ -55,6 +56,13 @@ ${section(`Top séries ${annee}`, seriesAnnee)}
 ${section(`Top films ${annee}`, filmsAnnee)}
 ${section(`Top séries ${moisFR}`, seriesMois)}
 ${section(`Top films ${moisFR}`, filmsMois)}
+## Récaps annuels par plateforme
+
+Inventaire de l'année, mois par mois — à distinguer des classements ci-dessus,
+qui sont sélectifs et toutes plateformes confondues.
+
+${PLATEFORMES.map((pf) => `- [Nouveautés ${pf.nom} ${annee}](${SITE_URL}/${pf.slug}/${annee})`).join("\n")}
+
 ## Autres ressources
 
 - [Sitemap](${SITE_URL}/sitemap.xml) : toutes les fiches films et séries

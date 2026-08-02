@@ -91,6 +91,18 @@ export interface NouveautesParPlateforme {
   films: Contenu[];
 }
 
+/** Vue « année » d'une plateforme : le palmarès annuel + le détail mois par mois. */
+export interface NouveautesAnnee {
+  plateforme: Plateforme;
+  annee: number;
+  /** Un item par mois ayant au moins un contenu, du plus récent au plus ancien. */
+  mois: { mois: number; annee: number; nbSeries: number; nbFilms: number }[];
+  series: Contenu[];
+  films: Contenu[];
+  totalSeries: number;
+  totalFilms: number;
+}
+
 export type ModeAffichage = "liste" | "rails" | "grille";
 
 export type ContexteTemporel =

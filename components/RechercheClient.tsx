@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ResultatRecherche } from "@/types";
 import { evenementGA } from "@/lib/ga";
+import { altAffiche } from "@/lib/utils";
 
 interface RechercheClientProps {
   queryInitiale: string;
@@ -128,7 +129,7 @@ export default function RechercheClient({
               {/* Poster */}
               <div className="relative w-16 h-24 shrink-0 border border-border overflow-hidden bg-card">
                 {item.poster ? (
-                  <Image src={item.poster} alt={item.titre} fill className="object-cover" sizes="64px" />
+                  <Image src={item.poster} alt={altAffiche(item.titre, item.type)} fill className="object-cover" sizes="64px" />
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
                 )}
