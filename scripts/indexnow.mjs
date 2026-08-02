@@ -26,7 +26,7 @@ const PLATEFORMES = [
   "disney-plus",
   "apple-tv-plus",
   "canal-plus",
-  "max",
+  "hbo-max",
   "paramount-plus",
 ];
 

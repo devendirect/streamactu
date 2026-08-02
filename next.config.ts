@@ -19,6 +19,19 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
   },
 
+  async redirects() {
+    return [
+      // Renommage du slug « max » → « hbo-max » (2 août 2026) : la plateforme
+      // n'est cherchée que sous « hbo max », jamais « max » seul. Les anciennes
+      // URLs sont indexées — hub, films/series, prochaines sorties, archives
+      // mensuelles et récaps annuels — d'où le wildcard sur les sous-routes.
+      // 308 et non 301 : Next préserve la méthode HTTP ; Google le traite comme
+      // un permanent et transfère le signal.
+      { source: "/max", destination: "/hbo-max", permanent: true },
+      { source: "/max/:sous*", destination: "/hbo-max/:sous*", permanent: true },
+    ];
+  },
+
   async headers() {
     return [
       {
