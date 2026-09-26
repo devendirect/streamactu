@@ -26,6 +26,8 @@ import {
   bornesSemaine,
   getISOWeek,
 } from "@/lib/utils";
+import type { Contenu } from "@/types";
+import { comptesUniques, metadonnees, metaHubPlateforme, metaJour, metaMois, metaSemaine } from "@/lib/meta";
 import AccueilClient from "@/components/AccueilClient";
 import EnTeteNouveautes from "@/components/EnTeteNouveautes";
 import SectionPlateforme from "@/components/SectionPlateforme";
@@ -36,7 +38,6 @@ import FaqPlateforme from "@/components/FaqPlateforme";
 // 1h : les pages plateforme suivent la fraîcheur des données semaine
 export const revalidate = 3600;
 
-const OG_IMAGES = ["/og-default.png"];
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -47,77 +48,62 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const pf = PLATEFORME_PAR_SLUG[slug];
   if (pf) {
-    const title = `Nouveautés ${pf.nom} — séries et films de la semaine`;
-    const description = `Les nouveautés ${pf.nom} de la semaine en France : toutes les séries et films ajoutés au catalogue, mis à jour chaque jour.`;
-    return {
-      title,
-      description,
-      openGraph: { title, description, images: OG_IMAGES },
-      alternates: { canonical: `/${pf.slug}` },
-    };
+    const { titre, description } = metaHubPlateforme(pf.nom);
+    return metadonnees(titre, description, `/${pf.slug}`);
   }
 
+  // Les données viennent des mêmes caches que le rendu de la page : aucun
+  // appel supplémentaire. Au doute (API indisponible), description sans chiffres
+  // et page laissée indexable.
   const date = parseDateURL(slug);
   if (date) {
-    const label = formatJourSemaineFR(date);
     const iso = toISO(date);
     const futur = iso > toISO(new Date());
-    const title = `Nouveautés streaming — ${label}`;
-    const description = futur
-      ? `Les épisodes et sorties annoncés le ${label} sur les plateformes de streaming — programme susceptible de changer.`
-      : `Toutes les séries et films sortis le ${label} sur les plateformes de streaming.`;
-
-    // Jour vide → noindex (la page reste servie aux visiteurs).
-    // Même cache que le rendu de la page : aucun appel supplémentaire.
+    let comptes = { series: [] as Contenu[], films: [] as Contenu[] };
     let vide = false;
     if (!futur) {
       try {
-        const nouveautes = await getNouveautesJour(iso);
-        vide = nouveautes.length === 0;
+        comptes = comptesUniques(await getNouveautesJour(iso));
+        // Jour vide → noindex (la page reste servie aux visiteurs)
+        vide = comptes.series.length + comptes.films.length === 0;
       } catch (err) {
-        // au doute, on laisse indexable
         console.error(`[metadata] comptage du jour ${iso} indisponible :`, err instanceof Error ? err.message : err);
       }
     }
-
-    return {
-      title,
-      description,
-      openGraph: { title, description, images: OG_IMAGES },
-      alternates: { canonical: `/${formatDateURL(date)}` },
-      // Futur : contenu prévisionnel et changeant — jamais indexé
+    const { titre, description } = metaJour(date, futur, comptes.series, comptes.films);
+    // Futur : contenu prévisionnel et changeant, jamais indexé
+    return metadonnees(titre, description, `/${formatDateURL(date)}`, {
       ...(vide || futur ? { robots: { index: false } } : {}),
-    };
+    });
   }
 
   const sem = parseSemaineURL(slug);
   if (sem) {
-    const label = `Semaine du ${formatSemaineFR(sem.semaine, sem.annee)}`;
     const futur = bornesSemaine(sem.semaine, sem.annee).debut > toISO(new Date());
-    const title = `Nouveautés streaming — ${label}`;
-    const description = futur
-      ? `Les épisodes et sorties annoncés pendant la ${label.toLowerCase()} sur les plateformes de streaming — programme susceptible de changer.`
-      : `Toutes les séries et films sortis pendant la ${label.toLowerCase()} sur les plateformes de streaming.`;
-    return {
-      title,
-      description,
-      openGraph: { title, description, images: OG_IMAGES },
-      alternates: { canonical: `/${slug}` },
+    let comptes = { series: [] as Contenu[], films: [] as Contenu[] };
+    if (!futur) {
+      try {
+        comptes = comptesUniques(await getNouveautesSemaine(sem.semaine, sem.annee));
+      } catch (err) {
+        console.error(`[metadata] semaine ${slug} indisponible :`, err instanceof Error ? err.message : err);
+      }
+    }
+    const { titre, description } = metaSemaine(sem.semaine, sem.annee, futur, comptes.series, comptes.films);
+    return metadonnees(titre, description, `/${formatSemaineURL(sem.semaine, sem.annee)}`, {
       ...(futur ? { robots: { index: false } } : {}),
-    };
+    });
   }
 
   const mois = parseMoisURL(slug);
   if (mois) {
-    const label = formatMoisFR(mois.mois, mois.annee);
-    const title = `Nouveautés streaming — ${label}`;
-    const description = `Toutes les séries et films sortis en ${label} sur Netflix, Prime Video, Disney+ et autres plateformes.`;
-    return {
-      title,
-      description,
-      openGraph: { title, description, images: OG_IMAGES },
-      alternates: { canonical: `/${formatMoisURL(mois.mois, mois.annee)}` },
-    };
+    let comptes = { series: [] as Contenu[], films: [] as Contenu[] };
+    try {
+      comptes = comptesUniques(await getNouveautesMois(mois.mois, mois.annee));
+    } catch (err) {
+      console.error(`[metadata] mois ${slug} indisponible :`, err instanceof Error ? err.message : err);
+    }
+    const { titre, description } = metaMois(mois.mois, mois.annee, comptes.series, comptes.films);
+    return metadonnees(titre, description, `/${formatMoisURL(mois.mois, mois.annee)}`);
   }
 
   return { title: "Page non trouvée" };

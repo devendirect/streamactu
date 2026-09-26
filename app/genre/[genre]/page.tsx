@@ -5,13 +5,13 @@ import { getContenusGenre } from "@/lib/tmdb";
 import { GENRES_SEO, GENRE_PAR_SLUG } from "@/lib/genres";
 import { PLATEFORMES } from "@/lib/plateformes";
 import { libelleComptes } from "@/lib/utils";
+import { metadonnees, metaGenre } from "@/lib/meta";
 import EnTeteNouveautes from "@/components/EnTeteNouveautes";
 import ListeContenus from "@/components/ListeContenus";
 import MaillageGenres from "@/components/MaillageGenres";
 
 export const revalidate = 86400;
 
-const OG_IMAGES = ["/og-default.png"];
 const MIN_CONTENUS = 5;
 
 interface Props {
@@ -23,14 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const g = GENRE_PAR_SLUG[genre];
   if (!g) return { title: "Page non trouvée" };
 
-  const title = `${g.nom} en streaming — les séries et films à voir`;
-  const description = `${g.intro} Sélection disponible sur Netflix, Prime Video, Disney+ et les autres plateformes en France.`;
-  return {
-    title,
-    description,
-    openGraph: { title: `${title} | StreamActu.fr`, description, images: OG_IMAGES },
-    alternates: { canonical: `/genre/${g.slug}` },
-  };
+  const { titre, description } = metaGenre(g.nom, g.intro);
+  return metadonnees(titre, description, `/genre/${g.slug}`);
 }
 
 export function generateStaticParams() {

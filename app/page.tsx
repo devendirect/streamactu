@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { metadonnees, metaAccueil } from "@/lib/meta";
 import { getNouveautesJour } from "@/lib/tmdb";
 import { toISO, formatJourSemaineFR } from "@/lib/utils";
 import AccueilClient from "@/components/AccueilClient";
@@ -7,13 +8,8 @@ import EnTeteNouveautes from "@/components/EnTeteNouveautes";
 export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const label = formatJourSemaineFR(new Date());
-  return {
-    title: `Nouveautés streaming — ${label}`,
-    description:
-      "Retrouvez chaque jour les nouvelles séries et films disponibles sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, HBO Max et Paramount+.",
-    alternates: { canonical: "/" },
-  };
+  const { titre, description } = metaAccueil();
+  return metadonnees(titre, description, "/");
 }
 
 export default async function HomePage() {

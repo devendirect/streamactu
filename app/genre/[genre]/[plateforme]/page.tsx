@@ -5,6 +5,7 @@ import { getContenusGenre } from "@/lib/tmdb";
 import { GENRE_PAR_SLUG } from "@/lib/genres";
 import { PLATEFORME_PAR_SLUG } from "@/lib/plateformes";
 import { libelleComptes } from "@/lib/utils";
+import { metadonnees, metaGenrePlateforme } from "@/lib/meta";
 import EnTeteNouveautes from "@/components/EnTeteNouveautes";
 import ListeContenus from "@/components/ListeContenus";
 import MaillageGenres from "@/components/MaillageGenres";
@@ -13,7 +14,6 @@ import MaillageGenres from "@/components/MaillageGenres";
 // demande puis mis en cache (ISR) — les croisements maigres font 404.
 export const revalidate = 86400;
 
-const OG_IMAGES = ["/og-default.png"];
 const MIN_CONTENUS = 5;
 
 interface Props {
@@ -26,14 +26,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const pf = PLATEFORME_PAR_SLUG[plateforme];
   if (!g || !pf) return { title: "Page non trouvée" };
 
-  const title = `${g.nom} sur ${pf.nom} — séries et films à voir`;
-  const description = `${g.intro} La sélection ${g.nom.toLowerCase()} disponible au catalogue ${pf.nom} en France.`;
-  return {
-    title,
-    description,
-    openGraph: { title: `${title} | StreamActu.fr`, description, images: OG_IMAGES },
-    alternates: { canonical: `/genre/${g.slug}/${pf.slug}` },
-  };
+  const { titre, description } = metaGenrePlateforme(g.nom, g.intro, pf.nom);
+  return metadonnees(titre, description, `/genre/${g.slug}/${pf.slug}`);
 }
 
 export default async function GenrePlateformePage({ params }: Props) {

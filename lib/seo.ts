@@ -1,37 +1,48 @@
 import type { Contenu, Serie, Film } from "@/types";
+import { composerDescription } from "./meta";
 
 const SITE_URL = process.env.SITE_URL ?? "https://streamactu.fr";
 
 /**
- * Tronque un texte pour les meta descriptions sans couper en plein mot.
+ * Plateformes distinctes pour la description : « Netflix Standard with Ads »
+ * n'apporte rien à côté de « Netflix ».
  */
-export function extraitMeta(
-  texte: string | null | undefined,
-  max = 160
-): string | undefined {
-  if (!texte) return undefined;
-  if (texte.length <= max) return texte;
-  const coupe = texte.slice(0, max - 1);
-  const dernierEspace = coupe.lastIndexOf(" ");
-  return (dernierEspace > 60 ? coupe.slice(0, dernierEspace) : coupe).trimEnd() + "…";
+function plateformesDistinctes(noms: string[]): string[] {
+  const gardes: string[] = [];
+  for (const nom of noms) {
+    if (!gardes.some((g) => nom.startsWith(g))) gardes.push(nom);
+  }
+  return gardes;
 }
 
 /**
- * Meta description d'une fiche : disponibilité + extrait du synopsis. Repli sur
- * titre/année/genres quand TMDB ne fournit aucun synopsis (fréquent pour les
- * stand-up et documentaires) — sinon deux fiches sans résumé partageant la même
- * dispo se retrouvent avec une description strictement identique.
+ * Meta description d'une fiche : disponibilité + extrait du synopsis, puis
+ * type, année, genres et saisons quand le synopsis est court ou absent
+ * (fréquent pour les stand-up et documentaires). Ces détails rendent aussi
+ * uniques deux fiches sans résumé partageant la même dispo.
  */
 export function descriptionFiche(contenu: Serie | Film): string {
-  const prefixe = contenu.dispo?.length
-    ? `À voir sur ${contenu.dispo.slice(0, 2).join(" et ")}. `
-    : "";
-  const extrait = extraitMeta(contenu.synopsis, 160 - prefixe.length);
-  if (extrait) return prefixe + extrait;
+  const dispo = plateformesDistinctes(contenu.dispo ?? []).slice(0, 2);
+  const prefixe = dispo.length ? `À voir sur ${dispo.join(" et ")}. ` : "";
+  const estSerie = contenu.type === "serie";
+  const genres = contenu.genres.slice(0, 2).map((g) => g.nom).join(", ");
+  const saisons =
+    estSerie && contenu.nbSaisons > 0
+      ? `, ${contenu.nbSaisons} saison${contenu.nbSaisons > 1 ? "s" : ""}`
+      : "";
+  const annee = contenu.annee ? ` de ${contenu.annee}` : "";
+  const details = `${estSerie ? "Série" : "Film"}${annee}${genres ? ` (${genres})` : ""}${saisons}.`;
+  const repli = [
+    "Note des spectateurs, distribution et disponibilités en streaming en France.",
+    "Note, distribution et disponibilités en streaming en France.",
+    "Note, distribution et plateformes en France.",
+  ];
 
-  const genresLabel = contenu.genres.slice(0, 2).map((g) => g.nom).join(", ");
-  const type = contenu.type === "serie" ? "Série" : "Film";
-  return `${prefixe}${type} ${contenu.titre} (${contenu.annee})${genresLabel ? ` — ${genresLabel}` : ""}.`;
+  const synopsis = contenu.synopsis?.trim();
+  if (synopsis) {
+    return composerDescription(prefixe + synopsis, [details], repli);
+  }
+  return composerDescription(`${prefixe}${contenu.titre} : ${details.charAt(0).toLowerCase()}${details.slice(1)}`, repli);
 }
 
 /**

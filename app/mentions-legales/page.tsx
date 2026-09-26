@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
-const DESCRIPTION = "Informations légales, données personnelles et attribution TMDB pour StreamActu.fr.";
+const DESCRIPTION =
+  "Mentions légales de StreamActu.fr : éditeur, hébergement, données personnelles (RGPD), intelligence artificielle et attribution des données TMDB.";
 
 export const metadata: Metadata = {
   title: "Mentions légales",

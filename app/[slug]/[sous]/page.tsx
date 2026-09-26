@@ -17,6 +17,14 @@ import {
   parseMoisURL,
   toISO,
 } from "@/lib/utils";
+import type { Contenu } from "@/types";
+import {
+  metadonnees,
+  metaAnneePlateforme,
+  metaMoisPlateforme,
+  metaProchainesSortiesPlateforme,
+  metaSeriesOuFilms,
+} from "@/lib/meta";
 import EnTeteNouveautes from "@/components/EnTeteNouveautes";
 import SectionPlateforme from "@/components/SectionPlateforme";
 import MaillagePlateformes from "@/components/MaillagePlateformes";
@@ -26,7 +34,6 @@ import ListeSortiesParJour, { agregerSortiesParJour } from "@/components/ListeSo
 
 export const revalidate = 3600;
 
-const OG_IMAGES = ["/og-default.png"];
 const MAX_TYPE = 20;
 
 interface Props {
@@ -38,27 +45,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const pf = PLATEFORME_PAR_SLUG[slug];
   if (!pf) return { title: "Page non trouvée" };
 
+  // Données : mêmes caches que le rendu de la page, aucun appel en plus. Au
+  // doute (API indisponible), description sans chiffres.
   if (sous === "series" || sous === "films") {
-    const title =
-      sous === "series"
-        ? `Nouvelles séries ${pf.nom}`
-        : `Nouveaux films ${pf.nom}`;
-    const description =
-      sous === "series"
-        ? `Les nouvelles séries ajoutées au catalogue ${pf.nom} en France ces dernières semaines, triées par note.`
-        : `Les nouveaux films ajoutés au catalogue ${pf.nom} en France ces dernières semaines, triés par note.`;
-    return {
-      title,
-      description,
-      openGraph: { title, description, images: OG_IMAGES },
-      alternates: { canonical: `/${pf.slug}/${sous}` },
-    };
+    let contenus: Contenu[] = [];
+    try {
+      const sorties = await getSortiesRecentesPlateforme(pf.id);
+      contenus = (sous === "series" ? sorties.series : sorties.films).slice(0, MAX_TYPE);
+    } catch (err) {
+      console.error(`[metadata] sorties récentes ${pf.slug} indisponibles :`, err instanceof Error ? err.message : err);
+    }
+    const { titre, description } = metaSeriesOuFilms(pf.nom, sous, contenus);
+    return metadonnees(titre, description, `/${pf.slug}/${sous}`);
   }
 
   if (sous === "prochaines-sorties") {
-    const title = `Prochaines sorties ${pf.nom}`;
-    const description = `Le calendrier des prochaines sorties ${pf.nom} en France : nouvelles séries et films annoncés sur les quatre semaines à venir.`;
-
     // Calendrier vide pour cette plateforme → noindex
     let vide = false;
     try {
@@ -68,39 +69,42 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       // au doute, on laisse indexable
       console.error(`[metadata] sorties à venir ${pf.slug} indisponibles :`, err instanceof Error ? err.message : err);
     }
-
-    return {
-      title,
-      description,
-      openGraph: { title, description, images: OG_IMAGES },
-      alternates: { canonical: `/${pf.slug}/prochaines-sorties` },
+    const { titre, description } = metaProchainesSortiesPlateforme(pf.nom);
+    return metadonnees(titre, description, `/${pf.slug}/prochaines-sorties`, {
       ...(vide ? { robots: { index: false } } : {}),
-    };
+    });
   }
 
   const mois = parseMoisURL(sous);
   if (mois) {
-    const label = formatMoisFR(mois.mois, mois.annee);
-    const title = `Nouveautés ${pf.nom} — ${label}`;
-    const description = `Toutes les séries et films arrivés sur ${pf.nom} en ${label} en France.`;
-    return {
-      title,
-      description,
-      openGraph: { title, description, images: OG_IMAGES },
-      alternates: { canonical: `/${pf.slug}/${formatMoisURL(mois.mois, mois.annee)}` },
-    };
+    let data: { series: Contenu[]; films: Contenu[] } = { series: [], films: [] };
+    try {
+      const toutes = await getNouveautesMois(mois.mois, mois.annee);
+      data = toutes.find((p) => p.plateforme.id === pf.id) ?? data;
+    } catch (err) {
+      console.error(`[metadata] mois ${pf.slug}/${sous} indisponible :`, err instanceof Error ? err.message : err);
+    }
+    const { titre, description } = metaMoisPlateforme(pf.nom, mois.mois, mois.annee, data.series, data.films);
+    return metadonnees(titre, description, `/${pf.slug}/${formatMoisURL(mois.mois, mois.annee)}`);
   }
 
   const annee = parseAnneeURL(sous);
   if (annee && annee <= new Date().getUTCFullYear()) {
-    const title = `Nouveautés ${pf.nom} ${annee}`;
-    const description = `Toutes les séries et films arrivés sur ${pf.nom} en France en ${annee}, mois par mois.`;
-    return {
-      title,
-      description,
-      openGraph: { title, description, images: OG_IMAGES },
-      alternates: { canonical: `/${pf.slug}/${annee}` },
-    };
+    let totalSeries = 0;
+    let totalFilms = 0;
+    let meilleurs: Contenu[] = [];
+    try {
+      const data = await getNouveautesAnnee(pf.id, annee);
+      if (data) {
+        totalSeries = data.totalSeries;
+        totalFilms = data.totalFilms;
+        meilleurs = [...data.series, ...data.films];
+      }
+    } catch (err) {
+      console.error(`[metadata] année ${pf.slug}/${annee} indisponible :`, err instanceof Error ? err.message : err);
+    }
+    const { titre, description } = metaAnneePlateforme(pf.nom, annee, totalSeries, totalFilms, meilleurs);
+    return metadonnees(titre, description, `/${pf.slug}/${annee}`);
   }
 
   return { title: "Page non trouvée" };

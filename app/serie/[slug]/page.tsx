@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { titreAffiche, titreMeta } from "@/lib/meta";
 import { getDetailSerie } from "@/lib/tmdb";
 import { idDepuisSlug } from "@/lib/utils";
 import { descriptionFiche, jsonLdFiche } from "@/lib/seo";
@@ -28,12 +29,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const description = descriptionFiche(serie);
   return {
-    title: serie.titre,
+    title: titreMeta(serie.titre),
     description,
     alternates: { canonical: `/serie/${serie.slug}` },
     openGraph: {
       type: "video.tv_show",
-      title: `${serie.titre} | StreamActu.fr`,
+      title: titreAffiche(serie.titre),
       description,
       images: serie.backdrop ? [{ url: serie.backdrop }] : ["/og-default.png"],
     },

@@ -3,20 +3,16 @@ import type { Contenu } from "@/types";
 import { getContenusJeuDuJour, getDetailFilm, getDetailSerie } from "@/lib/tmdb";
 import { toISO } from "@/lib/utils";
 import JeuxClient from "@/components/JeuxClient";
+import { metadonnees } from "@/lib/meta";
 
 // 1h : la rotation des jeux à minuit UTC ne doit pas traîner derrière l'ISR
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: "Jeux — Titre du jour & Pochette mystère",
-  description: "Deux jeux quotidiens autour des séries et films streaming : devinez le titre du jour ou la pochette mystère.",
-  alternates: { canonical: "/jeux" },
-  openGraph: {
-    title: "Jeux — Titre du jour & Pochette mystère | StreamActu.fr",
-    description: "Deux jeux quotidiens autour des séries et films streaming : devinez le titre du jour ou la pochette mystère.",
-    images: ["/og-default.png"],
-  },
-};
+export const metadata: Metadata = metadonnees(
+  "Jeux : Titre du jour et Pochette mystère",
+  "Deux jeux quotidiens autour des séries et films en streaming : trouvez le titre du jour grâce aux indices, ou l'affiche floutée de la pochette mystère.",
+  "/jeux"
+);
 
 function indexDuJour(dateISO: string): number {
   const d = new Date(dateISO + "T00:00:00Z");

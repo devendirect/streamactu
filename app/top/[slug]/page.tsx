@@ -11,13 +11,13 @@ import {
   toISO,
 } from "@/lib/utils";
 import { jsonLdClassement } from "@/lib/seo";
+import { metadonnees, metaTop } from "@/lib/meta";
 import EnTeteNouveautes from "@/components/EnTeteNouveautes";
 import CarteContenu from "@/components/CarteContenu";
 import MaillagePlateformes from "@/components/MaillagePlateformes";
 
 export const revalidate = 86400;
 
-const OG_IMAGES = ["/og-default.png"];
 const MIN_CONTENUS = 5; // garde-fou anti-contenu maigre
 
 type TopParams =
@@ -66,7 +66,6 @@ function libelles(params: TopParams) {
       : String(params.annee);
   return {
     titre: `Top ${nomType} — ${periode}`,
-    title: `Top ${nomType} ${periode} — les mieux noté${estSeries ? "es" : "s"} en streaming`,
     description:
       params.portee === "mois"
         ? `Le classement des ${nomType} sorti${estSeries ? "es" : "s"} en ${periode} les mieux noté${estSeries ? "es" : "s"} sur les plateformes de streaming en France.`
@@ -83,13 +82,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const top = parseTopSlug(slug);
   if (!top) return { title: "Page non trouvée" };
 
-  const { title, description } = libelles(top);
-  return {
-    title,
-    description,
-    openGraph: { title: `${title} | StreamActu.fr`, description, images: OG_IMAGES },
-    alternates: { canonical: `/top/${formatTopSlug(top)}` },
-  };
+  // Mêmes caches que le rendu : sert à citer le n° 1 dans la description
+  let contenus: Contenu[] = [];
+  try {
+    contenus =
+      top.portee === "mois"
+        ? await getTopMois(top.type, top.mois, top.annee)
+        : await getTopAnnee(top.type, top.annee);
+  } catch (err) {
+    console.error(`[metadata] top ${slug} indisponible :`, err instanceof Error ? err.message : err);
+  }
+
+  const { titre, description } = metaTop(top.type, top, contenus);
+  return metadonnees(titre, description, `/top/${formatTopSlug(top)}`);
 }
 
 export async function generateStaticParams() {

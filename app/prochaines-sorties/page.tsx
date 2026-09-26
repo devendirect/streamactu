@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { metadonnees, metaProchainesSorties } from "@/lib/meta";
 import Link from "next/link";
 import { getSortiesAVenir } from "@/lib/tmdb";
 import { PLATEFORMES } from "@/lib/plateformes";
@@ -8,9 +9,6 @@ import MaillagePlateformes from "@/components/MaillagePlateformes";
 
 export const revalidate = 21600;
 
-const TITLE = "Prochaines sorties streaming — le calendrier des 4 semaines à venir";
-const DESCRIPTION =
-  "Le calendrier des prochaines sorties en streaming en France : nouvelles séries et films annoncés sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, HBO Max et Paramount+.";
 
 export async function generateMetadata(): Promise<Metadata> {
   // Calendrier vide → noindex (même cache que le rendu, aucun appel en plus)
@@ -23,17 +21,10 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("[metadata] sorties à venir indisponibles :", err instanceof Error ? err.message : err);
   }
 
-  return {
-    title: TITLE,
-    description: DESCRIPTION,
-    alternates: { canonical: "/prochaines-sorties" },
-    openGraph: {
-      title: `${TITLE} | StreamActu.fr`,
-      description: DESCRIPTION,
-      images: ["/og-default.png"],
-    },
+  const { titre, description } = metaProchainesSorties();
+  return metadonnees(titre, description, "/prochaines-sorties", {
     ...(vide ? { robots: { index: false } } : {}),
-  };
+  });
 }
 
 export default async function ProchainesSortiesPage() {

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PLATEFORMES } from "@/lib/plateformes";
 
 const DESCRIPTION =
-  "StreamActu.fr recense chaque jour les nouvelles séries et films disponibles en streaming par abonnement en France : qui nous sommes, d'où viennent les données et à quelle fréquence elles sont mises à jour.";
+  "StreamActu.fr recense chaque jour les nouveautés du streaming en France : ce que fait le site, qui l'édite, d'où viennent les données et leur mise à jour.";
 
 export const metadata: Metadata = {
   title: "À propos",
