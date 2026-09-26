@@ -64,7 +64,9 @@ ${recapsAnnuels}
 
 ## À propos
 
-- [Qui édite le site et d'où viennent les données](${SITE_URL}/a-propos)
+- [Qui édite le site, d'où viennent les données et comment sont faits les classements](${SITE_URL}/a-propos)
+- [Contact](${SITE_URL}/contact) : signaler une erreur de disponibilité ou de fiche
+- [Mentions légales](${SITE_URL}/mentions-legales) : éditeur, hébergeur, données personnelles, usage de l'IA
 - Données : TMDB (The Movie Database), disponibilités France uniquement
 - Langue : français
 - Mise à jour : quotidienne

@@ -227,6 +227,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   entries.push(
     { url: `${BASE}/a-propos`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE}/mentions-legales`, changeFrequency: "yearly", priority: 0.2 },
+    { url: `${BASE}/contact`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${BASE}/jeux`, changeFrequency: "daily", priority: 0.5 }
   );
 

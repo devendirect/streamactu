@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SplashScreenLoader from "@/components/SplashScreenLoader";
 import ConsentAnalytics from "@/components/ConsentAnalytics";
+import { CONTACT_EMAIL, ORG_ID, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -25,7 +26,6 @@ const splineMono = Spline_Sans_Mono({
   weight: ["400", "500", "600"],
 });
 
-const SITE_URL = process.env.SITE_URL ?? "https://streamactu.fr";
 const DESCRIPTION =
   "Retrouvez chaque jour les nouvelles séries et films disponibles sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, HBO Max et Paramount+.";
 
@@ -33,17 +33,33 @@ const jsonLd = [
   {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": ORG_ID,
     name: "StreamActu.fr",
     url: SITE_URL,
-    logo: `${SITE_URL}/icons/repere-pwa-512.png`,
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_URL}/icons/repere-pwa-512.png`,
+      width: 512,
+      height: 512,
+    },
     description: DESCRIPTION,
+    email: CONTACT_EMAIL,
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      email: CONTACT_EMAIL,
+      url: `${SITE_URL}/contact`,
+      availableLanguage: "fr",
+    },
   },
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
     name: "StreamActu.fr",
     url: SITE_URL,
     inLanguage: "fr-FR",
+    publisher: { "@id": ORG_ID },
   },
 ];
 

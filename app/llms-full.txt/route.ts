@@ -67,6 +67,8 @@ ${PLATEFORMES.map((pf) => `- [Nouveautés ${pf.nom} ${annee}](${SITE_URL}/${pf.s
 
 - [Sitemap](${SITE_URL}/sitemap.xml) : toutes les fiches films et séries
 - [Flux RSS](${SITE_URL}/flux.xml) : les nouveautés des 7 derniers jours
+- [À propos](${SITE_URL}/a-propos) : éditeur, sources, méthode de classement, limites, financement
+- [Contact](${SITE_URL}/contact) : signaler une erreur de disponibilité ou de fiche
 `;
 
   return new Response(texte, {

@@ -122,6 +122,12 @@ export default function Footer() {
             >
               Mentions légales
             </Link>
+            <Link
+              href="/contact"
+              className="font-mono-label text-ink-3 hover:text-foreground transition-colors"
+            >
+              Contact
+            </Link>
             <a
               href="/flux.xml"
               className="font-mono-label text-ink-3 hover:text-foreground transition-colors"
