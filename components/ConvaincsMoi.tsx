@@ -25,6 +25,12 @@ export default function ConvaincsMoi({ contenu }: Props) {
         body: JSON.stringify({ slug: contenu.slug, type: contenu.type }),
       });
 
+      // Limite atteinte (par visiteur ou globale) : afficher le message du serveur
+      if (res.status === 429) {
+        setPitch((await res.text()) || "Trop de demandes. Réessayez plus tard.");
+        setPitchVisible(true);
+        return;
+      }
       if (!res.ok || !res.body) throw new Error("Erreur API");
 
       const reader = res.body.getReader();

@@ -1,6 +1,6 @@
 import { convaincseMoiStream } from "@/lib/anthropic";
 import { getCached, setCached, streamFromCache } from "@/lib/pitch-cache";
-import { checkRateLimit, getIp } from "@/lib/rate-limit";
+import { checkRateLimit, getIp, plafondIAAtteint } from "@/lib/rate-limit";
 import { getDetailFilm, getDetailSerie } from "@/lib/tmdb";
 import { idDepuisSlug } from "@/lib/utils";
 import { headers } from "next/headers";
@@ -56,6 +56,12 @@ export async function POST(request: Request) {
   // toutes les variantes de slug d'un même contenu partagent le cache
   const cle = `${type}:${id}`;
   const cached = getCached(cle);
+  // Plafond global du jour : un pitch déjà en cache ne coûte rien et reste servi
+  if (!cached && plafondIAAtteint("convaincs")) {
+    return new Response("Convaincs-moi fait une pause pour aujourd'hui : trop de demandes. Réessayez demain.", {
+      status: 429,
+    });
+  }
   const stream = cached
     ? streamFromCache(cached)
     : convaincseMoiStream(params, (texte) => setCached(cle, texte));

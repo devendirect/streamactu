@@ -43,6 +43,19 @@ const FOURNISSEURS: Record<string, number> = {
   "Paramount Plus Apple TV channel": 582,
 };
 
+/**
+ * Filtre TMDB `with_watch_providers` d'une plateforme. Paramount+ existe sous
+ * deux identifiants en France : 582 (chaîne Amazon, l'id historique du site)
+ * et 531 (offre directe). Mesuré le 2026-09-26 : 13 séries et 26 films ne sont
+ * rattachés qu'à 531. On interroge les deux (« | » = OU pour TMDB).
+ */
+const IDS_FOURNISSEURS: Record<number, number[]> = { 582: [582, 531] };
+
+export function filtreFournisseurs(plateformeIds: number | number[]): string {
+  const ids = Array.isArray(plateformeIds) ? plateformeIds : [plateformeIds];
+  return ids.flatMap((id) => IDS_FOURNISSEURS[id] ?? [id]).join("|");
+}
+
 /** Plateformes suivies parmi les noms de fournisseurs d'une fiche, sans doublon, dans l'ordre */
 export function plateformesDepuisFournisseurs(noms: string[]): Plateforme[] {
   const vues = new Set<number>();

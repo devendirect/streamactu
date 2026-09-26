@@ -1,6 +1,6 @@
 import { retrouverIA } from "@/lib/anthropic";
 import { retrouverFiche } from "@/lib/tmdb";
-import { checkRateLimit, getIp } from "@/lib/rate-limit";
+import { checkRateLimit, getIp, plafondIAAtteint } from "@/lib/rate-limit";
 import { headers } from "next/headers";
 
 export const runtime = "nodejs";
@@ -44,6 +44,14 @@ export async function POST(request: Request) {
     return new Response(
       JSON.stringify({ error: "Description trop longue (maximum 600 caractères)." }),
       { status: 400, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  // Plafond global du jour : compté seulement pour une requête valide qui partirait vers l'IA
+  if (plafondIAAtteint("retrouver")) {
+    return new Response(
+      JSON.stringify({ error: "Le Retrouveur a atteint sa limite du jour, tous visiteurs confondus. Réessayez demain." }),
+      { status: 429, headers: { "Content-Type": "application/json" } }
     );
   }
 

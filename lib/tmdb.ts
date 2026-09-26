@@ -19,7 +19,7 @@ import type {
   TMDBGenreList,
   Genre,
 } from "@/types";
-import { PLATEFORMES, PLATEFORME_PAR_ID } from "@/lib/plateformes";
+import { PLATEFORMES, PLATEFORME_PAR_ID, filtreFournisseurs } from "@/lib/plateformes";
 import { RESEAUX_PAR_PLATEFORME, plateformeDepuisNote, serieAnnonceeCredible } from "@/lib/calendrier";
 import {
   slugify,
@@ -238,7 +238,7 @@ export const getNouveautesJour = unstable_cache(
     const resultats = await Promise.all(
       PLATEFORMES.map(async (plateforme) => {
         const base = {
-          with_watch_providers: plateforme.id,
+          with_watch_providers: filtreFournisseurs(plateforme.id),
           watch_region: "FR",
           "vote_count.gte": 5,
           sort_by: "popularity.desc",
@@ -276,7 +276,7 @@ export const getNouveautesJour = unstable_cache(
 // plateformes confondues. Sert au sitemap pour écarter les jours creux.
 // ──────────────────────────────────────────────
 
-const TOUS_PROVIDERS = PLATEFORMES.map((p) => p.id).join("|");
+const TOUS_PROVIDERS = filtreFournisseurs(PLATEFORMES.map((p) => p.id));
 
 export const getCompteJour = unstable_cache(
   async (dateISO: string): Promise<number> => {
@@ -323,7 +323,7 @@ export interface Totaux {
 export const getTotaux = unstable_cache(
   async (debut: string, fin: string, plateformeIds: number[]): Promise<Totaux> => {
     const base = {
-      with_watch_providers: plateformeIds.join("|"),
+      with_watch_providers: filtreFournisseurs(plateformeIds),
       watch_region: "FR",
       "vote_count.gte": 5,
     };
@@ -379,7 +379,7 @@ export const getNouveautesMois = unstable_cache(
     return Promise.all(
       PLATEFORMES.map(async (plateforme) => {
         const base = {
-          with_watch_providers: plateforme.id,
+          with_watch_providers: filtreFournisseurs(plateforme.id),
           watch_region: "FR",
           sort_by: "popularity.desc",
           "vote_count.gte": 5,
@@ -508,7 +508,7 @@ export const getNouveautesSemaine = unstable_cache(
     return Promise.all(
       PLATEFORMES.map(async (plateforme) => {
         const base = {
-          with_watch_providers: plateforme.id,
+          with_watch_providers: filtreFournisseurs(plateforme.id),
           watch_region: "FR",
           sort_by: "popularity.desc",
           "vote_count.gte": 5,
@@ -800,7 +800,7 @@ export const getSortiesAVenir = unstable_cache(
     return Promise.all(
       PLATEFORMES.map(async (plateforme) => {
         const base = {
-          with_watch_providers: plateforme.id,
+          with_watch_providers: filtreFournisseurs(plateforme.id),
           watch_region: "FR",
         };
         const reseaux = RESEAUX_PAR_PLATEFORME[plateforme.id] ?? [];
@@ -878,7 +878,7 @@ export const getTopAnnee = unstable_cache(
       "vote_count.gte": 200,
       watch_region: "FR",
       with_watch_monetization_types: "flatrate",
-      with_watch_providers: IDS_PLATEFORMES.join("|"),
+      with_watch_providers: filtreFournisseurs(IDS_PLATEFORMES),
       ...(type === "serie" ? { first_air_date_year: annee } : { primary_release_year: annee }),
     };
 
@@ -957,7 +957,7 @@ export const getContenusGenre = unstable_cache(
     const [genresTv, genresFilm] = await Promise.all([getGenresTv(), getGenresFilm()]);
 
     const provider: Record<string, string | number> = plateformeId
-      ? { with_watch_providers: plateformeId }
+      ? { with_watch_providers: filtreFournisseurs(plateformeId) }
       : { with_watch_monetization_types: "flatrate" };
     const base = {
       watch_region: "FR",

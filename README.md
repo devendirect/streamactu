@@ -28,7 +28,7 @@
 [![Disney+](https://img.shields.io/badge/Disney+-113CCF?style=flat-square&logo=disney&logoColor=white)](https://disneyplus.com)
 [![Apple TV+](https://img.shields.io/badge/Apple_TV+-000000?style=flat-square&logo=apple&logoColor=white)](https://tv.apple.com)
 [![Canal+](https://img.shields.io/badge/Canal+-000000?style=flat-square&logo=canal&logoColor=white)](https://canalplus.com)
-[![Max](https://img.shields.io/badge/Max-002BE7?style=flat-square&logo=hbo&logoColor=white)](https://max.com)
+[![HBO Max](https://img.shields.io/badge/HBO_Max-002BE7?style=flat-square&logo=hbo&logoColor=white)](https://www.hbomax.com)
 [![Paramount+](https://img.shields.io/badge/Paramount+-0064FF?style=flat-square&logo=paramount&logoColor=white)](https://paramountplus.com)
 
 </div>
@@ -38,7 +38,7 @@
 ## Fonctionnalités
 
 ### Nouveautés quotidiennes
-Chaque plateforme, chaque jour — séries et films triés par popularité, avec note, genres et casting. Navigation par jour, semaine ou mois.
+Chaque plateforme, chaque jour : séries et films triés par note des spectateurs, avec genres et casting. Navigation par jour, semaine ou mois, archives mensuelles et récap annuel par plateforme.
 
 ### ✦ Convaincs-moi
 Sur chaque fiche, un ami cinéphile IA vous pitche le contenu en 3-4 phrases pour vous convaincre de le regarder ce soir.
@@ -53,11 +53,53 @@ Un contenu aléatoire disponible en streaming FR, pour les indécis.
 Deux jeux renouvelés chaque jour : deviner le titre du jour ou reconnaître une pochette floutée — avec partage du résultat façon grille d'emojis.
 
 ### Et aussi
-Pages par plateforme et par genre, calendrier des prochaines sorties, tops mensuels et annuels, « Ma liste » sans compte (localStorage), flux RSS.
+Pages par plateforme et par genre, calendrier des prochaines sorties, tops mensuels et annuels (note pondérée par le nombre de votes), [guides](https://streamactu.fr/guides), « Ma liste » sans compte (localStorage), flux RSS, `llms.txt` pour les assistants IA.
 
 ---
 
 ## Données
 
-Données films et séries fournies par [TMDB](https://www.themoviedb.org).
+Données films et séries fournies par [TMDB](https://www.themoviedb.org) ; disponibilités par plateforme fournies par [JustWatch](https://www.justwatch.com/fr), via TMDB.
 Ce produit utilise l'API TMDB mais n'est ni approuvé ni certifié par TMDB.
+
+---
+
+## Comment le projet est fait
+
+- **Next.js 16** (App Router, rendu serveur et ISR), TypeScript, Tailwind CSS. Build `standalone` servi par Node derrière nginx/Passenger (Plesk).
+- **Données** : API TMDB, mises en cache côté serveur (de 1 h à 7 jours selon la fraîcheur utile). Aucune base de données.
+- **IA** : Claude Haiku (Anthropic) pour Convaincs-moi et le Retrouveur, avec limites par visiteur et plafonds quotidiens globaux.
+- **Méthode des classements** : note TMDB pondérée par le nombre de votes, expliquée dans le guide [Comment sont classés les tops](https://streamactu.fr/guides/classement-tops).
+- Le site a été développé avec l'aide de Claude, utilisé comme binôme pour le code et pour les premières versions des textes, vérifiés avant publication. Les listes, fiches et classements ne sont pas rédigés par une IA : ils sont calculés à partir des données TMDB.
+
+---
+
+## Lancer le projet
+
+```bash
+npm install
+cp .env.example .env.local   # puis renseigner les clés
+npm run dev                  # http://localhost:3000
+npm test                     # tests (Vitest)
+npm run lint
+```
+
+Variables d'environnement : voir [`.env.example`](./.env.example). Une clé ou un jeton d'API TMDB est nécessaire ; la clé Anthropic seulement pour les fonctions IA.
+
+### Déploiement (build standalone)
+
+```bash
+mv .next/standalone .next/standalone-ancien   # si le site tourne depuis ce dossier
+npm run build
+cp -r public .next/standalone/
+cp -r .next/static .next/standalone/.next/
+# redémarrer l'application, puis supprimer .next/standalone-ancien
+```
+
+`NEXT_PUBLIC_GA_ID` est intégré au moment du build : il doit être défini avant `npm run build`.
+
+---
+
+## Licence
+
+Le code est publié sous licence [MIT](./LICENSE). Elle ne couvre que le code : les données et visuels issus de TMDB, les disponibilités issues de JustWatch, ainsi que les noms et logos des plateformes restent soumis à leurs propres conditions. Le nom et le logo StreamActu.fr ne sont pas couverts par la licence.

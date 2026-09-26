@@ -56,6 +56,12 @@ export default function RetrouveurClient() {
         signal: abortRef.current.signal,
       });
 
+      // Limite atteinte (par visiteur ou globale) : afficher le message du serveur
+      if (res.status === 429) {
+        const corps = (await res.json().catch(() => ({}))) as { error?: string };
+        setState((s) => ({ ...s, phase: "error", erreur: corps.error ?? "Limite atteinte. Réessayez plus tard." }));
+        return;
+      }
       if (!res.ok || !res.body) throw new Error("Erreur réseau");
 
       setState((s) => ({ ...s, phase: "streaming" }));
