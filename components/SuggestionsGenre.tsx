@@ -7,11 +7,12 @@ export default function SuggestionsGenre({ suggestions }: { suggestions: Suggest
   return (
     <section className="space-y-3 border-t border-border pt-5" aria-labelledby="suggestions-genre">
       <h2 id="suggestions-genre" className="font-mono-label text-ink-3">
-        {genre.nom} sur {plateforme.nom}
+        {genre ? `${genre.nom} sur ${plateforme.nom}` : `Aussi sur ${plateforme.nom}`}
       </h2>
       <p className="text-[15px] leading-relaxed text-[#9A9282]" style={{ fontFamily: "var(--font-newsreader), serif" }}>
-        D&apos;autres titres du même genre disponibles sur {plateforme.nom} en France, parmi les plus
-        populaires du moment :
+        {genre
+          ? `D'autres titres du même genre disponibles sur ${plateforme.nom} en France, parmi les plus populaires du moment :`
+          : `D'autres séries et films arrivés sur ${plateforme.nom} en France ces quatre dernières semaines :`}
       </p>
       <ul className="space-y-2">
         {contenus.map((c) => (
@@ -31,7 +32,7 @@ export default function SuggestionsGenre({ suggestions }: { suggestions: Suggest
         ))}
       </ul>
       <nav className="flex items-center gap-x-5 gap-y-2 flex-wrap pt-1">
-        {pageGenreExiste && (
+        {genre && pageGenreExiste && (
           <Link
             href={`/genre/${genre.slug}/${plateforme.slug}`}
             className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"

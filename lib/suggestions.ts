@@ -1,14 +1,15 @@
 import type { Contenu, Film, Plateforme, Serie } from "@/types";
 import { GENRE_PAR_SLUG, slugPourGenreId, type GenreSEO } from "@/lib/genres";
 import { plateformesDepuisFournisseurs } from "@/lib/plateformes";
-import { getContenusGenre } from "@/lib/tmdb";
+import { getContenusGenre, getSortiesRecentesPlateforme } from "@/lib/tmdb";
 
 /** Même seuil que /genre/[genre]/[plateforme] : en dessous, la page fait 404 */
 export const MIN_TITRES_GENRE_PLATEFORME = 5;
 const MAX_SUGGESTIONS = 6;
 
 export interface SuggestionsFiche {
-  genre: GenreSEO;
+  /** null : repli sur les nouveautés de la plateforme (genre sans page genre) */
+  genre: GenreSEO | null;
   plateforme: Plateforme;
   contenus: Contenu[];
   /** true si la page /genre/{genre}/{plateforme} existe (assez de titres) */
@@ -45,5 +46,19 @@ export async function suggestionsFiche(contenu: Serie | Film): Promise<Suggestio
       return null;
     }
   }
-  return null;
+
+  // Repli (téléréalité, stand-up… : genres sans page genre) : autres
+  // nouveautés de la même plateforme, même cache que ses pages séries/films
+  try {
+    const { series, films } = await getSortiesRecentesPlateforme(plateforme.id);
+    const memeType = contenu.type === "serie" ? series : films;
+    const autreType = contenu.type === "serie" ? films : series;
+    const contenus = [...memeType, ...autreType]
+      .filter((c) => !(c.id === contenu.id && c.type === contenu.type))
+      .slice(0, MAX_SUGGESTIONS);
+    return contenus.length > 0 ? { genre: null, plateforme, contenus, pageGenreExiste: false } : null;
+  } catch (err) {
+    console.error(`[suggestions] nouveautés ${plateforme.slug} indisponibles :`, err instanceof Error ? err.message : err);
+    return null;
+  }
 }

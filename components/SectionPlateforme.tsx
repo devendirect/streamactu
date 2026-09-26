@@ -1,7 +1,6 @@
 import type { NouveautesParPlateforme, ModeAffichage } from "@/types";
 import CarteContenu from "@/components/CarteContenu";
 import CarteContenuPoster from "@/components/CarteContenuPoster";
-import SkeletonCarte from "@/components/SkeletonCarte";
 import EnTeteSection from "@/components/EnTeteSection";
 
 interface Props {
@@ -71,18 +70,6 @@ export default function SectionPlateforme({
           ))}
         </div>
       )}
-    </section>
-  );
-}
-
-export function SectionPlateformeSkeleton() {
-  return (
-    <section>
-      <div className="h-7 w-32 bg-white/8 rounded-sm animate-pulse" />
-      <div className="sa-platform-bar bg-white/5 animate-pulse mb-3" />
-      {Array.from({ length: 3 }).map((_, i) => (
-        <SkeletonCarte key={i} />
-      ))}
     </section>
   );
 }
