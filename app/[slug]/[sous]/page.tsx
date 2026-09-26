@@ -87,7 +87,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       openGraph: { title, description, images: OG_IMAGES },
-      alternates: { canonical: `/${pf.slug}/${sous}` },
+      alternates: { canonical: `/${pf.slug}/${formatMoisURL(mois.mois, mois.annee)}` },
     };
   }
 

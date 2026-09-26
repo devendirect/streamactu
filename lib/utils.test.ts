@@ -37,7 +37,13 @@ describe("dates jour", () => {
     expect(formatDateURL(d)).toBe("4-juillet-2026");
     expect(toISO(parseDateURL("4-juillet-2026")!)).toBe("2026-07-04");
   });
-  it("accepte les segments percent-encodés (août, février…)", () => {
+  it("formate sans accents (août → aout)", () => {
+    expect(formatDateURL("2026-08-31")).toBe("31-aout-2026");
+    expect(formatDateURL("2026-12-01")).toBe("1-decembre-2026");
+  });
+  it("lit les deux formes : sans accents, accentuée brute ou percent-encodée", () => {
+    expect(toISO(parseDateURL("1-aout-2026")!)).toBe("2026-08-01");
+    expect(toISO(parseDateURL("1-août-2026")!)).toBe("2026-08-01");
     expect(toISO(parseDateURL("1-ao%C3%BBt-2026")!)).toBe("2026-08-01");
   });
   it("rejette les dates invalides et les non-dates", () => {
@@ -51,8 +57,16 @@ describe("dates jour", () => {
 });
 
 describe("mois", () => {
-  it("formate et reparse en aller-retour, accents compris", () => {
-    expect(formatMoisURL(2, 2026)).toBe("février-2026");
+  it("formate sans accents et reparse en aller-retour", () => {
+    expect(formatMoisURL(2, 2026)).toBe("fevrier-2026");
+    expect(formatMoisURL(8, 2026)).toBe("aout-2026");
+    expect(formatMoisURL(12, 2026)).toBe("decembre-2026");
+    for (let m = 1; m <= 12; m++) {
+      expect(formatMoisURL(m, 2026)).toMatch(/^[a-z]+-2026$/);
+      expect(parseMoisURL(formatMoisURL(m, 2026))).toEqual({ mois: m, annee: 2026 });
+    }
+  });
+  it("lit encore les anciennes formes accentuées", () => {
     expect(parseMoisURL("février-2026")).toEqual({ mois: 2, annee: 2026 });
     expect(parseMoisURL("f%C3%A9vrier-2026")).toEqual({ mois: 2, annee: 2026 });
   });

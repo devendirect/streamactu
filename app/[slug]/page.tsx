@@ -84,7 +84,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       openGraph: { title, description, images: OG_IMAGES },
-      alternates: { canonical: `/${slug}` },
+      alternates: { canonical: `/${formatDateURL(date)}` },
       // Futur : contenu prévisionnel et changeant — jamais indexé
       ...(vide || futur ? { robots: { index: false } } : {}),
     };
@@ -116,7 +116,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       openGraph: { title, description, images: OG_IMAGES },
-      alternates: { canonical: `/${slug}` },
+      alternates: { canonical: `/${formatMoisURL(mois.mois, mois.annee)}` },
     };
   }
 

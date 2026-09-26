@@ -26,18 +26,34 @@ export function formatDateFR(date: Date | string): string {
   return `${d.getUTCDate()} ${MOIS_FR[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 }
 
-/** (6, 2026) → "juin-2026" */
-export function formatMoisURL(mois: number, annee: number): string {
-  return `${MOIS_FR[mois - 1]}-${annee}`;
+/**
+ * Noms de mois pour les URL : sans accents. Les formes accentuées (« août »)
+ * répondaient 500 quand elles arrivaient non encodées ; elles sont encore
+ * acceptées en lecture et redirigées en 308 par proxy.ts.
+ */
+const MOIS_URL = MOIS_FR.map(sansAccents);
+
+function sansAccents(str: string): string {
+  return str.normalize("NFD").replace(/[̀-ͯ]/g, "");
 }
 
-/** Décode un segment d'URL potentiellement percent-encodé ("f%C3%A9vrier" → "février") */
+/** (6, 2026) → "juin-2026" ; (8, 2026) → "aout-2026" */
+export function formatMoisURL(mois: number, annee: number): string {
+  return `${MOIS_URL[mois - 1]}-${annee}`;
+}
+
+/**
+ * Décode un segment d'URL potentiellement percent-encodé et retire les accents
+ * ("f%C3%A9vrier" → "fevrier", "août" → "aout").
+ */
 function decoderSegment(slug: string): string {
+  let decode = slug;
   try {
-    return decodeURIComponent(slug);
+    decode = decodeURIComponent(slug);
   } catch {
-    return slug;
+    // segment mal encodé : on le garde tel quel
   }
+  return sansAccents(decode);
 }
 
 /** "juin-2026" → { mois: 6, annee: 2026 } | null */
@@ -47,7 +63,7 @@ export function parseMoisURL(brut: string): { mois: number; annee: number } | nu
   if (tiret === -1) return null;
   const nomMois = slug.slice(0, tiret);
   const annee = parseInt(slug.slice(tiret + 1), 10);
-  const moisIdx = MOIS_FR.indexOf(nomMois);
+  const moisIdx = MOIS_URL.indexOf(nomMois);
   if (moisIdx === -1 || isNaN(annee) || annee < 2000 || annee > 2100) return null;
   return { mois: moisIdx + 1, annee };
 }
@@ -61,10 +77,10 @@ export function parseAnneeURL(brut: string): number | null {
   return annee;
 }
 
-/** Date → "27-juin-2026" */
+/** Date → "27-juin-2026" ; "2026-08-31" → "31-aout-2026" */
 export function formatDateURL(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date + "T12:00:00Z") : date;
-  return `${d.getUTCDate()}-${MOIS_FR[d.getUTCMonth()]}-${d.getUTCFullYear()}`;
+  return `${d.getUTCDate()}-${MOIS_URL[d.getUTCMonth()]}-${d.getUTCFullYear()}`;
 }
 
 /** "27-juin-2026" → Date | null */
@@ -77,7 +93,7 @@ export function parseDateURL(brut: string): Date | null {
   const annee = parseInt(parts[parts.length - 1], 10);
   const nomMois = parts[parts.length - 2];
   const jour = parseInt(parts[0], 10);
-  const moisIdx = MOIS_FR.indexOf(nomMois);
+  const moisIdx = MOIS_URL.indexOf(nomMois);
   if (isNaN(jour) || moisIdx === -1 || isNaN(annee)) return null;
   const d = new Date(Date.UTC(annee, moisIdx, jour));
   if (d.getUTCDate() !== jour) return null; // date invalide (ex: 31 juin)

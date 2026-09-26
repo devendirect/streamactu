@@ -49,6 +49,14 @@ function parseTopSlug(brut: string): TopParams | null {
   return null;
 }
 
+/** Paramètres du top → "series-aout-2026" | "films-2026" (forme canonique) */
+function formatTopSlug(params: TopParams): string {
+  const prefixe = params.type === "serie" ? "series" : "films";
+  return params.portee === "mois"
+    ? `${prefixe}-${formatMoisURL(params.mois, params.annee)}`
+    : `${prefixe}-${params.annee}`;
+}
+
 function libelles(params: TopParams) {
   const estSeries = params.type === "serie";
   const nomType = estSeries ? "séries" : "films";
@@ -80,7 +88,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     openGraph: { title: `${title} | StreamActu.fr`, description, images: OG_IMAGES },
-    alternates: { canonical: `/top/${slug}` },
+    alternates: { canonical: `/top/${formatTopSlug(top)}` },
   };
 }
 
@@ -128,9 +136,7 @@ export default async function TopPage({ params }: Props) {
   const anneeEnCours = top.portee === "annee" && top.annee === now.getUTCFullYear();
 
   // Liens croisés : type opposé sur la même période, et top annuel
-  const slugOppose = slug.startsWith("series-")
-    ? slug.replace(/^series-/, "films-")
-    : slug.replace(/^films-/, "series-");
+  const slugOppose = formatTopSlug({ ...top, type: estSeries ? "film" : "serie" });
 
   return (
     <>
@@ -142,7 +148,7 @@ export default async function TopPage({ params }: Props) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: jsonLdClassement(titre, `/top/${slug}`, contenus),
+            __html: jsonLdClassement(titre, `/top/${formatTopSlug(top)}`, contenus),
           }}
         />
 
