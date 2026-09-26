@@ -4,6 +4,7 @@ import { titreAffiche, titreMeta } from "@/lib/meta";
 import { getDetailFilm } from "@/lib/tmdb";
 import { idDepuisSlug } from "@/lib/utils";
 import { descriptionFiche, jsonLdFiche } from "@/lib/seo";
+import { suggestionsFiche } from "@/lib/suggestions";
 import FicheDetail from "@/components/FicheDetail";
 
 export const revalidate = 3600;
@@ -46,6 +47,7 @@ export default async function FilmPage({ params }: Props) {
   const film = await getFilm(slug);
 
   if (!film) notFound();
+  const suggestions = await suggestionsFiche(film);
 
   return (
     <div className="sa-container py-6 max-w-2xl">
@@ -53,7 +55,7 @@ export default async function FilmPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdFiche(film) }}
       />
-      <FicheDetail contenu={film} />
+      <FicheDetail contenu={film} suggestions={suggestions} />
     </div>
   );
 }

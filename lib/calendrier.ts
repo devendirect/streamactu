@@ -49,7 +49,8 @@ const NOTES_PAR_PLATEFORME: [number, RegExp][] = [
   [337, /(^| )disney( |\+|$)/],
   [350, /(^| )apple tv( |\+|$)/],
   [381, /(^| )canal( |\+|$)/],
-  [1899, /(^| )(hbo max|hbo|max)( |$)/],
+  // « Max » seul (ancien nom), jamais comme mot d'un autre nom : Action Max, TFOU Max…
+  [1899, /^max$|(^| )hbo( |$)/],
   [582, /(^| )paramount( |\+|$)/],
 ];
 
@@ -60,7 +61,8 @@ const NOTES_PAR_PLATEFORME: [number, RegExp][] = [
  */
 export function plateformeDepuisNote(note: string | undefined): number | null {
   if (!note) return null;
-  const n = normaliser(note);
+  // « HBO Max Amazon Channel » désigne HBO Max, pas Prime Video
+  const n = normaliser(note).replace(/ (amazon|apple tv) channels?$/, "");
   for (const [id, motif] of NOTES_PAR_PLATEFORME) {
     if (motif.test(n)) return id;
   }

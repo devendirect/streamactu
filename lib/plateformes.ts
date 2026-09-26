@@ -19,6 +19,44 @@ export const PLATEFORME_PAR_ID: Record<number, Plateforme> = Object.fromEntries(
   PLATEFORMES.map((p) => [p.id, p])
 );
 
+/**
+ * Noms des fournisseurs TMDB (watch providers, France) rattachés à chaque
+ * plateforme suivie, variantes avec publicité et chaînes Amazon/Apple
+ * comprises. Correspondance exacte : plusieurs chaînes Amazon contiennent
+ * « Max » (Action Max, TFOU Max, Gullimax) sans rapport avec HBO Max.
+ * Relevé sur /watch/providers?watch_region=FR le 2026-09-26.
+ */
+const FOURNISSEURS: Record<string, number> = {
+  "Netflix": 8,
+  "Netflix Standard with Ads": 8,
+  "Amazon Prime Video": 119,
+  "Amazon Prime Video with Ads": 119,
+  "Disney Plus": 337,
+  "Apple TV": 350,
+  "Canal+": 381,
+  "Canal+ Séries": 381,
+  "HBO Max": 1899,
+  "HBO Max Amazon Channel": 1899,
+  "Paramount Plus": 582,
+  "Paramount Plus Premium": 582,
+  "Paramount+ Amazon Channel": 582,
+  "Paramount Plus Apple TV channel": 582,
+};
+
+/** Plateformes suivies parmi les noms de fournisseurs d'une fiche, sans doublon, dans l'ordre */
+export function plateformesDepuisFournisseurs(noms: string[]): Plateforme[] {
+  const vues = new Set<number>();
+  const resultat: Plateforme[] = [];
+  for (const nom of noms) {
+    const id = FOURNISSEURS[nom.trim()];
+    if (id && !vues.has(id)) {
+      vues.add(id);
+      resultat.push(PLATEFORME_PAR_ID[id]);
+    }
+  }
+  return resultat;
+}
+
 export const PLATEFORME_PAR_SLUG: Record<string, Plateforme> = Object.fromEntries(
   PLATEFORMES.map((p) => [p.slug, p])
 );

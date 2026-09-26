@@ -21,6 +21,14 @@ describe("plateformeDepuisNote", () => {
   it("ne confond pas un mot qui contient le nom d'une plateforme", () => {
     expect(plateformeDepuisNote("Maximum Films")).toBeNull();
     expect(plateformeDepuisNote("Canalside Pictures")).toBeNull();
+    for (const note of ["Action Max Amazon Channel", "TFOU Max Amazon Channel", "Gullimax Amazon Channel", "Premiere Max"]) {
+      expect(plateformeDepuisNote(note), note).toBeNull();
+    }
+  });
+  it("rattache une chaîne Amazon à la plateforme qu'elle diffuse", () => {
+    expect(plateformeDepuisNote("HBO Max Amazon Channel")).toBe(1899);
+    expect(plateformeDepuisNote("Paramount+ Amazon Channel")).toBe(582);
+    expect(plateformeDepuisNote("Max")).toBe(1899);
   });
 });
 

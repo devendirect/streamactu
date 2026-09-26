@@ -6,12 +6,16 @@ import { slugPourGenreId } from "@/lib/genres";
 import ConvaincsMoi from "@/components/ConvaincsMoi";
 import BoutonMaListe from "@/components/BoutonMaListe";
 import LienGA from "@/components/LienGA";
+import SuggestionsGenre from "@/components/SuggestionsGenre";
+import type { SuggestionsFiche } from "@/lib/suggestions";
 
 interface FicheDetailProps {
   contenu: Serie | Film;
+  /** Titres du même genre sur la même plateforme (bas de fiche), si disponibles */
+  suggestions?: SuggestionsFiche | null;
 }
 
-export default function FicheDetail({ contenu }: FicheDetailProps) {
+export default function FicheDetail({ contenu, suggestions }: FicheDetailProps) {
   const isSerie = contenu.type === "serie";
   const serie = isSerie ? (contenu as Serie) : null;
   const film = !isSerie ? (contenu as Film) : null;
@@ -24,15 +28,25 @@ export default function FicheDetail({ contenu }: FicheDetailProps) {
         ? contenu.dispo[0]
         : `${contenu.dispo.slice(0, -1).join(", ")} et ${contenu.dispo.at(-1)}`
       : null;
+  // Détails factuels tirés de TMDB : saisons et épisodes, réalisation
+  const details = serie
+    ? serie.nbSaisons > 0
+      ? ` en ${serie.nbSaisons} saison${serie.nbSaisons > 1 ? "s" : ""}${
+          serie.nbEpisodes > 0 ? ` (${serie.nbEpisodes} épisode${serie.nbEpisodes > 1 ? "s" : ""})` : ""
+        }`
+      : ""
+    : film && film.realisateurs.length > 0
+      ? ` réalisé par ${film.realisateurs.slice(0, 2).join(" et ")}`
+      : "";
   const sortie = isSerie
     ? contenu.annee
-      ? `série diffusée depuis ${contenu.annee}`
-      : "série"
+      ? `série diffusée depuis ${contenu.annee}${details}`
+      : `série${details}`
     : contenu.dateSortie
-      ? `film sorti le ${formatDateFR(contenu.dateSortie)}`
+      ? `film sorti le ${formatDateFR(contenu.dateSortie)}${details ? ` et${details}` : ""}`
       : contenu.annee
-        ? `film sorti en ${contenu.annee}`
-        : "film";
+        ? `film sorti en ${contenu.annee}${details ? ` et${details}` : ""}`
+        : `film${details}`;
   const phraseDispo = plateformesFR
     ? `« ${contenu.titre} », ${sortie}, est disponible en streaming sur ${plateformesFR} en France.`
     : `« ${contenu.titre} », ${sortie}, n'est actuellement disponible sur aucune plateforme de streaming par abonnement en France.`;
@@ -248,6 +262,8 @@ export default function FicheDetail({ contenu }: FicheDetailProps) {
             </div>
           </div>
         )}
+
+        {suggestions && <SuggestionsGenre suggestions={suggestions} />}
 
         {/* ── Actions ── */}
         <div className="flex items-center gap-3 flex-wrap pb-2">
