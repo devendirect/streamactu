@@ -1,3 +1,4 @@
+import { PLAFONDS_IA_JOUR } from "./plafonds-ia";
 const store = new Map<string, { n: number; resetAt: number }>();
 
 // Nettoyage toutes les 5 minutes pour éviter la fuite mémoire
@@ -28,22 +29,9 @@ export function checkRateLimit(key: string, max: number, windowMs: number): bool
 
 const JOUR_MS = 24 * 60 * 60_000;
 
-function entierPositif(valeur: string | undefined, defaut: number): number {
-  const n = Number.parseInt(valeur ?? "", 10);
-  return Number.isFinite(n) && n > 0 ? n : defaut;
-}
-
-/**
- * Plafonds quotidiens GLOBAUX des appels à l'IA, tous visiteurs confondus.
- * Les limites par IP ne protègent pas d'un afflux de visiteurs (après une
- * mention ou un lien très vu) : ces plafonds bornent la facture Anthropic.
- * Réglables sans rebuild par variables d'environnement. Compteurs en mémoire :
- * ils repartent de zéro au redémarrage du serveur.
- */
-export const PLAFONDS_IA_JOUR = {
-  retrouver: entierPositif(process.env.IA_PLAFOND_RETROUVER_JOUR, 300),
-  convaincs: entierPositif(process.env.IA_PLAFOND_CONVAINCS_JOUR, 1000),
-};
+// Plafonds définis dans lib/plafonds-ia.ts. Compteurs en mémoire : ils
+// repartent de zéro au redémarrage du serveur.
+export { PLAFONDS_IA_JOUR };
 
 /** Compte un appel à l'IA ; true si le plafond du jour est déjà atteint (l'appel ne doit pas partir) */
 export function plafondIAAtteint(fonction: keyof typeof PLAFONDS_IA_JOUR): boolean {
