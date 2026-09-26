@@ -56,6 +56,12 @@ describe("rubrique Actu", () => {
         expect(liens.length).toBeGreaterThan(0);
         for (const l of liens) expect(routeConnue(l), l).toBe(true);
       });
+      it("ouvre sur un titre illustrable, sans œuvre en double", () => {
+        // La première section fournit la grande image (partage, Discover)
+        expect(a.sections[0].oeuvre, "oeuvre de la première section").toBeDefined();
+        const cles = a.sections.flatMap((s) => (s.oeuvre ? [`${s.oeuvre.type}-${s.oeuvre.id}`] : []));
+        expect(new Set(cles).size).toBe(cles.length);
+      });
       it("n'utilise pas de tiret long", () => {
         for (const t of textesGuide(commeGuide)) expect(t, t).not.toContain("—");
       });

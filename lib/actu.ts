@@ -1,4 +1,5 @@
 import type { SectionGuide } from "./guides";
+import { ARTICLE_2026_09_25_WEEKEND } from "./actu/2026-09-25-que-regarder-ce-week-end";
 import { ARTICLE_2026_10_02_WEEKEND } from "./actu/2026-10-02-que-regarder-ce-week-end";
 
 /**
@@ -15,6 +16,16 @@ import { ARTICLE_2026_10_02_WEEKEND } from "./actu/2026-10-02-que-regarder-ce-we
  * Même format de texte que les guides : [libellé](/chemin) pour les liens
  * internes, rien d'autre.
  */
+/**
+ * Section d'article : comme une section de guide, avec en option le titre dont
+ * elle parle. Le site en tire l'affiche, la note et les plateformes (cache des
+ * fiches) : aucune adresse d'image n'est écrite dans l'article. La première
+ * section avec une œuvre fournit la grande image de l'article (partage, Discover).
+ */
+export type SectionArticle = SectionGuide & {
+  oeuvre?: { type: "film" | "serie"; id: number };
+};
+
 export interface Article {
   slug: string;
   titre: string;
@@ -24,13 +35,13 @@ export interface Article {
   chapo: string;
   publie: string; // AAAA-MM-JJ
   misAJour: string; // AAAA-MM-JJ
-  sections: SectionGuide[];
+  sections: SectionArticle[];
   /** true : absent du site (relecture en cours) */
   brouillon?: boolean;
 }
 
 /** Tous les articles, brouillons compris (tests) */
-export const TOUS_LES_ARTICLES: Article[] = [ARTICLE_2026_10_02_WEEKEND];
+export const TOUS_LES_ARTICLES: Article[] = [ARTICLE_2026_10_02_WEEKEND, ARTICLE_2026_09_25_WEEKEND];
 
 /** Articles publiés, du plus récent au plus ancien */
 export const ARTICLES: Article[] = TOUS_LES_ARTICLES.filter((a) => !a.brouillon).sort((a, b) =>

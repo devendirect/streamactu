@@ -73,6 +73,9 @@ export const metadata: Metadata = {
     template: "%s | StreamActu.fr",
   },
   description: DESCRIPTION,
+  // Grands aperçus d'image autorisés (Google Discover, articles Actu). Une page
+  // qui définit ses propres robots (noindex) remplace cette valeur.
+  robots: { index: true, follow: true, "max-image-preview": "large" },
   metadataBase: new URL(SITE_URL),
   openGraph: {
     type: "website",

@@ -5,11 +5,17 @@ import { ARTICLES, trouverArticle } from "@/lib/actu";
 import { metadonnees } from "@/lib/meta";
 import { ORG_ID, SITE_URL } from "@/lib/site";
 import { formatDateFR } from "@/lib/utils";
-import CorpsGuide from "@/components/CorpsGuide";
+import Image from "next/image";
+import { BlocsGuide } from "@/components/CorpsGuide";
+import CarteOeuvreArticle from "@/components/CarteOeuvreArticle";
+import { cleOeuvre, imagePrincipale, oeuvresArticle } from "@/lib/actu-oeuvres";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
+
+// Images, notes et plateformes viennent du cache des fiches : rafraîchies chaque jour
+export const revalidate = 86400;
 
 // Seuls les articles publiés existent (un brouillon fait 404)
 export const dynamicParams = false;
@@ -23,6 +29,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = trouverArticle(slug);
   if (!article) return { title: "Page non trouvée" };
   const meta = metadonnees(article.titre, article.description, `/actu/${article.slug}`);
+  // Image de partage : la grande image de l'article (mêmes caches que la page)
+  const image = imagePrincipale(article, await oeuvresArticle(article));
   return {
     ...meta,
     openGraph: {
@@ -30,6 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "article",
       publishedTime: article.publie,
       modifiedTime: article.misAJour,
+      ...(image?.grandeImage ? { images: [{ url: image.grandeImage, width: 1280, height: 720, alt: image.titre }] } : {}),
     },
   };
 }
@@ -44,6 +53,8 @@ export default async function ArticlePage({ params }: Props) {
   if (!article) notFound();
 
   const url = `${SITE_URL}/actu/${article.slug}`;
+  const oeuvres = await oeuvresArticle(article);
+  const principale = imagePrincipale(article, oeuvres);
   const autres = ARTICLES.filter((a) => a.slug !== article.slug).slice(0, 5);
 
   const donnees = {
@@ -55,7 +66,7 @@ export default async function ArticlePage({ params }: Props) {
     datePublished: article.publie,
     dateModified: article.misAJour,
     mainEntityOfPage: url,
-    image: `${SITE_URL}/og-default.png`,
+    image: principale?.grandeImage ?? `${SITE_URL}/og-default.png`,
     author: { "@id": ORG_ID },
     publisher: { "@id": ORG_ID },
   };
@@ -86,6 +97,21 @@ export default async function ArticlePage({ params }: Props) {
 
       <article className="space-y-10">
         <header className="space-y-4">
+          {principale?.grandeImage && (
+            <figure className="space-y-2">
+              <div className="relative aspect-[16/9] overflow-hidden border border-border bg-white/5">
+                <Image
+                  src={principale.grandeImage}
+                  alt={`Image de ${principale.titre}`}
+                  fill
+                  priority
+                  sizes="(max-width: 672px) 100vw, 672px"
+                  className="object-cover"
+                />
+              </div>
+              <figcaption className="font-mono-label text-ink-4">{principale.titre} · image TMDB</figcaption>
+            </figure>
+          )}
           <h1 className="text-4xl font-extrabold tracking-[-0.025em]">{article.titre}</h1>
           <p className="font-mono-label text-ink-3">
             Publié le {formatDateFR(article.publie)}
@@ -106,7 +132,18 @@ export default async function ArticlePage({ params }: Props) {
           </p>
         </header>
 
-        <CorpsGuide sections={article.sections} />
+        <div className="space-y-10">
+          {article.sections.map((s) => {
+            const oeuvre = s.oeuvre ? oeuvres.get(cleOeuvre(s.oeuvre)) : undefined;
+            return (
+              <section key={s.titre} className="space-y-4">
+                <h2 className="text-2xl font-extrabold tracking-[-0.02em]">{s.titre}</h2>
+                <BlocsGuide blocs={s.blocs} />
+                {oeuvre && <CarteOeuvreArticle oeuvre={oeuvre} />}
+              </section>
+            );
+          })}
+        </div>
       </article>
 
       {autres.length > 0 && (

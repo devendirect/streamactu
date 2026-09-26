@@ -28,64 +28,73 @@ export function TexteEnLigne({ texte }: { texte: string }) {
   return <>{morceaux}</>;
 }
 
+/** Blocs de texte d'une section (paragraphes, listes, tableaux), partagés par les guides et les articles */
+export function BlocsGuide({ blocs }: { blocs: SectionGuide["blocs"] }) {
+  return (
+    <>
+      {blocs.map((b, i) => {
+        if ("p" in b) {
+          return (
+            <p key={i} className={classeProse} style={styleProse}>
+              <TexteEnLigne texte={b.p} />
+            </p>
+          );
+        }
+        if ("ul" in b || "ol" in b) {
+          const items = "ul" in b ? b.ul : b.ol;
+          const Liste = "ul" in b ? "ul" : "ol";
+          return (
+            <Liste
+              key={i}
+              className={`${classeProse} space-y-2 pl-5 ${"ul" in b ? "list-disc" : "list-decimal"}`}
+              style={styleProse}
+            >
+              {items.map((item) => (
+                <li key={item.slice(0, 40)}>
+                  <TexteEnLigne texte={item} />
+                </li>
+              ))}
+            </Liste>
+          );
+        }
+        return (
+          <div key={i} className="overflow-x-auto">
+            <table className="w-full text-left text-sm border border-border">
+              <thead className="font-mono-label text-ink-3">
+                <tr>
+                  {b.table.entetes.map((e) => (
+                    <th key={e} className="px-3 py-2 border-b border-border font-normal">
+                      {e}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="text-[#C4BBA9]">
+                {b.table.lignes.map((ligne) => (
+                  <tr key={ligne[0]} className="border-t border-border/50">
+                    {ligne.map((cellule, j) => (
+                      <td key={j} className="px-3 py-2">
+                        <TexteEnLigne texte={cellule} />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
 export default function CorpsGuide({ sections }: { sections: SectionGuide[] }) {
   return (
     <div className="space-y-10">
       {sections.map((s) => (
         <section key={s.titre} className="space-y-4">
           <h2 className="text-2xl font-extrabold tracking-[-0.02em]">{s.titre}</h2>
-          {s.blocs.map((b, i) => {
-            if ("p" in b) {
-              return (
-                <p key={i} className={classeProse} style={styleProse}>
-                  <TexteEnLigne texte={b.p} />
-                </p>
-              );
-            }
-            if ("ul" in b || "ol" in b) {
-              const items = "ul" in b ? b.ul : b.ol;
-              const Liste = "ul" in b ? "ul" : "ol";
-              return (
-                <Liste
-                  key={i}
-                  className={`${classeProse} space-y-2 pl-5 ${"ul" in b ? "list-disc" : "list-decimal"}`}
-                  style={styleProse}
-                >
-                  {items.map((item) => (
-                    <li key={item.slice(0, 40)}>
-                      <TexteEnLigne texte={item} />
-                    </li>
-                  ))}
-                </Liste>
-              );
-            }
-            return (
-              <div key={i} className="overflow-x-auto">
-                <table className="w-full text-left text-sm border border-border">
-                  <thead className="font-mono-label text-ink-3">
-                    <tr>
-                      {b.table.entetes.map((e) => (
-                        <th key={e} className="px-3 py-2 border-b border-border font-normal">
-                          {e}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="text-[#C4BBA9]">
-                    {b.table.lignes.map((ligne) => (
-                      <tr key={ligne[0]} className="border-t border-border/50">
-                        {ligne.map((cellule, j) => (
-                          <td key={j} className="px-3 py-2">
-                            <TexteEnLigne texte={cellule} />
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            );
-          })}
+          <BlocsGuide blocs={s.blocs} />
         </section>
       ))}
     </div>

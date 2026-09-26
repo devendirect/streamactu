@@ -22,33 +22,37 @@ export const ARTICLE_2026_10_02_WEEKEND: Article = {
   sections: [
     {
       titre: "À l'est d'Éden, sur Netflix",
+      oeuvre: { type: "serie", id: 258165 },
       blocs: [
         {
-          p: "Minisérie en sept épisodes, tous mis en ligne le jeudi 1er octobre, adaptée du roman de John Steinbeck. Créée par Zoe Kazan, elle réunit Florence Pugh, Christopher Abbott et Mike Faist. Le récit suit sur plusieurs générations deux familles de Californie, les Trask et les Hamilton, et rejoue l'histoire de Caïn et Abel à travers deux frères. Une saison complète et fermée : c'est le choix le plus simple pour un week-end entier. [Voir la fiche](/serie/a-l-est-d-eden-258165).",
+          p: "Minisérie en sept épisodes, tous mis en ligne le jeudi 1er octobre, adaptée du roman de John Steinbeck. Créée par Zoe Kazan, elle réunit Florence Pugh, Christopher Abbott et Mike Faist. Le récit suit sur plusieurs générations deux familles de Californie, les Trask et les Hamilton, et rejoue l'histoire de Caïn et Abel à travers deux frères. Une saison complète et fermée : c'est le choix le plus simple pour un week-end entier.",
         },
       ],
     },
     {
       titre: "Kill Jackie, sur Prime Video",
+      oeuvre: { type: "serie", id: 284558 },
       blocs: [
         {
-          p: "Huit épisodes, tous disponibles le vendredi 2 octobre. Catherine Zeta-Jones y joue Jackie Price, ancienne trafiquante de cocaïne qui vit depuis vingt ans dans le luxe, loin de son passé, jusqu'à découvrir qu'un groupe de tueurs à gages s'intéresse à elle. Drame criminel britannique et australien créé par Conor Keane, avec Daniel Ings et Sidse Babett Knudsen. [Voir la fiche](/serie/kill-jackie-284558).",
+          p: "Huit épisodes, tous disponibles le vendredi 2 octobre. Catherine Zeta-Jones y joue Jackie Price, ancienne trafiquante de cocaïne qui vit depuis vingt ans dans le luxe, loin de son passé, jusqu'à découvrir qu'un groupe de tueurs à gages s'intéresse à elle. Drame criminel britannique et australien créé par Conor Keane, avec Daniel Ings et Sidse Babett Knudsen.",
         },
       ],
     },
     {
       titre: "Nuremberg, sur Canal+",
+      oeuvre: { type: "film", id: 1214931 },
       blocs: [
         {
-          p: "Le film de James Vanderbilt est arrivé sur Canal+ le mardi 29 septembre, un peu moins d'un an après sa sortie en salle, comme le permet la chronologie des médias. En 1945, un juge de la Cour suprême américaine obtient que les dignitaires nazis, dont Hermann Göring, soient jugés plutôt qu'exécutés. Rami Malek, Russell Crowe et Michael Shannon se partagent l'affiche. C'est le film le mieux noté de la semaine : 7,6/10 sur TMDB, avec plus de 1 400 votes (les séries, trop récentes, n'ont pas encore de note). Il dure 2 h 28. [Voir la fiche](/film/nuremberg-1214931).",
+          p: "Le film de James Vanderbilt est arrivé sur Canal+ le mardi 29 septembre, un peu moins d'un an après sa sortie en salle, comme le permet la chronologie des médias. En 1945, un juge de la Cour suprême américaine obtient que les dignitaires nazis, dont Hermann Göring, soient jugés plutôt qu'exécutés. Rami Malek, Russell Crowe et Michael Shannon se partagent l'affiche. C'est le film le mieux noté de la semaine : 7,6/10 sur TMDB, avec plus de 1 400 votes (les séries, trop récentes, n'ont pas encore de note). Il dure 2 h 28.",
         },
       ],
     },
     {
       titre: "Pour rire : Paul, la série, sur Prime Video",
+      oeuvre: { type: "serie", id: 300925 },
       blocs: [
         {
-          p: "Six épisodes de comédie française, créée par Paul Mirabel et jouée par lui-même, avec Abraham Wapler et Enya Baroux. Le point de départ : à presque 30 ans, l'humoriste a vendu à Amazon son spectacle et un documentaire sur sa vie, sans avoir écrit le premier ni tourné le second. Le premier épisode arrive le vendredi 2 octobre. [Voir la fiche](/serie/paul-la-serie-300925).",
+          p: "Six épisodes de comédie française, créée par Paul Mirabel et jouée par lui-même, avec Abraham Wapler et Enya Baroux. Le point de départ : à presque 30 ans, l'humoriste a vendu à Amazon son spectacle et un documentaire sur sa vie, sans avoir écrit le premier ni tourné le second. Le premier épisode arrive le vendredi 2 octobre.",
         },
       ],
     },

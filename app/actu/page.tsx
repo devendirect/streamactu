@@ -4,6 +4,11 @@ import Link from "next/link";
 import { ACTU_PUBLIEE, ARTICLES, MIN_ARTICLES_INDEX } from "@/lib/actu";
 import { metadonnees } from "@/lib/meta";
 import { formatDateFR } from "@/lib/utils";
+import { imageArticle } from "@/lib/actu-oeuvres";
+import Image from "next/image";
+
+// Vignettes et plateformes viennent du cache des fiches : rafraîchies chaque jour
+export const revalidate = 86400;
 
 export const metadata: Metadata = metadonnees(
   "Actu : que regarder ce week-end",
@@ -13,9 +18,10 @@ export const metadata: Metadata = metadonnees(
   ARTICLES.length < MIN_ARTICLES_INDEX ? { robots: { index: false, follow: true } } : {}
 );
 
-export default function ActuPage() {
+export default async function ActuPage() {
   // Rubrique absente tant qu'aucun article n'est publié
   if (!ACTU_PUBLIEE) notFound();
+  const images = await Promise.all(ARTICLES.map(imageArticle));
 
   return (
     <div className="sa-container py-10 max-w-2xl space-y-10">
@@ -35,8 +41,20 @@ export default function ActuPage() {
       </div>
 
       <ul className="space-y-6">
-        {ARTICLES.map((a) => (
-          <li key={a.slug} className="border-t border-border pt-5 space-y-2">
+        {ARTICLES.map((a, i) => (
+          <li key={a.slug} className="border-t border-border pt-5 space-y-3">
+            {images[i]?.grandeImage && (
+              <Link href={`/actu/${a.slug}`} className="block relative aspect-[16/9] overflow-hidden border border-border bg-white/5">
+                <Image
+                  src={images[i].grandeImage}
+                  alt={`Image de ${images[i].titre}`}
+                  fill
+                  priority={i === 0}
+                  sizes="(max-width: 672px) 100vw, 672px"
+                  className="object-cover"
+                />
+              </Link>
+            )}
             <Link href={`/actu/${a.slug}`} className="text-xl font-bold hover:text-primary transition-colors">
               {a.titre} →
             </Link>
