@@ -12,6 +12,7 @@ import type {
   TMDBSerie,
   TMDBSerieDetail,
   TMDBFilm,
+  TMDBReleaseDates,
   TMDBFilmDetail,
   TMDBCredits,
   TMDBVideos,
@@ -19,6 +20,7 @@ import type {
   Genre,
 } from "@/types";
 import { PLATEFORMES, PLATEFORME_PAR_ID } from "@/lib/plateformes";
+import { RESEAUX_PAR_PLATEFORME, plateformeDepuisNote, serieAnnonceeCredible } from "@/lib/calendrier";
 import {
   slugify,
   bornesMois,
@@ -729,10 +731,55 @@ export async function rechercherContenu(query: string): Promise<ResultatRecherch
 
 // ──────────────────────────────────────────────
 // Sorties à venir (28 prochains jours, cache 6h)
-// Périmètre : nouvelles séries (first_air_date) et films (primary_release_date)
-// — les dates sont fiables, contrairement aux retours de saisons.
+// Périmètre : nouvelles séries (date du premier épisode) et films. Les
+// retours de saisons sont exclus : leurs dates sont peu fiables.
+// TMDB ne rattache un titre à une plateforme qu'une fois disponible : le
+// filtre par plateforme seul ne trouve presque rien. On ajoute donc les
+// séries annoncées par le réseau d'origine de la plateforme et les films dont
+// la sortie numérique en France nomme la plateforme (règles : lib/calendrier.ts).
 // Pas de filtre sur les votes : les contenus futurs n'en ont pas encore.
 // ──────────────────────────────────────────────
+
+/** Films lus parmi les sorties numériques françaises de la période */
+const MAX_FILMS_NUMERIQUES = 60;
+
+/** Films de la période avec une sortie numérique française qui nomme une plateforme suivie */
+async function filmsNumeriquesFR(
+  debutISO: string,
+  finISO: string
+): Promise<{ film: TMDBFilm; plateformeId: number; date: string }[]> {
+  const films: TMDBFilm[] = [];
+  for (let page = 1; page <= 3 && films.length < MAX_FILMS_NUMERIQUES; page++) {
+    const data = await tmdbGet<ReponseTMDB<TMDBFilm>>("/discover/movie", {
+      region: "FR",
+      with_release_type: 4,
+      sort_by: "popularity.desc",
+      "release_date.gte": debutISO,
+      "release_date.lte": finISO,
+      page,
+    }, 21600);
+    films.push(...data.results);
+    if (page >= data.total_pages) break;
+  }
+
+  const trouves = await Promise.all(
+    films.slice(0, MAX_FILMS_NUMERIQUES).map(async (film) => {
+      try {
+        const rd = await tmdbGet<TMDBReleaseDates>(`/movie/${film.id}/release_dates`, {}, 21600);
+        const sortie = rd.results
+          .filter((r) => r.iso_3166_1 === "FR")
+          .flatMap((r) => r.release_dates)
+          .find((d) => d.type === 4 && d.release_date.slice(0, 10) >= debutISO && d.release_date.slice(0, 10) <= finISO);
+        const plateformeId = plateformeDepuisNote(sortie?.note);
+        return sortie && plateformeId ? { film, plateformeId, date: sortie.release_date.slice(0, 10) } : null;
+      } catch (err) {
+        console.error(`[tmdb] dates de sortie du film ${film.id} indisponibles :`, err instanceof Error ? err.message : err);
+        return null;
+      }
+    })
+  );
+  return trouves.filter((t): t is { film: TMDBFilm; plateformeId: number; date: string } => t !== null);
+}
 
 export const getSortiesAVenir = unstable_cache(
   async (): Promise<NouveautesParPlateforme[]> => {
@@ -744,7 +791,11 @@ export const getSortiesAVenir = unstable_cache(
     const debutISO = demain.toISOString().slice(0, 10);
     const finISO = fin.toISOString().slice(0, 10);
 
-    const [genresTv, genresFilm] = await Promise.all([getGenresTv(), getGenresFilm()]);
+    const [genresTv, genresFilm, numeriques] = await Promise.all([
+      getGenresTv(),
+      getGenresFilm(),
+      filmsNumeriquesFR(debutISO, finISO),
+    ]);
 
     return Promise.all(
       PLATEFORMES.map(async (plateforme) => {
@@ -752,13 +803,22 @@ export const getSortiesAVenir = unstable_cache(
           with_watch_providers: plateforme.id,
           watch_region: "FR",
         };
-        const [tvData, filmData] = await Promise.all([
+        const reseaux = RESEAUX_PAR_PLATEFORME[plateforme.id] ?? [];
+        const [tvData, tvReseau, filmData] = await Promise.all([
           tmdbGet<ReponseTMDB<TMDBSerie>>("/discover/tv", {
             ...base,
             sort_by: "first_air_date.asc",
             "first_air_date.gte": debutISO,
             "first_air_date.lte": finISO,
           }, 21600),
+          reseaux.length > 0
+            ? tmdbGet<ReponseTMDB<TMDBSerie>>("/discover/tv", {
+                with_networks: reseaux.join("|"),
+                sort_by: "first_air_date.asc",
+                "first_air_date.gte": debutISO,
+                "first_air_date.lte": finISO,
+              }, 21600)
+            : Promise.resolve({ page: 1, results: [], total_pages: 0, total_results: 0 }),
           tmdbGet<ReponseTMDB<TMDBFilm>>("/discover/movie", {
             ...base,
             sort_by: "primary_release_date.asc",
@@ -767,23 +827,37 @@ export const getSortiesAVenir = unstable_cache(
           }, 21600),
         ]);
 
-        return {
-          plateforme,
-          series: tvData.results.slice(0, 20).map((s) => ({
+        // Séries : disponibilité déjà connue, puis annonces du réseau jugées crédibles
+        const vusSeries = new Set<number>();
+        const series = [...tvData.results, ...tvReseau.results.filter(serieAnnonceeCredible)]
+          .filter((s) => (vusSeries.has(s.id) ? false : (vusSeries.add(s.id), true)))
+          .slice(0, 20)
+          .map((s) => ({
             ...mapSerie(s, genresTv),
             plateforme,
             dateSortie: s.first_air_date || undefined,
-          })),
-          films: filmData.results.slice(0, 20).map((f) => ({
+          }));
+
+        // Films : disponibilité déjà connue, puis sorties numériques françaises
+        // qui nomment la plateforme (date d'arrivée sur la plateforme)
+        const vusFilms = new Set<number>();
+        const films = [
+          ...filmData.results.map((f) => ({ f, date: f.release_date })),
+          ...numeriques.filter((n) => n.plateformeId === plateforme.id).map((n) => ({ f: n.film, date: n.date })),
+        ]
+          .filter(({ f }) => (vusFilms.has(f.id) ? false : (vusFilms.add(f.id), true)))
+          .slice(0, 20)
+          .map(({ f, date }) => ({
             ...mapFilm(f, genresFilm),
             plateforme,
-            dateSortie: f.release_date || undefined,
-          })),
-        };
+            dateSortie: date || undefined,
+          }));
+
+        return { plateforme, series, films };
       })
     );
   },
-  ["sorties-a-venir"],
+  ["sorties-a-venir-v2"],
   { revalidate: 21600 }
 );
 

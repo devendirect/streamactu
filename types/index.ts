@@ -153,6 +153,7 @@ export interface TMDBSerie {
   vote_count: number;
   first_air_date: string;
   genre_ids: number[];
+  popularity?: number;
 }
 
 export interface TMDBSerieDetail {
@@ -185,6 +186,15 @@ export interface TMDBFilm {
   vote_count: number;
   release_date: string;
   genre_ids: number[];
+  popularity?: number;
+}
+
+/** /movie/{id}/release_dates : type 4 = sortie numérique */
+export interface TMDBReleaseDates {
+  results: {
+    iso_3166_1: string;
+    release_dates: { type: number; release_date: string; note?: string }[];
+  }[];
 }
 
 export interface TMDBFilmDetail {

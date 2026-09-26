@@ -63,7 +63,7 @@ export const CONTENU_PLATEFORME: Record<string, ContenuPlateforme> = {
     films:
       "Apple TV+ produit peu de films, mais certains sont de gros projets passés par le cinéma avant d'arriver sur la plateforme. Il y a donc des semaines, voire des mois, sans nouveau film : c'est le rythme normal du catalogue, pas un trou dans les données.",
     calendrier:
-      "Apple annonce ses séries longtemps à l'avance, mais le calendrier ne les montre qu'une fois leur disponibilité en France renseignée. Un calendrier vide ne veut donc pas dire qu'Apple ne prépare rien : la série apparaîtra dans les nouveautés le jour de son lancement.",
+      "Apple annonce ses séries longtemps à l'avance : le calendrier montre celles dont le premier épisode approche, et les films dont l'arrivée sur Apple TV+ en France est annoncée. Un jour sans ligne signifie simplement qu'Apple ne lance rien ce jour-là.",
   },
   "canal-plus": {
     presentation: [
@@ -75,7 +75,7 @@ export const CONTENU_PLATEFORME: Record<string, ContenuPlateforme> = {
     films:
       "Sur Canal+, les films récents sont la règle : la chronologie des médias donne à Canal+ la première fenêtre par abonnement après le cinéma, quelques mois après la sortie en salle. Ces films sont classés ici à leur date de sortie au cinéma, ce qui explique qu'un film de l'an dernier puisse apparaître dans les archives récentes.",
     calendrier:
-      "Le calendrier Canal+ montre surtout des films et des lancements de séries. Les films de cinéma arrivent sur Canal+ au rythme de la chronologie des médias, et les nouvelles saisons des Créations Originales n'y figurent pas : elles apparaissent dans les nouveautés à leur diffusion.",
+      "Le calendrier Canal+ montre surtout des films, à la date de leur arrivée annoncée sur Canal+, en général six mois après leur sortie en salle. Les nouvelles saisons des Créations Originales n'y figurent pas : elles apparaissent dans les nouveautés à leur diffusion.",
   },
   "hbo-max": {
     presentation: [
@@ -116,5 +116,5 @@ export function methodeListe(nom: string, type: "series" | "films"): string {
 
 /** Comment lire les pages /{plateforme}/prochaines-sorties */
 export function methodeCalendrier(nom: string): string {
-  return `Ce calendrier liste jour par jour les nouvelles séries (date du premier épisode) et les films annoncés sur ${nom} en France pour les quatre semaines à venir, d'après TMDB. Les nouvelles saisons de séries déjà lancées n'y figurent pas : leurs dates bougent trop souvent pour être fiables. Un titre n'y apparaît que lorsque sa disponibilité en France est déjà renseignée, ce qui arrive souvent tard : le calendrier est donc parfois court. Il est recalculé toutes les six heures, et une fois sortis, les titres rejoignent les nouveautés de la semaine puis les archives mensuelles.`;
+  return `Ce calendrier liste jour par jour les nouvelles séries (date du premier épisode) et les films annoncés sur ${nom} en France pour les quatre semaines à venir, d'après TMDB. Pour un film, la date est celle de son arrivée annoncée sur la plateforme en France. Pour une série, il s'agit de celles que la plateforme produit ou diffuse en premier : une production étrangère peut arriver en France avec un décalage, et le calendrier écarte celles qui n'ont ni résumé en français ni notoriété suffisante. Les nouvelles saisons de séries déjà lancées n'y figurent pas, leurs dates bougent trop souvent. Le calendrier est recalculé toutes les six heures ; une fois sortis, les titres rejoignent les nouveautés de la semaine puis les archives mensuelles.`;
 }
