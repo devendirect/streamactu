@@ -792,38 +792,49 @@ export const getSortiesAVenir = unstable_cache(
 // disponibles en streaming FR (abonnement)
 // ──────────────────────────────────────────────
 
+/** Pages de /discover lues pour le top annuel (20 titres chacune) */
+const PAGES_TOP_ANNEE = 3;
+
 export const getTopAnnee = unstable_cache(
   async (type: "serie" | "film", annee: number): Promise<Contenu[]> => {
     const [genresTv, genresFilm] = await Promise.all([getGenresTv(), getGenresFilm()]);
+    // Mêmes sept plateformes que le reste du site (et que llms-full.txt)
     const base = {
       sort_by: "vote_average.desc",
       "vote_count.gte": 200,
       watch_region: "FR",
       with_watch_monetization_types: "flatrate",
+      with_watch_providers: IDS_PLATEFORMES.join("|"),
+      ...(type === "serie" ? { first_air_date_year: annee } : { primary_release_year: annee }),
     };
 
-    // Re-tri bayésien des résultats reçus : le tri brut de TMDB fait passer
-    // un 8,6 à 210 votes devant un 8,4 à 50 000 (même logique que les tops mensuels)
-    const trier = (contenus: Contenu[]) =>
-      contenus
-        .sort((a, b) => scoreBayesien(b.note, b.nbVotes) - scoreBayesien(a.note, a.nbVotes))
-        .slice(0, 20);
-
-    if (type === "serie") {
-      const data = await tmdbGet<ReponseTMDB<TMDBSerie>>("/discover/tv", {
-        ...base,
-        first_air_date_year: annee,
-      }, 86400);
-      return trier(data.results.map((s) => mapSerie(s, genresTv)));
+    // TMDB trie par note brute : on lit plusieurs pages avant le re-tri
+    // bayésien, sinon un titre très voté mais noté un peu plus bas que les 20
+    // premiers n'entre jamais dans la sélection. Mesuré le 2026-09-26 sur
+    // 2025 et 2026 : 2 pages suffisent à retrouver le top complet ; 3 par
+    // marge.
+    const contenus: Contenu[] = [];
+    for (let page = 1; page <= PAGES_TOP_ANNEE; page++) {
+      if (type === "serie") {
+        const data = await tmdbGet<ReponseTMDB<TMDBSerie>>("/discover/tv", { ...base, page }, 86400);
+        contenus.push(...data.results.map((s) => mapSerie(s, genresTv)));
+        if (page >= data.total_pages) break;
+      } else {
+        const data = await tmdbGet<ReponseTMDB<TMDBFilm>>("/discover/movie", { ...base, page }, 86400);
+        contenus.push(...data.results.map((f) => mapFilm(f, genresFilm)));
+        if (page >= data.total_pages) break;
+      }
     }
 
-    const data = await tmdbGet<ReponseTMDB<TMDBFilm>>("/discover/movie", {
-      ...base,
-      primary_release_year: annee,
-    }, 86400);
-    return trier(data.results.map((f) => mapFilm(f, genresFilm)));
+    // Re-tri bayésien : le tri brut de TMDB fait passer un 8,6 à 210 votes
+    // devant un 8,4 à 50 000 (même logique que les tops mensuels)
+    const vus = new Set<number>();
+    return contenus
+      .filter((c) => (vus.has(c.id) ? false : (vus.add(c.id), true)))
+      .sort((a, b) => scoreBayesien(b.note, b.nbVotes) - scoreBayesien(a.note, a.nbVotes))
+      .slice(0, 20);
   },
-  ["top-annee"],
+  ["top-annee-7-plateformes"],
   { revalidate: 86400 }
 );
 

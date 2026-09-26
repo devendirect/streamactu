@@ -2,7 +2,8 @@ import type { Guide } from "../guides";
 
 /**
  * Méthode vérifiée dans le code : lib/utils.ts (scoreBayesien, m = 100, C = 7),
- * lib/tmdb.ts (getTopMois, getTopAnnee). Exemples relevés sur le site le
+ * lib/tmdb.ts (getTopMois, getTopAnnee : 7 plateformes, 3 pages lues depuis le
+ * 2026-09-26). Exemples relevés sur le site le
  * 2026-09-26 (llms-full.txt) ; les scores sont recalculés à partir des notes
  * arrondies affichées.
  */
@@ -76,10 +77,10 @@ export const GUIDE_CLASSEMENT_TOPS: Guide = {
       titre: "Le top de l'année",
       blocs: [
         {
-          p: "Le top de l'année est plus sélectif. Il ne retient que les séries lancées dans l'année (premier épisode diffusé cette année-là) et les films sortis dans l'année, disponibles en France par abonnement, avec au moins 200 votes sur TMDB. Parmi eux, le site prend les vingt meilleures notes brutes, puis les réordonne par note pondérée.",
+          p: "Le top de l'année est plus sélectif. Il ne retient que les séries lancées dans l'année (premier épisode diffusé cette année-là) et les films sortis dans l'année, disponibles sur les sept plateformes suivies, avec au moins 200 votes sur TMDB. Le site lit les soixante meilleures notes brutes, puis les réordonne par note pondérée et garde les vingt premières.",
         },
         {
-          p: "Ce seuil de 200 votes écarte les titres trop confidentiels pour qu'on se fie à leur note. Il a un revers : un titre très regardé mais noté un peu moins haut que les vingt premiers n'entre pas dans la sélection de départ, même si sa note pondérée serait meilleure. Le classement de l'année en cours est recalculé chaque jour.",
+          p: "Le seuil de 200 votes écarte les titres trop confidentiels pour qu'on se fie à leur note. Lire soixante titres plutôt que vingt laisse sa chance à un titre très regardé mais noté un peu moins haut : vérifié sur 2025 et 2026, cette sélection donne exactement le même top que si l'on classait tous les titres. Le classement de l'année en cours est recalculé chaque jour.",
         },
       ],
     },
