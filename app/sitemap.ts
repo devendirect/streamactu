@@ -8,6 +8,7 @@ import {
 } from "@/lib/tmdb";
 import { PLATEFORMES } from "@/lib/plateformes";
 import { GENRES_SEO } from "@/lib/genres";
+import { GUIDES, MIN_GUIDES_INDEX } from "@/lib/guides";
 import {
   decalerSemaineISO,
   formatDateURL,
@@ -230,6 +231,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/contact`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${BASE}/jeux`, changeFrequency: "daily", priority: 0.5 }
   );
+
+  // ── Guides (la liste /guides n'entre qu'à partir de MIN_GUIDES_INDEX guides) ──
+  if (GUIDES.length >= MIN_GUIDES_INDEX) {
+    entries.push({ url: `${BASE}/guides`, changeFrequency: "monthly", priority: 0.5 });
+  }
+  for (const g of GUIDES) {
+    entries.push({
+      url: `${BASE}/guides/${g.slug}`,
+      lastModified: new Date(`${g.misAJour}T12:00:00Z`),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    });
+  }
 
   // ── Fiches des sorties récentes (4 dernières semaines) ──
   // Réutilise le cache des pages semaine ; en cas d'échec TMDB, le sitemap

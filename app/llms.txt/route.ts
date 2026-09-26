@@ -1,4 +1,5 @@
 import { PLATEFORMES } from "@/lib/plateformes";
+import { GUIDES } from "@/lib/guides";
 import { formatMoisFR, formatMoisURL } from "@/lib/utils";
 
 // 24h : seuls les liens de classements (mois/année) changent
@@ -61,6 +62,10 @@ ${recapsAnnuels}
 - [Sitemap](${SITE_URL}/sitemap.xml) : toutes les fiches films et séries
 - [Flux RSS](${SITE_URL}/flux.xml) : les nouveautés des 7 derniers jours
 - [Version détaillée](${SITE_URL}/llms-full.txt) : les classements complets, titre par titre
+
+## Guides
+
+${GUIDES.map((g) => `- [${g.titre}](${SITE_URL}/guides/${g.slug}) : ${g.chapo.split(". ")[0]}.`).join("\n")}
 
 ## À propos
 

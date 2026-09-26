@@ -123,6 +123,12 @@ export default function Footer() {
               Mentions légales
             </Link>
             <Link
+              href="/guides"
+              className="font-mono-label text-ink-3 hover:text-foreground transition-colors"
+            >
+              Guides
+            </Link>
+            <Link
               href="/contact"
               className="font-mono-label text-ink-3 hover:text-foreground transition-colors"
             >

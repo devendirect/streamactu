@@ -1,6 +1,7 @@
 import type { Contenu } from "@/types";
 import { getTopAnnee, getTopMois } from "@/lib/tmdb";
 import { PLATEFORMES } from "@/lib/plateformes";
+import { GUIDES } from "@/lib/guides";
 import { formatMoisFR } from "@/lib/utils";
 
 // 24h : mêmes caches que les pages top (getTopAnnee / getNouveautesMois)
@@ -68,6 +69,7 @@ ${PLATEFORMES.map((pf) => `- [Nouveautés ${pf.nom} ${annee}](${SITE_URL}/${pf.s
 - [Sitemap](${SITE_URL}/sitemap.xml) : toutes les fiches films et séries
 - [Flux RSS](${SITE_URL}/flux.xml) : les nouveautés des 7 derniers jours
 - [À propos](${SITE_URL}/a-propos) : éditeur, sources, méthode de classement, limites, financement
+${GUIDES.map((g) => `- [${g.titre}](${SITE_URL}/guides/${g.slug}) : ${g.description}`).join("\n")}
 - [Contact](${SITE_URL}/contact) : signaler une erreur de disponibilité ou de fiche
 `;
 
