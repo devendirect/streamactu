@@ -251,6 +251,9 @@ export default async function SlugPage({ params }: Props) {
             liens={[
               { href: `/${pf.slug}/${new Date().getUTCFullYear()}`, label: `Récap ${pf.nom} ${new Date().getUTCFullYear()}` },
               { href: "/a-propos#methode", label: "Comment sont faites ces listes" },
+              pf.slug === "hbo-max"
+                ? { href: "/guides/series-hbo-france", label: "Où regarder les séries HBO en France" }
+                : { href: "/guides/choisir-plateforme", label: "Quelle plateforme choisir" },
             ]}
           />
 

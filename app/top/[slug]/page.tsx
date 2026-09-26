@@ -172,6 +172,12 @@ export default async function TopPage({ params }: Props) {
               Top {estSeries ? "séries" : "films"} {top.annee} →
             </Link>
           )}
+          <Link
+            href="/guides/classement-tops"
+            className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
+          >
+            Comment ce classement est fait →
+          </Link>
         </nav>
 
         {/* Classement numéroté */}

@@ -1,4 +1,7 @@
+import { GUIDE_CHOISIR_PLATEFORME } from "./guides/choisir-plateforme";
 import { GUIDE_CLASSEMENT_TOPS } from "./guides/classement-tops";
+import { GUIDE_FILM_QUITTE_PLATEFORME } from "./guides/film-quitte-plateforme";
+import { GUIDE_SERIES_HBO_FRANCE } from "./guides/series-hbo-france";
 
 /**
  * Guides éditoriaux (/guides/[slug]) : contenus durables, signés « l'éditeur
@@ -38,7 +41,12 @@ export interface Guide {
   sources?: { titre: string; url: string }[];
 }
 
-export const GUIDES: Guide[] = [GUIDE_CLASSEMENT_TOPS];
+export const GUIDES: Guide[] = [
+  GUIDE_CHOISIR_PLATEFORME,
+  GUIDE_SERIES_HBO_FRANCE,
+  GUIDE_FILM_QUITTE_PLATEFORME,
+  GUIDE_CLASSEMENT_TOPS,
+];
 
 /** En dessous, la page /guides reste en noindex : une liste d'un ou deux liens est trop maigre */
 export const MIN_GUIDES_INDEX = 3;
