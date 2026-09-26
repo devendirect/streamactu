@@ -231,6 +231,9 @@ export default async function SousPlateformePage({ params }: Props) {
               methodeListe(pf.nom, sous),
             ]}
             liens={[
+              ...(estSeries
+                ? []
+                : [{ href: "/guides/film-quitte-plateforme", label: "Pourquoi un film arrive ou quitte une plateforme" }]),
               { href: `/${pf.slug}/prochaines-sorties`, label: `Prochaines sorties ${pf.nom}` },
               { href: `/${pf.slug}/${new Date().getUTCFullYear()}`, label: `Récap ${pf.nom} ${new Date().getUTCFullYear()}` },
             ]}

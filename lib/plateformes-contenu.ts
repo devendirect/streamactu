@@ -27,7 +27,7 @@ export const CONTENU_PLATEFORME: Record<string, ContenuPlateforme> = {
     films:
       "Les films Netflix se partagent entre les films maison, qui sortent directement sur la plateforme, et les films passés d'abord par le cinéma, qui n'arrivent en France qu'une fois écoulés les délais de la chronologie des médias. Ces derniers sont classés à leur date de sortie en salle : ils figurent dans les archives mensuelles plutôt que dans cette liste des dernières semaines.",
     calendrier:
-      "Pour Netflix, une date annoncée correspond le plus souvent à une saison complète, pas à un seul épisode. Les séries publiées chaque semaine apparaissent en revanche plusieurs fois dans le calendrier, une ligne par épisode.",
+      "Pour Netflix, la date indiquée est celle de la mise en ligne d'une nouvelle série ou d'un film, souvent une saison entière d'un coup. Les nouvelles saisons de séries déjà connues n'apparaissent pas ici : elles arrivent directement dans les nouveautés du jour de leur sortie.",
   },
   "prime-video": {
     presentation: [
@@ -39,7 +39,7 @@ export const CONTENU_PLATEFORME: Record<string, ContenuPlateforme> = {
     films:
       "Les films de Prime Video viennent de trois sources : les productions d'Amazon MGM Studios, les films achetés pour l'abonnement, et le cinéma récent qui arrive après sa sortie en salle. Seuls les titres inclus dans Prime sont comptés ici ; ceux proposés à l'achat ou à la location dans la même application sont écartés.",
     calendrier:
-      "Le calendrier Prime Video mélange lancements de saisons complètes et épisodes hebdomadaires. Quand une série apparaît plusieurs fois, c'est qu'elle sort épisode par épisode ; la première date correspond au lancement.",
+      "Le calendrier Prime Video annonce les lancements de nouvelles séries et les films à venir. Pour une série qui sort ensuite chaque semaine, seule la date du premier épisode y figure ; les épisodes suivants apparaissent au fil des jours dans les nouveautés Prime Video.",
   },
   "disney-plus": {
     presentation: [
@@ -51,7 +51,7 @@ export const CONTENU_PLATEFORME: Record<string, ContenuPlateforme> = {
     films:
       "Les films Disney+ sont surtout ceux des studios du groupe : Disney, Pixar, Marvel, Lucasfilm et 20th Century. Les grands films passés par le cinéma n'arrivent sur la plateforme que plusieurs mois après leur sortie en salle, et sont classés ici à leur date de sortie en salle.",
     calendrier:
-      "Comme la plupart des séries Disney+ sortent chaque semaine, le calendrier compte souvent une ligne par épisode. Les dates des films du catalogue Star sont celles annoncées pour la France, qui peuvent différer de la sortie américaine.",
+      "Sur Disney+, beaucoup de séries sortent ensuite un épisode par semaine : le calendrier ne montre que leur lancement, et les épisodes suivants apparaissent jour après jour dans les nouveautés Disney+. Les dates des films du catalogue Star sont celles annoncées pour la France.",
   },
   "apple-tv-plus": {
     presentation: [
@@ -63,7 +63,7 @@ export const CONTENU_PLATEFORME: Record<string, ContenuPlateforme> = {
     films:
       "Apple TV+ produit peu de films, mais certains sont de gros projets passés par le cinéma avant d'arriver sur la plateforme. Il y a donc des semaines, voire des mois, sans nouveau film : c'est le rythme normal du catalogue, pas un trou dans les données.",
     calendrier:
-      "Le calendrier Apple TV+ est court mais fiable : les séries Apple sont annoncées tôt, et chaque épisode hebdomadaire a sa propre ligne. Un jour vide ici signifie simplement qu'Apple ne publie rien ce jour-là.",
+      "Apple annonce ses séries longtemps à l'avance, mais le calendrier ne les montre qu'une fois leur disponibilité en France renseignée. Un calendrier vide ne veut donc pas dire qu'Apple ne prépare rien : la série apparaîtra dans les nouveautés le jour de son lancement.",
   },
   "canal-plus": {
     presentation: [
@@ -75,7 +75,7 @@ export const CONTENU_PLATEFORME: Record<string, ContenuPlateforme> = {
     films:
       "Sur Canal+, les films récents sont la règle : la chronologie des médias donne à Canal+ la première fenêtre par abonnement après le cinéma, quelques mois après la sortie en salle. Ces films sont classés ici à leur date de sortie au cinéma, ce qui explique qu'un film de l'an dernier puisse apparaître dans les archives récentes.",
     calendrier:
-      "Le calendrier Canal+ suit surtout les séries, car les films arrivent au fil des fenêtres de diffusion plutôt qu'à des dates annoncées longtemps à l'avance. Les Créations Originales sont généralement programmées deux épisodes par semaine.",
+      "Le calendrier Canal+ montre surtout des films et des lancements de séries. Les films de cinéma arrivent sur Canal+ au rythme de la chronologie des médias, et les nouvelles saisons des Créations Originales n'y figurent pas : elles apparaissent dans les nouveautés à leur diffusion.",
   },
   "hbo-max": {
     presentation: [
@@ -87,7 +87,7 @@ export const CONTENU_PLATEFORME: Record<string, ContenuPlateforme> = {
     films:
       "Les films de HBO Max viennent surtout de Warner Bros., de DC et de New Line. Les films récents passés par le cinéma arrivent après les fenêtres réservées aux autres diffuseurs, et sont classés ici à leur date de sortie en salle.",
     calendrier:
-      "Pour HBO Max, le calendrier compte une ligne par épisode : c'est le reflet du rythme hebdomadaire des séries HBO. La date est celle de la mise en ligne en France, qui suit de peu la diffusion américaine.",
+      "Pour HBO Max, le calendrier montre le lancement des nouvelles séries et les films. Les épisodes hebdomadaires qui suivent apparaissent ensuite dans les nouveautés du jour, en général peu après leur diffusion américaine.",
   },
   "paramount-plus": {
     presentation: [
@@ -99,7 +99,7 @@ export const CONTENU_PLATEFORME: Record<string, ContenuPlateforme> = {
     films:
       "Les films de Paramount+ sont en majorité des films Paramount Pictures, auxquels s'ajoutent quelques productions faites pour la plateforme. Les films passés par le cinéma arrivent plusieurs mois après leur sortie en salle, et sont classés ici à cette date de sortie.",
     calendrier:
-      "Le calendrier Paramount+ est surtout fait d'épisodes hebdomadaires. Les dates des séries américaines peuvent bouger d'un jour ou deux entre l'annonce et la mise en ligne en France.",
+      "Le calendrier Paramount+ montre les lancements de séries et les films. Les nouvelles saisons de séries déjà connues, comme celles de Taylor Sheridan, n'y figurent pas : elles apparaissent dans les nouveautés à leur sortie.",
   },
 };
 
@@ -107,10 +107,14 @@ export const CONTENU_PLATEFORME: Record<string, ContenuPlateforme> = {
 export function methodeListe(nom: string, type: "series" | "films"): string {
   const titres = type === "series" ? "séries" : "films";
   const quoi = type === "series" ? "dont un épisode est sorti" : "sortis";
-  return `Cette liste reprend les ${titres} disponibles par abonnement sur ${nom} en France ${quoi} ces quatre dernières semaines, d'après TMDB. Ils sont triés par note des spectateurs ; chaque titre mène à sa fiche, avec le casting, la bande-annonce et les autres plateformes où le regarder. Les titres de moins de cinq votes n'y figurent pas encore, et la liste s'arrête à vingt titres.`;
+  return `Cette liste reprend les ${titres} disponibles par abonnement sur ${nom} en France ${quoi} ces quatre dernières semaines, d'après TMDB. Ils sont triés par note des spectateurs ; chaque titre mène à sa fiche, avec le casting, la bande-annonce et les autres plateformes où le regarder. Les titres de moins de cinq votes n'y figurent pas encore, et la liste s'arrête à vingt titres.${
+    type === "films"
+      ? " Un film n'arrive pas sur une plateforme au hasard : les délais après le cinéma et la fin des licences expliquent la plupart des arrivées et des départs, détaillés dans le guide lié ci-dessous."
+      : ""
+  }`;
 }
 
 /** Comment lire les pages /{plateforme}/prochaines-sorties */
 export function methodeCalendrier(nom: string): string {
-  return `Ce calendrier liste jour par jour les épisodes et films annoncés sur ${nom} en France pour les quatre semaines à venir, d'après TMDB. Il est recalculé toutes les six heures : une date peut apparaître, bouger ou disparaître d'ici là. Une fois sortis, les titres rejoignent les nouveautés de la semaine puis les archives mensuelles.`;
+  return `Ce calendrier liste jour par jour les nouvelles séries (date du premier épisode) et les films annoncés sur ${nom} en France pour les quatre semaines à venir, d'après TMDB. Les nouvelles saisons de séries déjà lancées n'y figurent pas : leurs dates bougent trop souvent pour être fiables. Un titre n'y apparaît que lorsque sa disponibilité en France est déjà renseignée, ce qui arrive souvent tard : le calendrier est donc parfois court. Il est recalculé toutes les six heures, et une fois sortis, les titres rejoignent les nouveautés de la semaine puis les archives mensuelles.`;
 }

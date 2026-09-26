@@ -70,7 +70,7 @@ export default function FaqPlateforme({ plateforme, series, films, periodeIntro,
 
   entrees.push({
     question: `Quand sortent les prochains films et séries sur ${nom} ?`,
-    reponse: `Le calendrier des sorties ${nom} annoncées en France est mis à jour chaque jour, épisode par épisode, sur la page des prochaines sorties.`,
+    reponse: `Le calendrier des sorties ${nom} annoncées en France (nouvelles séries et films) est actualisé plusieurs fois par jour sur la page des prochaines sorties. Les nouveaux épisodes des séries déjà lancées apparaissent, eux, dans les nouveautés du jour de leur sortie.`,
     lien: { href: `/${plateforme.slug}/prochaines-sorties`, label: `Prochaines sorties ${nom}` },
   });
 

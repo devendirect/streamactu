@@ -102,7 +102,7 @@ export const GUIDE_CHOISIR_PLATEFORME: Guide = {
       titre: "Changer de plateforme au fil des mois",
       blocs: [
         {
-          p: "Beaucoup d'abonnés gardent une plateforme principale et en ajoutent une seconde le temps d'une série. Pour savoir quand ça vaut le coup, le [calendrier des prochaines sorties](/prochaines-sorties) liste les épisodes et films annoncés sur les quatre semaines à venir, plateforme par plateforme, et les [tops de l'année](/top/series-2026) montrent où se trouvent les titres les mieux notés. Avant de résilier, vérifiez les conditions : la plupart des abonnements se résilient d'un mois sur l'autre, mais certaines offres groupées comportent un engagement.",
+          p: "Beaucoup d'abonnés gardent une plateforme principale et en ajoutent une seconde le temps d'une série. Pour savoir quand ça vaut le coup, le [calendrier des prochaines sorties](/prochaines-sorties) liste les nouvelles séries et les films annoncés sur les quatre semaines à venir, plateforme par plateforme, et les [tops de l'année](/top/series-2026) montrent où se trouvent les titres les mieux notés. Avant de résilier, vérifiez les conditions : la plupart des abonnements se résilient d'un mois sur l'autre, mais certaines offres groupées comportent un engagement.",
         },
       ],
     },

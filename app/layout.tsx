@@ -35,6 +35,8 @@ const jsonLd = [
     "@type": "Organization",
     "@id": ORG_ID,
     name: "StreamActu.fr",
+    // Mise en ligne : juin 2026 (premier commit du dépôt le 28 juin 2026)
+    foundingDate: "2026-06",
     url: SITE_URL,
     logo: {
       "@type": "ImageObject",

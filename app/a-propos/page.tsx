@@ -3,11 +3,17 @@ import Link from "next/link";
 import { PLATEFORMES } from "@/lib/plateformes";
 import { metadonnees } from "@/lib/meta";
 import { CONTACT_EMAIL, ORG_ID, SITE_URL } from "@/lib/site";
+import { formatDateFR } from "@/lib/utils";
+import { GUIDES } from "@/lib/guides";
 
 const DESCRIPTION =
   "Qui édite StreamActu.fr, d'où viennent les données, comment sont faits les classements, ce que le site ne sait pas faire et comment il est financé.";
 
 export const metadata: Metadata = metadonnees("À propos", DESCRIPTION, "/a-propos");
+
+/** Dates affichées et déclarées dans le JSON-LD : mettre à jour MIS_A_JOUR à chaque modification du texte */
+const EN_LIGNE_DEPUIS = "juin 2026";
+const MIS_A_JOUR = "2026-09-26";
 
 const styleProse = {
   fontFamily: "var(--font-newsreader), serif",
@@ -24,6 +30,7 @@ const jsonLd = {
   url: `${SITE_URL}/a-propos`,
   description: DESCRIPTION,
   inLanguage: "fr-FR",
+  dateModified: MIS_A_JOUR,
   about: { "@id": ORG_ID },
   publisher: { "@id": ORG_ID },
 };
@@ -55,6 +62,9 @@ export default function AProposPage() {
       <div>
         <p className="font-mono-label text-ink-3 mb-3">Le site</p>
         <h1 className="text-4xl font-extrabold tracking-[-0.025em]">À propos de StreamActu.fr</h1>
+        <p className="font-mono-label text-ink-3 mt-3">
+          En ligne depuis {EN_LIGNE_DEPUIS} · Page mise à jour le {formatDateFR(MIS_A_JOUR)}
+        </p>
       </div>
 
       <Section id="site" titre="Ce que fait StreamActu.fr">
@@ -107,6 +117,11 @@ export default function AProposPage() {
           comme si le titre avait reçu 100 votes de plus à 7 : (note × votes + 7 × 100) ÷
           (votes + 100). Le 9/10 à 12 votes tombe à 7,2 ; le 8,5 à 20 000 votes reste à 8,5.
           Le top de l&apos;année ne retient en plus que les titres ayant au moins 200 votes.
+          Le détail, avec des exemples réels, est dans le guide{" "}
+          <Link href="/guides/classement-tops" className={classeLien}>
+            comment sont classés les tops
+          </Link>
+          .
         </P>
         <P>
           Pour éviter les pages presque vides, certaines ne sont pas publiées : un croisement
@@ -179,6 +194,22 @@ export default function AProposPage() {
           </Link>
           .
         </P>
+        <P>
+          Les{" "}
+          <Link href="/guides" className={classeLien}>
+            guides
+          </Link>{" "}
+          répondent aux questions qui reviennent, sources à l&apos;appui :
+        </P>
+        <ul className={`${classeProse} list-disc pl-5 space-y-1`} style={styleProse}>
+          {GUIDES.map((g) => (
+            <li key={g.slug}>
+              <Link href={`/guides/${g.slug}`} className={classeLien}>
+                {g.titre}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </Section>
     </div>
   );

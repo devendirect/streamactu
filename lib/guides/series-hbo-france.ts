@@ -27,7 +27,7 @@ export const GUIDE_SERIES_HBO_FRANCE: Guide = {
           p: "On peut s'y abonner directement, ou l'ajouter à un abonnement Prime Video sous forme de chaîne. Au 26 septembre 2026, la fiche de [A Knight of the Seven Kingdoms](/serie/a-knight-of-the-seven-kingdoms-224372), la série de l'univers Game of Thrones sortie en 2026, indique ainsi deux accès : HBO Max et la chaîne HBO Max sur Prime Video. À son lancement, la plateforme était aussi incluse dans des offres Canal+ ; ces offres groupées évoluent, et le mieux est de vérifier auprès de son opérateur ou de Canal+.",
         },
         {
-          p: "Les nouveautés de la plateforme sont suivies chaque jour sur la page [HBO Max](/hbo-max), avec le [calendrier des prochains épisodes](/hbo-max/prochaines-sorties) et le [récap de l'année](/hbo-max/2026).",
+          p: "Les nouveautés de la plateforme sont suivies chaque jour sur la page [HBO Max](/hbo-max), avec les [nouvelles séries HBO Max](/hbo-max/series) et le [récap de l'année](/hbo-max/2026).",
         },
       ],
     },

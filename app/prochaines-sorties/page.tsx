@@ -6,6 +6,9 @@ import { PLATEFORMES } from "@/lib/plateformes";
 import EnTeteNouveautes from "@/components/EnTeteNouveautes";
 import ListeSortiesParJour, { agregerSortiesParJour } from "@/components/ListeSortiesParJour";
 import MaillagePlateformes from "@/components/MaillagePlateformes";
+import TexteEditorial from "@/components/TexteEditorial";
+import { methodeCalendrier } from "@/lib/plateformes-contenu";
+import { syntheseCalendrier } from "@/lib/syntheses";
 
 export const revalidate = 21600;
 
@@ -58,6 +61,19 @@ export default async function ProchainesSortiesPage() {
         </nav>
 
         <ListeSortiesParJour jours={jours} />
+
+        <TexteEditorial
+          titre="Lire ce calendrier"
+          paragraphes={[
+            syntheseCalendrier(jours),
+            methodeCalendrier("les sept plateformes suivies"),
+            "Pour les séries en cours, les nouveaux épisodes arrivent chaque jour dans les nouveautés de chaque plateforme, qui restent la meilleure façon de ne rien manquer.",
+          ]}
+          liens={[
+            { href: "/", label: "Les sorties du jour" },
+            { href: "/guides/choisir-plateforme", label: "Quelle plateforme choisir" },
+          ]}
+        />
 
         <MaillagePlateformes />
       </div>
