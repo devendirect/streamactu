@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PLATEFORMES } from "@/lib/plateformes";
 import { metadonnees } from "@/lib/meta";
-import { CONTACT_EMAIL, ORG_ID, SITE_URL } from "@/lib/site";
+import { CONTACT_EMAIL, ORG_ID, REPO_URL, SITE_URL } from "@/lib/site";
 import { formatDateFR } from "@/lib/utils";
 import { GUIDES } from "@/lib/guides";
 
@@ -168,7 +168,12 @@ export default function AProposPage() {
           Le site lui-même a été développé avec l&apos;aide de Claude, utilisé comme binôme
           pour le code et pour les premières versions des textes des pages, vérifiés avant
           publication. Les listes, fiches et classements ne sont pas rédigés par une IA : ils
-          sont calculés à partir des données TMDB.
+          sont calculés à partir des données TMDB. Le code du site est public, sous licence MIT :
+          on peut y vérifier la méthode de classement et tout le reste, sur{" "}
+          <a href={REPO_URL} target="_blank" rel="noopener noreferrer" className={classeLien}>
+            GitHub
+          </a>
+          .
         </P>
       </Section>
 

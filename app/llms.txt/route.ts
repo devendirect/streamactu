@@ -73,6 +73,7 @@ ${GUIDES.map((g) => `- [${g.titre}](${SITE_URL}/guides/${g.slug}) : ${g.chapo.sp
 - [Contact](${SITE_URL}/contact) : signaler une erreur de disponibilité ou de fiche
 - [Mentions légales](${SITE_URL}/mentions-legales) : éditeur, hébergeur, données personnelles, usage de l'IA
 - Données : TMDB (The Movie Database), disponibilités France uniquement
+- [Code source](https://github.com/devendirect/streamactu) : public, licence MIT
 - Langue : français
 - Mise à jour : quotidienne
 `;

@@ -1,3 +1,4 @@
+import { REPO_URL } from "@/lib/site";
 import Link from "next/link";
 import { BoutonGererCookies } from "@/components/ConsentAnalytics";
 import { PLATEFORMES } from "@/lib/plateformes";
@@ -139,6 +140,14 @@ export default function Footer() {
               className="font-mono-label text-ink-3 hover:text-foreground transition-colors"
             >
               Flux RSS
+            </a>
+            <a
+              href={REPO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono-label text-ink-3 hover:text-foreground transition-colors"
+            >
+              Code source
             </a>
             <BoutonGererCookies />
           </div>

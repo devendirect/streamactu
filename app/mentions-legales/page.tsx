@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CONTACT_EMAIL, HEBERGEUR } from "@/lib/site";
+import { CONTACT_EMAIL, HEBERGEUR, REPO_URL } from "@/lib/site";
 import { metadonnees } from "@/lib/meta";
 
 export const metadata: Metadata = metadonnees(
@@ -97,6 +97,21 @@ export default function MentionsLegalesPage() {
           texte que vous tapez pour décrire un film ou une série (600 caractères au plus), afin
           de proposer des titres. Les textes générés sont produits par une IA : ils ne
           reflètent pas l&apos;avis de l&apos;éditeur et peuvent contenir des erreurs.
+        </p>
+      </section>
+
+      <section className="space-y-4 border-t border-border pt-6" id="propriete">
+        <h2 className="font-mono-label text-[#9A9282]">Propriété intellectuelle</h2>
+        <p className={classeProse} style={styleProse}>
+          Le code source du site, textes des pages et des guides compris, est publié sous licence MIT
+          sur{" "}
+          <a href={REPO_URL} target="_blank" rel="noopener noreferrer" className="text-primary underline">
+            GitHub
+          </a>
+          : vous pouvez le réutiliser en conservant la mention de copyright et le texte de la licence.
+          La licence ne couvre pas les données et visuels fournis par TMDB, les disponibilités fournies
+          par JustWatch, ni les noms et logos des plateformes, qui restent soumis à leurs propres
+          conditions. Le nom et le logo StreamActu.fr ne sont pas couverts non plus.
         </p>
       </section>
 

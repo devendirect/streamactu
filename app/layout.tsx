@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SplashScreenLoader from "@/components/SplashScreenLoader";
 import ConsentAnalytics from "@/components/ConsentAnalytics";
-import { CONTACT_EMAIL, ORG_ID, SITE_URL } from "@/lib/site";
+import { CONTACT_EMAIL, ORG_ID, REPO_URL, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -46,6 +46,8 @@ const jsonLd = [
     },
     description: DESCRIPTION,
     email: CONTACT_EMAIL,
+    // Profil vérifiable : le code du site est public
+    sameAs: [REPO_URL],
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "customer support",
