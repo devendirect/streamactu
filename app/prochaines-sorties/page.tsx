@@ -38,8 +38,8 @@ export default async function ProchainesSortiesPage() {
         titre="Prochaines sorties streaming"
         intro={
           total > 0
-            ? `${total} sortie${total > 1 ? "s" : ""} annoncée${total > 1 ? "s" : ""} — nouvelles séries et films — sur les quatre prochaines semaines, jour par jour. Les dates peuvent bouger : la page est actualisée plusieurs fois par jour.`
-            : "Aucune sortie annoncée sur les quatre prochaines semaines pour l'instant — revenez bientôt, la page est actualisée plusieurs fois par jour."
+            ? `${total} sortie${total > 1 ? "s" : ""} annoncée${total > 1 ? "s" : ""} (nouvelles séries et films) sur les quatre prochaines semaines, jour par jour. Les dates peuvent bouger : la page est actualisée plusieurs fois par jour.`
+            : "Aucune sortie annoncée sur les quatre prochaines semaines pour l'instant. Revenez bientôt : la page est actualisée plusieurs fois par jour."
         }
       />
       <div className="sa-container py-4 space-y-10">

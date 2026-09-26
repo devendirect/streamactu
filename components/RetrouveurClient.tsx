@@ -126,7 +126,7 @@ export default function RetrouveurClient() {
         <span className="font-serif italic font-medium text-primary">On le retrouve.</span>
       </h1>
       <p className="mb-7 font-serif text-[17px] leading-[1.5] text-ink-3 max-w-[54ch]">
-        Un bout d&apos;intrigue, une ambiance, l&apos;acteur dont vous avez oublié le nom — racontez
+        Un bout d&apos;intrigue, une ambiance, l&apos;acteur dont vous avez oublié le nom : racontez
         sans mots-clés. Claude lit, comprend, et explique pourquoi chaque titre colle.
       </p>
 

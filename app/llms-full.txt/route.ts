@@ -58,7 +58,7 @@ ${section(`Top séries ${moisFR}`, seriesMois)}
 ${section(`Top films ${moisFR}`, filmsMois)}
 ## Récaps annuels par plateforme
 
-Inventaire de l'année, mois par mois — à distinguer des classements ci-dessus,
+Inventaire de l'année, mois par mois, à distinguer des classements ci-dessus,
 qui sont sélectifs et toutes plateformes confondues.
 
 ${PLATEFORMES.map((pf) => `- [Nouveautés ${pf.nom} ${annee}](${SITE_URL}/${pf.slug}/${annee})`).join("\n")}

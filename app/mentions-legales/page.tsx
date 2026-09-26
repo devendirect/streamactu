@@ -64,7 +64,7 @@ export default function MentionsLegalesPage() {
           déposé. Si vous acceptez, des cookies <code>_ga</code> sont déposés (durée
           maximale : 13 mois) et les données sont conservées 14 mois. Vous pouvez retirer
           votre consentement à tout moment via le lien « Gérer les cookies » en pied de
-          page — les cookies de mesure sont alors supprimés.
+          page : les cookies de mesure sont alors supprimés.
         </p>
         <p className="text-[#C4BBA9] leading-relaxed" style={{ fontFamily: "var(--font-newsreader), serif", fontSize: "17px" }}>
           En dehors de cette mesure d&apos;audience, aucun cookie de traçage n&apos;est

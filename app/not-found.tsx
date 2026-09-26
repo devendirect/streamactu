@@ -2,9 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Page introuvable — 404",
+  title: "Page introuvable (404)",
   openGraph: {
-    title: "Page introuvable — 404 | StreamActu.fr",
+    title: "Page introuvable (404) | StreamActu.fr",
     description: "Cette page n'existe pas ou a été déplacée.",
   },
 };

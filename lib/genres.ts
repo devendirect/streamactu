@@ -37,7 +37,7 @@ export const GENRES_SEO: GenreSEO[] = [
     nom: "Horreur",
     idsTv: [],
     idsFilm: [27],
-    intro: "Épouvante, slashers et horreur psychologique — à regarder lumières éteintes.",
+    intro: "Épouvante, slashers et horreur psychologique, à regarder lumières éteintes.",
   },
   {
     slug: "comedie",
@@ -58,14 +58,14 @@ export const GENRES_SEO: GenreSEO[] = [
     nom: "Science-fiction",
     idsTv: [10765],
     idsFilm: [878],
-    intro: "Futurs proches, espace lointain et dystopies — la SF sous toutes ses formes.",
+    intro: "Futurs proches, espace lointain et dystopies : la SF sous toutes ses formes.",
   },
   {
     slug: "fantastique",
     nom: "Fantastique",
     idsTv: [], // « Sci-Fi & Fantasy » (10765) est réservé à Science-fiction
     idsFilm: [14],
-    intro: "Mondes parallèles, magie et créatures — quand le réel ne suffit plus.",
+    intro: "Mondes parallèles, magie et créatures : quand le réel ne suffit plus.",
   },
   {
     slug: "action",
@@ -86,7 +86,7 @@ export const GENRES_SEO: GenreSEO[] = [
     nom: "Animation",
     idsTv: [16],
     idsFilm: [16],
-    intro: "Du cinéma d'animation familial aux séries adultes — le dessin n'a pas d'âge.",
+    intro: "Du cinéma d'animation familial aux séries adultes : le dessin n'a pas d'âge.",
   },
   {
     slug: "documentaire",
@@ -100,7 +100,7 @@ export const GENRES_SEO: GenreSEO[] = [
     nom: "Policier",
     idsTv: [80],
     idsFilm: [80],
-    intro: "Enquêtes, procès et crime organisé — le polar dans tous ses états.",
+    intro: "Enquêtes, procès et crime organisé : le polar dans tous ses états.",
   },
   {
     slug: "mystere",
@@ -114,7 +114,7 @@ export const GENRES_SEO: GenreSEO[] = [
     nom: "Romance",
     idsTv: [],
     idsFilm: [10749],
-    intro: "Rencontres, ruptures et retrouvailles — les histoires d'amour au premier plan.",
+    intro: "Rencontres, ruptures et retrouvailles : les histoires d'amour au premier plan.",
   },
   {
     slug: "familial",
@@ -135,7 +135,7 @@ export const GENRES_SEO: GenreSEO[] = [
     nom: "Western",
     idsTv: [37],
     idsFilm: [37],
-    intro: "Duels, plaines et hors-la-loi — le western classique et ses relectures modernes.",
+    intro: "Duels, plaines et hors-la-loi : le western classique et ses relectures modernes.",
   },
   {
     slug: "histoire",

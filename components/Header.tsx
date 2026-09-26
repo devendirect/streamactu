@@ -12,7 +12,7 @@ export default function Header() {
   return (
     <header className="sa-container w-full py-6 flex flex-wrap items-center gap-x-6 gap-y-3 md:flex-nowrap">
       {/* Logo */}
-      <Link href="/" className="flex items-center gap-3 leading-none shrink-0" aria-label="StreamActu.fr — Accueil">
+      <Link href="/" className="flex items-center gap-3 leading-none shrink-0" aria-label="Accueil StreamActu.fr">
         <svg data-logo-header width="34" height="34" viewBox="0 0 120 120" fill="none" aria-hidden="true">
           <g stroke="#ECE6D8" strokeWidth="6" strokeLinecap="round">
             <line x1="18" y1="84" x2="102" y2="84" />

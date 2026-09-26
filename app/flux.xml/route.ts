@@ -67,7 +67,7 @@ export async function GET() {
     .slice(0, MAX_ITEMS)
     .map(({ contenu, plateformes, dateISO }) => {
       const url = `${SITE_URL}/${contenu.type}/${contenu.slug}`;
-      const titre = `${contenu.titre} — ${contenu.type === "serie" ? "série" : "film"} sur ${plateformes.join(", ")}`;
+      const titre = `${contenu.titre}, ${contenu.type === "serie" ? "série" : "film"} sur ${plateformes.join(", ")}`;
       const description = contenu.synopsis || `${contenu.titre} est disponible en streaming.`;
       const pubDate = new Date(dateISO + "T08:00:00Z").toUTCString();
       return `    <item>

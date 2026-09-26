@@ -62,10 +62,10 @@ function libelles(params: TopParams) {
   const nomType = estSeries ? "séries" : "films";
   const periode =
     params.portee === "mois"
-      ? formatMoisFR(params.mois, params.annee)
+      ? formatMoisFR(params.mois, params.annee).toLowerCase()
       : String(params.annee);
   return {
-    titre: `Top ${nomType} — ${periode}`,
+    titre: `Top ${nomType} ${periode}`,
     description:
       params.portee === "mois"
         ? `Le classement des ${nomType} sorti${estSeries ? "es" : "s"} en ${periode} les mieux noté${estSeries ? "es" : "s"} sur les plateformes de streaming en France.`

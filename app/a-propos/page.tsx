@@ -55,7 +55,7 @@ export default function AProposPage() {
             The Movie Database (TMDB)
           </a>{" "}
           (source des disponibilités : JustWatch). Le périmètre est le catalogue français,
-          par abonnement uniquement — ni location, ni achat. Le site est mis à jour chaque
+          par abonnement uniquement : ni location, ni achat. Le site est mis à jour chaque
           jour, automatiquement.
         </p>
       </section>

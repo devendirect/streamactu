@@ -15,7 +15,6 @@ import {
   decalerSemaineISO,
   formatDateURL,
   formatJourSemaineFR,
-  formatMoisFR,
   formatMoisURL,
   formatSemaineURL,
   formatSemaineFR,
@@ -27,7 +26,7 @@ import {
   getISOWeek,
 } from "@/lib/utils";
 import type { Contenu } from "@/types";
-import { comptesUniques, metadonnees, metaHubPlateforme, metaJour, metaMois, metaSemaine } from "@/lib/meta";
+import { accord, comptesUniques, deMois, metadonnees, metaHubPlateforme, metaJour, metaMois, metaSemaine } from "@/lib/meta";
 import AccueilClient from "@/components/AccueilClient";
 import EnTeteNouveautes from "@/components/EnTeteNouveautes";
 import SectionPlateforme from "@/components/SectionPlateforme";
@@ -180,11 +179,11 @@ export default async function SlugPage({ params }: Props) {
     return (
       <>
         <EnTeteNouveautes
-          titre={`Nouveautés ${pf.nom} — ${periodeLabel}`}
+          titre={`Nouveautés ${pf.nom} : ${periodeLabel.toLowerCase()}`}
           intro={
             comptes
-              ? `${comptes} ajoutés ${periodeIntro} au catalogue ${pf.nom} en France, triés par note.`
-              : `Aucune sortie recensée récemment sur ${pf.nom} — les archives des mois précédents sont ci-dessous.`
+              ? `${comptes} ajouté${accord(data?.series.length ?? 0, data?.films.length ?? 0)} ${periodeIntro} au catalogue ${pf.nom} en France, trié${accord(data?.series.length ?? 0, data?.films.length ?? 0)} par note.`
+              : `Aucune sortie recensée récemment sur ${pf.nom} : les archives des mois précédents sont ci-dessous.`
           }
         />
         <div className="sa-container py-4 space-y-10">
@@ -237,10 +236,10 @@ export default async function SlugPage({ params }: Props) {
     return (
       <>
         <EnTeteNouveautes
-          titre={`Nouveautés streaming — ${label}`}
+          titre={`Nouveautés streaming du ${label.toLowerCase()}`}
           intro={
             futur
-              ? "Les épisodes et sorties annoncés ce jour-là sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, HBO Max et Paramount+ — programme susceptible de changer."
+              ? "Les épisodes et sorties annoncés ce jour-là sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, HBO Max et Paramount+. Programme susceptible de changer."
               : "Les séries et films sortis ce jour-là sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, HBO Max et Paramount+."
           }
         />
@@ -265,10 +264,10 @@ export default async function SlugPage({ params }: Props) {
     return (
       <>
         <EnTeteNouveautes
-          titre={`Nouveautés streaming — Semaine du ${formatSemaineFR(semaine, annee)}`}
+          titre={`Nouveautés streaming : semaine du ${formatSemaineFR(semaine, annee)}`}
           intro={
             futur
-              ? "Les épisodes et sorties annoncés cette semaine-là sur les sept grandes plateformes — programme susceptible de changer."
+              ? "Les épisodes et sorties annoncés cette semaine-là sur les sept grandes plateformes. Programme susceptible de changer."
               : "Les séries et films sortis cette semaine-là sur les sept grandes plateformes de streaming disponibles en France."
           }
         />
@@ -291,7 +290,7 @@ export default async function SlugPage({ params }: Props) {
     return (
       <>
         <EnTeteNouveautes
-          titre={`Nouveautés streaming — ${formatMoisFR(mois, annee)}`}
+          titre={`Nouveautés streaming ${deMois(mois, annee)}`}
           intro="Le récapitulatif du mois : toutes les séries et films arrivés sur Netflix, Prime Video, Disney+ et les autres plateformes."
         />
         <AccueilClient

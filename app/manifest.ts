@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "StreamActu.fr",
     short_name: "StreamActu",
     description:
-      "Nouveautés streaming quotidiennes — séries et films disponibles ce soir sur les grandes plateformes françaises.",
+      "Nouveautés streaming quotidiennes : séries et films disponibles ce soir sur les grandes plateformes françaises.",
     start_url: "/",
     display: "standalone",
     background_color: "#100E0A",

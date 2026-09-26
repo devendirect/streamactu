@@ -40,7 +40,7 @@ export default function ConvaincsMoi({ contenu }: Props) {
         setPitch(texte);
       }
     } catch {
-      setPitch("Mon enthousiasme bug une seconde — réessayez dans un instant.");
+      setPitch("Mon enthousiasme bug une seconde, réessayez dans un instant.");
       setPitchVisible(true);
     } finally {
       setLoading(false);

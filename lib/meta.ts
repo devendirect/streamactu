@@ -79,7 +79,7 @@ export function metadonnees(
 // ──────────────────────────────────────────────
 
 /** "août 2026" → "d'août 2026" ; "juin 2026" → "de juin 2026" */
-function deMois(mois: number, annee: number): string {
+export function deMois(mois: number, annee: number): string {
   const label = formatMoisFR(mois, annee).toLowerCase();
   return /^[aeiou]/.test(label) ? `d'${label}` : `de ${label}`;
 }
@@ -372,7 +372,7 @@ export function metaProchainesSorties(): TitreDescription {
  * Accord du participe avec « 3 séries et 1 film » : féminin s'il n'y a que des
  * séries, pluriel dès deux titres. Sans titre (« Les séries et films ») : "s".
  */
-function accord(nbSeries: number, nbFilms: number): string {
+export function accord(nbSeries: number, nbFilms: number): string {
   const total = nbSeries + nbFilms;
   if (total === 0) return "s";
   return `${nbFilms === 0 ? "e" : ""}${total > 1 ? "s" : ""}`;

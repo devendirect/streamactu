@@ -105,7 +105,7 @@ export default function WordleJour({ contenu, dateISO }: WordleJourProps) {
     } else if (fini) {
       setFeedback(`La réponse était : ${contenu.titre}`);
     } else {
-      setFeedback(`Raté — indice ${Math.min(indicesVisibles + 2, MAX_ESSAIS)} révélé.`);
+      setFeedback(`Raté, indice ${Math.min(indicesVisibles + 2, MAX_ESSAIS)} révélé.`);
     }
 
     inputRef.current?.focus();
@@ -172,7 +172,7 @@ export default function WordleJour({ contenu, dateISO }: WordleJourProps) {
           </div>
           <PartagerResultat
             texte={[
-              `Le titre du jour · ${formatDateFR(dateISO)} — StreamActu.fr`,
+              `Le titre du jour · ${formatDateFR(dateISO)} · StreamActu.fr`,
               `${etat.resultats.map((ok) => (ok ? "🟨" : "⬛")).join("")} ${
                 etat.etat === "gagne" ? `${etat.essais.length}/${MAX_ESSAIS}` : `✗/${MAX_ESSAIS}`
               }`,

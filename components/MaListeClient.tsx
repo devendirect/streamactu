@@ -23,7 +23,7 @@ export default function MaListeClient() {
           className="text-[clamp(22px,4vw,32px)] leading-tight text-[#C7BEAC] max-w-[24ch] mx-auto italic"
           style={{ fontFamily: "var(--font-newsreader), serif" }}
         >
-          Rien pour l&apos;instant — votre prochaine soirée se prépare ici.
+          Rien pour l&apos;instant : votre prochaine soirée se prépare ici.
         </p>
         <p className="font-mono text-sm text-ink-3 max-w-[52ch] mx-auto">
           Ajoutez des titres depuis leur fiche avec « + Ma liste ». Tout reste dans votre

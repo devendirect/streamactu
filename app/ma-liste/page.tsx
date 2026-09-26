@@ -3,7 +3,7 @@ import MaListeClient from "@/components/MaListeClient";
 
 export const metadata: Metadata = {
   title: "Ma liste",
-  description: "Vos séries et films à voir, enregistrés dans votre navigateur — sans compte.",
+  description: "Vos séries et films à voir, enregistrés dans votre navigateur, sans compte.",
   robots: { index: false }, // contenu personnel, rien à indexer
 };
 

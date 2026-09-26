@@ -70,7 +70,7 @@ export default function PochetteMystere({ contenu, dateISO }: PochetteMysterePro
     } else if (fini) {
       setFeedback(`C'était : ${contenu.titre}`);
     } else {
-      setFeedback(`Raté — la pochette se dévoile un peu plus.`);
+      setFeedback(`Raté, la pochette se dévoile un peu plus.`);
     }
   }
 
@@ -146,7 +146,7 @@ export default function PochetteMystere({ contenu, dateISO }: PochetteMysterePro
           </div>
           <PartagerResultat
             texte={[
-              `Pochette mystère · ${formatDateFR(dateISO)} — StreamActu.fr`,
+              `Pochette mystère · ${formatDateFR(dateISO)} · StreamActu.fr`,
               `${Array.from({ length: partie.nbEssais }, (_, i) =>
                 partie.etat === "gagne" && i === partie.nbEssais - 1 ? "🟨" : "⬛"
               ).join("")} ${

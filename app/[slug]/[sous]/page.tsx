@@ -19,6 +19,8 @@ import {
 } from "@/lib/utils";
 import type { Contenu } from "@/types";
 import {
+  accord,
+  deMois,
   metadonnees,
   metaAnneePlateforme,
   metaMoisPlateforme,
@@ -250,8 +252,8 @@ export default async function SousPlateformePage({ params }: Props) {
     return (
       <>
         <EnTeteNouveautes
-          titre={`Nouveautés ${pf.nom} — ${label}`}
-          intro={`${libelleComptes(data.series.length, data.films.length)} arrivés sur ${pf.nom} en ${label}, triés par note.`}
+          titre={`Nouveautés ${pf.nom} ${deMois(mois.mois, mois.annee)}`}
+          intro={`${libelleComptes(data.series.length, data.films.length)} arrivé${accord(data.series.length, data.films.length)} sur ${pf.nom} en ${label.toLowerCase()}, trié${accord(data.series.length, data.films.length)} par note.`}
         />
         <div className="sa-container py-4 space-y-10">
           <nav aria-label={`Navigation ${pf.nom}`}>
@@ -287,7 +289,7 @@ export default async function SousPlateformePage({ params }: Props) {
       <>
         <EnTeteNouveautes
           titre={`Nouveautés ${pf.nom} ${annee}`}
-          intro={`${libelleComptes(data.totalSeries, data.totalFilms)} arrivés sur ${pf.nom} en ${annee}. Les mieux notés d'abord, puis le détail mois par mois.`}
+          intro={`${libelleComptes(data.totalSeries, data.totalFilms)} arrivé${accord(data.totalSeries, data.totalFilms)} sur ${pf.nom} en ${annee}. Les mieux noté${accord(data.totalSeries, data.totalFilms)} d'abord, puis le détail mois par mois.`}
         />
         <div className="sa-container py-4 space-y-10">
           <nav aria-label={`Navigation ${pf.nom}`}>

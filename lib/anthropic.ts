@@ -143,7 +143,7 @@ export function convaincseMoiStream(
       } catch (err) {
         console.error("[convaincs-moi] échec du stream Anthropic :", err instanceof Error ? err.message : err);
         controller.enqueue(
-          encoder.encode("Mon enthousiasme bug une seconde — réessayez dans un instant.")
+          encoder.encode("Mon enthousiasme bug une seconde, réessayez dans un instant.")
         );
       } finally {
         controller.close();

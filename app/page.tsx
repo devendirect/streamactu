@@ -20,8 +20,8 @@ export default async function HomePage() {
   return (
     <>
       <EnTeteNouveautes
-        titre={`Nouveautés streaming — ${formatJourSemaineFR(maintenant)}`}
-        intro="Les séries et films qui sortent aujourd'hui sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, HBO Max et Paramount+ — mis à jour chaque jour."
+        titre={`Nouveautés streaming du ${formatJourSemaineFR(maintenant).toLowerCase()}`}
+        intro="Les séries et films qui sortent aujourd'hui sur Netflix, Prime Video, Disney+, Apple TV+, Canal+, HBO Max et Paramount+, mis à jour chaque jour."
       />
       <AccueilClient
         plateformes={nouveautes}

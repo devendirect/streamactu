@@ -198,7 +198,7 @@ export function parseSemaineURL(slug: string): { semaine: number; annee: number 
   return { semaine, annee };
 }
 
-/** "22 — 28 juin" (court, sans année) */
+/** "22 au 28 juin", "31 août au 6 septembre" (court, sans année) */
 export function formatSemaineFR(semaine: number, annee: number): string {
   const { debut, fin } = bornesSemaine(semaine, annee);
   const d = new Date(debut + "T12:00:00Z");
@@ -207,9 +207,9 @@ export function formatSemaineFR(semaine: number, annee: number): string {
   const jFin = f.getUTCDate();
   const mFin = MOIS_FR[f.getUTCMonth()];
   if (d.getUTCMonth() === f.getUTCMonth()) {
-    return `${jDebut} — ${jFin} ${mFin}`;
+    return `${jDebut} au ${jFin} ${mFin}`;
   }
-  return `${jDebut} ${MOIS_FR[d.getUTCMonth()]} — ${jFin} ${mFin}`;
+  return `${jDebut} ${MOIS_FR[d.getUTCMonth()]} au ${jFin} ${mFin}`;
 }
 
 // ──────────────────────────────────────────────
@@ -254,7 +254,7 @@ export const TYPE_LABELS: Record<string, string> = { serie: "Série", film: "Fil
 
 /** Alt text des posters : explicite la relation image/contenu pour la recherche d'images */
 export function altAffiche(titre: string, type: "serie" | "film"): string {
-  return `Affiche de ${type === "serie" ? "série" : "film"} — ${titre}`;
+  return `Affiche ${type === "serie" ? "de la série" : "du film"} ${titre}`;
 }
 
 export function isNouvelleSerieCheck(saisonActuelle?: number, premiereDiffusion?: string): boolean {
