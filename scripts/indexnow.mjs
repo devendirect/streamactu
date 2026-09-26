@@ -42,6 +42,34 @@ function pagesChaudes() {
   ];
 }
 
+/**
+ * Garde les pages réellement indexables : HTTP 200 et pas de balise noindex.
+ * Le code HTTP seul ne suffit pas : avec le loading.tsx racine, une page
+ * introuvable répond 200 (soft 404) mais porte un noindex. Cas concret : les
+ * tops de l'année font 404 début janvier, tant qu'ils ont moins de 5 titres.
+ */
+async function pagesIndexables(urls) {
+  const verdicts = await Promise.all(
+    urls.map(async (url) => {
+      try {
+        const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+        if (res.status !== 200) return { url, ok: false, raison: `HTTP ${res.status}` };
+        const html = await res.text();
+        if (/<meta name="robots" content="[^"]*noindex/.test(html)) {
+          return { url, ok: false, raison: "noindex" };
+        }
+        return { url, ok: true };
+      } catch (err) {
+        return { url, ok: false, raison: err instanceof Error ? err.message : String(err) };
+      }
+    })
+  );
+  for (const v of verdicts) {
+    if (!v.ok) console.warn(`[indexnow] écartée : ${v.url} (${v.raison})`);
+  }
+  return verdicts.filter((v) => v.ok).map((v) => v.url);
+}
+
 /** URLs des fiches du flux RSS (liens des <item>, hors lien du canal) */
 async function urlsDuFlux() {
   const res = await fetch(`${SITE}/flux.xml`, { signal: AbortSignal.timeout(15000) });
@@ -70,7 +98,9 @@ async function soumettre(urlList) {
     urlList,
   });
 
-  // Une relance sur panne réseau ou 5xx ; jamais sur 4xx (rejouer ne changera rien)
+  // Une relance sur panne réseau ou 5xx ; jamais sur 4xx (rejouer ne changera rien).
+  // Renvoie le dernier statut HTTP, ou null si le réseau a échoué deux fois.
+  let dernier = null;
   for (let essai = 1; essai <= 2; essai++) {
     try {
       const res = await fetch("https://api.indexnow.org/indexnow", {
@@ -79,18 +109,26 @@ async function soumettre(urlList) {
         body: corps,
         signal: AbortSignal.timeout(15000),
       });
-      if (res.ok || res.status < 500) return res.status;
+      dernier = res.status;
+      if (res.status < 500) return dernier;
+      console.warn(`[indexnow] HTTP ${res.status} (essai ${essai}/2)`);
     } catch (err) {
-      if (essai === 2) throw err;
+      dernier = null;
+      console.warn(
+        `[indexnow] échec réseau (essai ${essai}/2) :`,
+        err instanceof Error ? err.message : err
+      );
     }
-    await new Promise((r) => setTimeout(r, 5000));
+    if (essai < 2) await new Promise((r) => setTimeout(r, 5000));
   }
+  return dernier;
 }
 
 const fiches = await urlsDuFlux();
 const dejaSoumises = await lireEtat();
 const nouvelles = fiches.filter((u) => !dejaSoumises.has(u));
-const urlList = [...new Set([...pagesChaudes(), ...nouvelles])];
+const chaudes = await pagesIndexables(pagesChaudes());
+const urlList = [...new Set([...chaudes, ...nouvelles])];
 
 console.log(
   `[indexnow] flux : ${fiches.length} fiches (${nouvelles.length} nouvelles) — envoi de ${urlList.length} URLs`
@@ -108,6 +146,12 @@ if (DRY_RUN) {
     console.log(`[indexnow] accepté (HTTP ${status})`);
   } else if (status === 429) {
     console.warn("[indexnow] HTTP 429 — on n'insiste pas, reprise demain");
+  } else if (status === null) {
+    console.error("[indexnow] IndexNow injoignable (réseau), deux essais — reprise demain");
+    process.exitCode = 1;
+  } else if (status >= 500) {
+    console.error(`[indexnow] IndexNow en erreur (HTTP ${status}), deux essais — reprise demain`);
+    process.exitCode = 1;
   } else {
     console.error(`[indexnow] refusé (HTTP ${status}) — vérifier la clé et le fichier ${KEY}.txt`);
     process.exitCode = 1;
