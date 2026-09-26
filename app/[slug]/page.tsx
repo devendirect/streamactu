@@ -6,6 +6,9 @@ import {
   getNouveautesMois,
   getNouveautesSemaine,
   getSortiesRecentesPlateforme,
+  bornesSortiesRecentes,
+  IDS_PLATEFORMES,
+  totauxOu,
 } from "@/lib/tmdb";
 import { PLATEFORMES, PLATEFORME_PAR_SLUG } from "@/lib/plateformes";
 import {
@@ -19,14 +22,13 @@ import {
   formatSemaineURL,
   formatSemaineFR,
   horizonFuturISO,
-  libelleComptes,
   toISO,
   bornesMois,
   bornesSemaine,
   getISOWeek,
 } from "@/lib/utils";
 import type { Contenu } from "@/types";
-import { accord, comptesUniques, deMois, metadonnees, metaHubPlateforme, metaJour, metaMois, metaSemaine } from "@/lib/meta";
+import { type Comptes, comptesUniques, deMois, introComptes, metadonnees, metaHubPlateforme, metaJour, metaMois, metaSemaine } from "@/lib/meta";
 import AccueilClient from "@/components/AccueilClient";
 import EnTeteNouveautes from "@/components/EnTeteNouveautes";
 import SectionPlateforme from "@/components/SectionPlateforme";
@@ -62,17 +64,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const iso = toISO(date);
     const futur = iso > toISO(new Date());
     let comptes = { series: [] as Contenu[], films: [] as Contenu[] };
+    let totaux: Comptes | undefined;
     let vide = false;
     if (!futur) {
       try {
         comptes = comptesUniques(await getNouveautesJour(iso));
         // Jour vide → noindex (la page reste servie aux visiteurs)
         vide = comptes.series.length + comptes.films.length === 0;
+        if (!vide) {
+          totaux = await totauxOu(iso, iso, IDS_PLATEFORMES, {
+            series: comptes.series.length,
+            films: comptes.films.length,
+          });
+        }
       } catch (err) {
         console.error(`[metadata] comptage du jour ${iso} indisponible :`, err instanceof Error ? err.message : err);
       }
     }
-    const { titre, description } = metaJour(date, futur, comptes.series, comptes.films);
+    const { titre, description } = metaJour(date, futur, comptes.series, comptes.films, totaux);
     // Futur : contenu prévisionnel et changeant, jamais indexé
     return metadonnees(titre, description, `/${formatDateURL(date)}`, {
       ...(vide || futur ? { robots: { index: false } } : {}),
@@ -83,14 +92,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (sem) {
     const futur = bornesSemaine(sem.semaine, sem.annee).debut > toISO(new Date());
     let comptes = { series: [] as Contenu[], films: [] as Contenu[] };
+    let totaux: Comptes | undefined;
     if (!futur) {
       try {
         comptes = comptesUniques(await getNouveautesSemaine(sem.semaine, sem.annee));
+        const { debut, fin } = bornesSemaine(sem.semaine, sem.annee);
+        totaux = await totauxOu(debut, fin, IDS_PLATEFORMES, {
+          series: comptes.series.length,
+          films: comptes.films.length,
+        });
       } catch (err) {
         console.error(`[metadata] semaine ${slug} indisponible :`, err instanceof Error ? err.message : err);
       }
     }
-    const { titre, description } = metaSemaine(sem.semaine, sem.annee, futur, comptes.series, comptes.films);
+    const { titre, description } = metaSemaine(sem.semaine, sem.annee, futur, comptes.series, comptes.films, totaux);
     return metadonnees(titre, description, `/${formatSemaineURL(sem.semaine, sem.annee)}`, {
       ...(futur ? { robots: { index: false } } : {}),
     });
@@ -99,12 +114,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const mois = parseMoisURL(slug);
   if (mois) {
     let comptes = { series: [] as Contenu[], films: [] as Contenu[] };
+    let totaux: Comptes | undefined;
     try {
       comptes = comptesUniques(await getNouveautesMois(mois.mois, mois.annee));
+      const { debut, fin } = bornesMois(mois.mois, mois.annee);
+      totaux = await totauxOu(debut, fin, IDS_PLATEFORMES, {
+        series: comptes.series.length,
+        films: comptes.films.length,
+      });
     } catch (err) {
       console.error(`[metadata] mois ${slug} indisponible :`, err instanceof Error ? err.message : err);
     }
-    const { titre, description } = metaMois(mois.mois, mois.annee, comptes.series, comptes.films);
+    const { titre, description } = metaMois(mois.mois, mois.annee, comptes.series, comptes.films, totaux);
     return metadonnees(titre, description, `/${formatMoisURL(mois.mois, mois.annee)}`);
   }
 
@@ -164,6 +185,7 @@ export default async function SlugPage({ params }: Props) {
     let data = toutes.find((p) => p.plateforme.id === pf.id);
     let periodeLabel = `Semaine du ${formatSemaineFR(semaine, annee)}`;
     let periodeIntro = "cette semaine";
+    let bornes = bornesSemaine(semaine, annee);
 
     // Semaine creuse (petites plateformes) → on élargit aux 4 dernières
     // semaines plutôt que de servir une page vide. Mêmes caches, aucun
@@ -174,19 +196,27 @@ export default async function SlugPage({ params }: Props) {
         data = { plateforme: pf, ...recentes };
         periodeLabel = "Dernières semaines";
         periodeIntro = "ces quatre dernières semaines";
+        bornes = bornesSortiesRecentes();
       }
     }
 
-    const comptes = libelleComptes(data?.series.length ?? 0, data?.films.length ?? 0);
+    const nbAffiches = (data?.series.length ?? 0) + (data?.films.length ?? 0);
+    // Les listes sont plafonnées à 20 titres par type : le compte vient de TMDB
+    const totaux =
+      nbAffiches > 0
+        ? await totauxOu(bornes.debut, bornes.fin, [pf.id], {
+            series: data?.series.length ?? 0,
+            films: data?.films.length ?? 0,
+          })
+        : { series: 0, films: 0 };
+    const intro = introComptes(totaux, nbAffiches, "ajouté", `${periodeIntro} au catalogue ${pf.nom} en France`);
 
     return (
       <>
         <EnTeteNouveautes
           titre={`Nouveautés ${pf.nom} : ${periodeLabel.toLowerCase()}`}
           intro={
-            comptes
-              ? `${comptes} ajouté${accord(data?.series.length ?? 0, data?.films.length ?? 0)} ${periodeIntro} au catalogue ${pf.nom} en France, trié${accord(data?.series.length ?? 0, data?.films.length ?? 0)} par note.`
-              : `Aucune sortie recensée récemment sur ${pf.nom} : les archives des mois précédents sont ci-dessous.`
+            intro || `Aucune sortie recensée récemment sur ${pf.nom} : les archives des mois précédents sont ci-dessous.`
           }
         />
         <div className="sa-container py-4 space-y-10">
@@ -211,7 +241,9 @@ export default async function SlugPage({ params }: Props) {
             </Link>
           </nav>
 
-          {data && <SectionPlateforme data={data} priorite lienTitre={false} />}
+          {data && (
+            <SectionPlateforme data={data} priorite lienTitre={false} totalReel={totaux.series + totaux.films} />
+          )}
 
           <TexteEditorial
             titre={`${pf.nom} en France`}
@@ -227,6 +259,7 @@ export default async function SlugPage({ params }: Props) {
             series={data?.series ?? []}
             films={data?.films ?? []}
             periodeIntro={periodeIntro}
+            totaux={totaux}
           />
           <ArchivesMoisPlateforme plateforme={pf} />
           <MaillagePlateformes actuelle={pf.id} />

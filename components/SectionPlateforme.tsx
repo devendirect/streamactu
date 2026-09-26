@@ -10,6 +10,8 @@ interface Props {
   priorite?: boolean;
   /** Titre cliquable vers /{slug-plateforme} — désactivé sur la page plateforme elle-même */
   lienTitre?: boolean;
+  /** Nombre réel de sorties (TMDB) quand la liste est plafonnée */
+  totalReel?: number;
 }
 
 export default function SectionPlateforme({
@@ -17,6 +19,7 @@ export default function SectionPlateforme({
   mode = "liste",
   priorite = false,
   lienTitre = true,
+  totalReel,
 }: Props) {
   const { plateforme, series, films } = data;
   const contenus = [...series, ...films].sort((a, b) => b.note - a.note);
@@ -29,6 +32,7 @@ export default function SectionPlateforme({
         id={`pf-${plateforme.slug}`}
         titre={plateforme.nom}
         compte={total}
+        compteTotal={totalReel}
         compteLabel="sortie"
         couleur={plateforme.couleur}
         grand

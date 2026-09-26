@@ -6,6 +6,8 @@ import {
   getNouveautesMois,
   getSortiesAVenir,
   getSortiesRecentesPlateforme,
+  bornesSortiesRecentes,
+  totauxOu,
 } from "@/lib/tmdb";
 import { PLATEFORMES, PLATEFORME_PAR_SLUG } from "@/lib/plateformes";
 import {
@@ -19,8 +21,10 @@ import {
 } from "@/lib/utils";
 import type { Contenu } from "@/types";
 import {
+  type Comptes,
   accord,
   deMois,
+  introComptes,
   metadonnees,
   metaAnneePlateforme,
   metaMoisPlateforme,
@@ -45,6 +49,13 @@ interface Props {
   params: Promise<{ slug: string; sous: string }>;
 }
 
+/** Nombre réel de séries (ou de films) sur la fenêtre des pages séries/films ; repli sur la liste */
+async function totalRecent(plateformeId: number, type: "series" | "films", repli: number): Promise<number> {
+  const { debut, fin } = bornesSortiesRecentes();
+  const totaux = await totauxOu(debut, fin, [plateformeId], { series: repli, films: repli });
+  return type === "series" ? totaux.series : totaux.films;
+}
+
 /** Début de la fenêtre « quatre dernières semaines » des pages séries/films */
 function ilYA28Jours(): string {
   const d = new Date();
@@ -61,13 +72,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // doute (API indisponible), description sans chiffres.
   if (sous === "series" || sous === "films") {
     let contenus: Contenu[] = [];
+    let total: number | undefined;
     try {
       const sorties = await getSortiesRecentesPlateforme(pf.id);
       contenus = (sous === "series" ? sorties.series : sorties.films).slice(0, MAX_TYPE);
+      if (contenus.length > 0) total = await totalRecent(pf.id, sous, contenus.length);
     } catch (err) {
       console.error(`[metadata] sorties récentes ${pf.slug} indisponibles :`, err instanceof Error ? err.message : err);
     }
-    const { titre, description } = metaSeriesOuFilms(pf.nom, sous, contenus);
+    const { titre, description } = metaSeriesOuFilms(pf.nom, sous, contenus, total);
     return metadonnees(titre, description, `/${pf.slug}/${sous}`);
   }
 
@@ -90,13 +103,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const mois = parseMoisURL(sous);
   if (mois) {
     let data: { series: Contenu[]; films: Contenu[] } = { series: [], films: [] };
+    let totaux: Comptes | undefined;
     try {
       const toutes = await getNouveautesMois(mois.mois, mois.annee);
       data = toutes.find((p) => p.plateforme.id === pf.id) ?? data;
+      const { debut, fin } = bornesMois(mois.mois, mois.annee);
+      totaux = await totauxOu(debut, fin, [pf.id], { series: data.series.length, films: data.films.length });
     } catch (err) {
       console.error(`[metadata] mois ${pf.slug}/${sous} indisponible :`, err instanceof Error ? err.message : err);
     }
-    const { titre, description } = metaMoisPlateforme(pf.nom, mois.mois, mois.annee, data.series, data.films);
+    const { titre, description } = metaMoisPlateforme(pf.nom, mois.mois, mois.annee, data.series, data.films, totaux);
     return metadonnees(titre, description, `/${pf.slug}/${formatMoisURL(mois.mois, mois.annee)}`);
   }
 
@@ -160,6 +176,9 @@ export default async function SousPlateformePage({ params }: Props) {
     const estSeries = sous === "series";
     const sorties = await getSortiesRecentesPlateforme(pf.id);
     const contenus = (estSeries ? sorties.series : sorties.films).slice(0, MAX_TYPE);
+    // La liste est plafonnée (20 titres) : le nombre annoncé vient de TMDB
+    const total = contenus.length > 0 ? await totalRecent(pf.id, sous, contenus.length) : 0;
+    const accordType = `${estSeries ? "e" : ""}${total > 1 ? "s" : ""}`;
 
     return (
       <>
@@ -167,7 +186,11 @@ export default async function SousPlateformePage({ params }: Props) {
           titre={estSeries ? `Nouvelles séries ${pf.nom}` : `Nouveaux films ${pf.nom}`}
           intro={
             contenus.length > 0
-              ? `${contenus.length} ${estSeries ? "série" : "film"}${contenus.length > 1 ? "s" : ""} ajouté${estSeries ? "e" : ""}${contenus.length > 1 ? "s" : ""} sur ${pf.nom} ces quatre dernières semaines, trié${estSeries ? "e" : ""}${contenus.length > 1 ? "s" : ""} par note.`
+              ? `${total} ${estSeries ? "série" : "film"}${total > 1 ? "s" : ""} ajouté${accordType} sur ${pf.nom} ces quatre dernières semaines${
+                  total > contenus.length
+                    ? ` ; voici les ${contenus.length} plus populaires, trié${estSeries ? "es" : "s"} par note.`
+                    : `, trié${accordType} par note.`
+                }`
               : `Aucune sortie ${estSeries ? "série" : "film"} recensée sur ${pf.nom} ces quatre dernières semaines.`
           }
         />
@@ -196,6 +219,7 @@ export default async function SousPlateformePage({ params }: Props) {
               }}
               priorite
               lienTitre={false}
+              totalReel={total}
             />
           )}
 
@@ -281,12 +305,17 @@ export default async function SousPlateformePage({ params }: Props) {
     if (!data || total === 0) notFound();
 
     const label = formatMoisFR(mois.mois, mois.annee);
+    // Liste plafonnée à 20 titres par type : le compte vient de TMDB
+    const totaux = await totauxOu(debut, bornesMois(mois.mois, mois.annee).fin, [pf.id], {
+      series: data.series.length,
+      films: data.films.length,
+    });
 
     return (
       <>
         <EnTeteNouveautes
           titre={`Nouveautés ${pf.nom} ${deMois(mois.mois, mois.annee)}`}
-          intro={`${libelleComptes(data.series.length, data.films.length)} arrivé${accord(data.series.length, data.films.length)} sur ${pf.nom} en ${label.toLowerCase()}, trié${accord(data.series.length, data.films.length)} par note.`}
+          intro={introComptes(totaux, total, "arrivé", `sur ${pf.nom} en ${label.toLowerCase()}`)}
         />
         <div className="sa-container py-4 space-y-10">
           <nav aria-label={`Navigation ${pf.nom}`}>
@@ -298,7 +327,7 @@ export default async function SousPlateformePage({ params }: Props) {
             </Link>
           </nav>
 
-          <SectionPlateforme data={data} priorite lienTitre={false} />
+          <SectionPlateforme data={data} priorite lienTitre={false} totalReel={totaux.series + totaux.films} />
 
           <TexteEditorial
             titre={`${pf.nom} en ${label.toLowerCase()}`}

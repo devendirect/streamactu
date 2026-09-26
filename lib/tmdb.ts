@@ -26,6 +26,7 @@ import {
   decalerSemaineISO,
   getISOWeek,
   scoreBayesien,
+  toISO,
 } from "@/lib/utils";
 
 const BASE = "https://api.themoviedb.org/3";
@@ -304,6 +305,67 @@ export const getCompteJour = unstable_cache(
 // Nouveautés par mois (cache 24h)
 // ──────────────────────────────────────────────
 
+/**
+ * Nombre réel de séries et de films sortis sur une période, pour une ou
+ * plusieurs plateformes. Les listes ne lisent que la première page de
+ * /discover (20 titres) : leur longueur est un plafond, pas un total. Ici on
+ * lit `total_results`, avec les mêmes filtres que les listes. Plusieurs
+ * plateformes sont combinées en « OU » par TMDB : un titre présent sur deux
+ * plateformes ne compte qu'une fois.
+ */
+export interface Totaux {
+  series: number;
+  films: number;
+}
+
+export const getTotaux = unstable_cache(
+  async (debut: string, fin: string, plateformeIds: number[]): Promise<Totaux> => {
+    const base = {
+      with_watch_providers: plateformeIds.join("|"),
+      watch_region: "FR",
+      "vote_count.gte": 5,
+    };
+    const [tvData, filmData] = await Promise.all([
+      tmdbGet<ReponseTMDB<TMDBSerie>>("/discover/tv", {
+        ...base,
+        "air_date.gte": debut,
+        "air_date.lte": fin,
+      }),
+      tmdbGet<ReponseTMDB<TMDBFilm>>("/discover/movie", {
+        ...base,
+        "primary_release_date.gte": debut,
+        "primary_release_date.lte": fin,
+      }),
+    ]);
+    return { series: tvData.total_results, films: filmData.total_results };
+  },
+  ["totaux-periode"],
+  { revalidate: 3600 }
+);
+
+/** getTotaux avec repli (longueur des listes affichées) si TMDB ne répond pas */
+export async function totauxOu(debut: string, fin: string, plateformeIds: number[], repli: Totaux): Promise<Totaux> {
+  try {
+    return await getTotaux(debut, fin, plateformeIds);
+  } catch (err) {
+    console.error(`[tmdb] totaux ${debut}→${fin} indisponibles :`, err instanceof Error ? err.message : err);
+    return repli;
+  }
+}
+
+/** Toutes les plateformes suivies, pour getTotaux */
+export const IDS_PLATEFORMES = PLATEFORMES.map((p) => p.id);
+
+/** Bornes ISO de la fenêtre « quatre dernières semaines » de getSortiesRecentesPlateforme */
+export function bornesSortiesRecentes(nbSemaines = 4, depuis: Date = new Date()): { debut: string; fin: string } {
+  const { semaine, annee } = getISOWeek(depuis);
+  const plusAncienne = decalerSemaineISO(semaine, annee, -(nbSemaines - 1));
+  return {
+    debut: bornesSemaine(plusAncienne.semaine, plusAncienne.annee).debut,
+    fin: bornesSemaine(semaine, annee).fin,
+  };
+}
+
 export const getNouveautesMois = unstable_cache(
   async (mois: number, annee: number): Promise<NouveautesParPlateforme[]> => {
     const { debut, fin } = bornesMois(mois, annee);
@@ -411,14 +473,24 @@ export async function getNouveautesAnnee(
   const parNote = (a: Contenu, b: Contenu) =>
     scoreBayesien(b.note, b.nbVotes) - scoreBayesien(a.note, a.nbVotes);
 
+  // Totaux exacts de l'année : additionner les mois compterait deux fois une
+  // série diffusée sur deux mois, et chaque mois est plafonné à 20 titres.
+  const finAnnee = annee === now.getUTCFullYear() ? toISO(now) : `${annee}-12-31`;
+  let totaux: Totaux = { series: series.length, films: films.length };
+  try {
+    totaux = await getTotaux(`${annee}-01-01`, finAnnee, [plateformeId]);
+  } catch (err) {
+    console.error(`[tmdb] totaux ${plateformeId}/${annee} indisponibles :`, err instanceof Error ? err.message : err);
+  }
+
   return {
     plateforme,
     annee,
     mois,
     series: [...series].sort(parNote).slice(0, max),
     films: [...films].sort(parNote).slice(0, max),
-    totalSeries: series.length,
-    totalFilms: films.length,
+    totalSeries: totaux.series,
+    totalFilms: totaux.films,
   };
 }
 

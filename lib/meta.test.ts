@@ -19,6 +19,7 @@ import {
   metaSemaine,
   metaSeriesOuFilms,
   metaTop,
+  introComptes,
   periodeSemaine,
   titreAffiche,
   type TitreDescription,
@@ -101,8 +102,11 @@ describe("longueurs de chaque gabarit", () => {
         verifier(`séries ${pf} ${cas}`, metaSeriesOuFilms(pf, "series", series));
         verifier(`films ${pf} ${cas}`, metaSeriesOuFilms(pf, "films", films));
         verifier(`année ${pf} ${cas}`, metaAnneePlateforme(pf, 2026, series.length, films.length, [...series, ...films]));
+        verifier(`séries ${pf} ${cas} total réel`, metaSeriesOuFilms(pf, "series", series, 152));
+        verifier(`films ${pf} ${cas} total réel`, metaSeriesOuFilms(pf, "films", films, 1));
         for (let m = 1; m <= 12; m++) {
           verifier(`mois ${pf} ${m} ${cas}`, metaMoisPlateforme(pf, m, 2026, series, films));
+          verifier(`mois ${pf} ${m} ${cas} totaux`, metaMoisPlateforme(pf, m, 2026, series, films, { series: 152, films: 48 }));
         }
       }
     }
@@ -159,13 +163,30 @@ describe("rédaction", () => {
   it("accorde séries et films", () => {
     expect(metaSeriesOuFilms("Netflix", "series", [COURT[1]]).description).toMatch(/^1 série ajoutée .* triée par note/);
     expect(metaSeriesOuFilms("Netflix", "films", COURT).description).toMatch(/^2 films ajoutés .* triés par note/);
-    expect(metaMoisPlateforme("Canal+", 5, 2026, LONG, []).description).toMatch(/^2 séries arrivées .* triées par note/);
+    expect(metaMoisPlateforme("Canal+", 5, 2026, LONG, []).description).toMatch(/^2 séries arrivées sur Canal\+ en mai 2026/);
     expect(metaMoisPlateforme("Canal+", 6, 2026, [COURT[1]], []).description).toContain("Parmi elles : You.");
     expect(metaMoisPlateforme("Canal+", 5, 2026, [COURT[1]], [COURT[0]]).description).toMatch(/^1 série et 1 film arrivés/);
   });
   it("donne des descriptions différentes d'une plateforme à l'autre", () => {
     const hubs = new Set(PLATEFORMES.map((pf) => metaHubPlateforme(pf).description));
     expect(hubs.size).toBe(PLATEFORMES.length);
+  });
+});
+
+describe("totaux réels (P11)", () => {
+  it("préfère les totaux TMDB à la longueur des listes plafonnées", () => {
+    expect(metaMoisPlateforme("Netflix", 8, 2026, LONG, [], { series: 52, films: 19 }).description).toMatch(/^52 séries et 19 films arrivés sur Netflix/);
+    expect(metaJour(new Date("2026-08-31T12:00:00Z"), false, COURT, [], { series: 30, films: 4 }).description).toMatch(/^30 séries et 4 films sortis/);
+  });
+  it("dit quand la liste affichée est tronquée", () => {
+    expect(metaSeriesOuFilms("Netflix", "series", COURT, 52).description).toContain("52 séries ajoutées au catalogue Netflix en France ces quatre dernières semaines, les 2 plus populaires affichées.");
+    expect(introComptes({ series: 52, films: 19 }, 39, "arrivé", "sur Netflix en août 2026")).toBe(
+      "52 séries et 19 films arrivés sur Netflix en août 2026 ; voici les 39 plus populaires, triés par note."
+    );
+    expect(introComptes({ series: 3, films: 0 }, 3, "arrivé", "sur Canal+ en mai 2026")).toBe(
+      "3 séries arrivées sur Canal+ en mai 2026, triées par note."
+    );
+    expect(introComptes({ series: 0, films: 0 }, 0, "arrivé", "x")).toBe("");
   });
 });
 

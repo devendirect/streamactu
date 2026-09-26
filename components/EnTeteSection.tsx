@@ -6,6 +6,8 @@ interface Props {
   compte: number;
   /** singulier du compteur — "sortie", "titre"… */
   compteLabel?: string;
+  /** total réel quand la liste affichée est tronquée : « 39 sur 71 sorties » */
+  compteTotal?: number;
   /** couleur du titre et de la barre (plateformes) ; ambre discret sinon */
   couleur?: string;
   /** rend le titre cliquable */
@@ -21,6 +23,7 @@ export default function EnTeteSection({
   titre,
   compte,
   compteLabel = "titre",
+  compteTotal,
   couleur,
   lienHref,
   lienTitle,
@@ -43,8 +46,9 @@ export default function EnTeteSection({
           )}
         </h2>
         <span className="font-mono-label text-ink-3">
-          {compte} {compteLabel}
-          {compte > 1 ? "s" : ""}
+          {compte}
+          {compteTotal && compteTotal > compte ? ` sur ${compteTotal}` : ""} {compteLabel}
+          {Math.max(compte, compteTotal ?? 0) > 1 ? "s" : ""}
         </span>
       </div>
       <div

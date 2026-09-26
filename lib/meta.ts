@@ -140,6 +140,33 @@ function variantesExemples(intro: string, contenus: Contenu[]): string[] {
 // Gabarits
 // ──────────────────────────────────────────────
 
+/** Comptes réels (TMDB total_results) ; à défaut, longueur des listes affichées */
+export interface Comptes {
+  series: number;
+  films: number;
+}
+
+function nombres(series: Contenu[], films: Contenu[], totaux?: Comptes): Comptes {
+  return totaux ?? { series: series.length, films: films.length };
+}
+
+/**
+ * Début d'intro de page : « 52 séries et 19 films arrivés sur Netflix en août
+ * 2026 », puis, si la liste affichée est tronquée, « voici les 39 plus
+ * populaires, triés par note. »
+ */
+export function introComptes(totaux: Comptes, nbAffiches: number, participe: string, suite: string): string {
+  const libelle = libelleComptes(totaux.series, totaux.films);
+  if (!libelle) return "";
+  const total = totaux.series + totaux.films;
+  const accordTotal = accord(totaux.series, totaux.films);
+  const debut = `${libelle} ${participe}${accordTotal} ${suite}`;
+  if (nbAffiches > 0 && nbAffiches < total) {
+    return `${debut} ; voici les ${nbAffiches} plus populaires, triés par note.`;
+  }
+  return `${debut}, trié${accordTotal} par note.`;
+}
+
 export interface TitreDescription {
   titre: string;
   description: string;
@@ -163,7 +190,13 @@ export function metaHubPlateforme(nom: string): TitreDescription {
   };
 }
 
-export function metaJour(date: Date, futur: boolean, series: Contenu[], films: Contenu[]): TitreDescription {
+export function metaJour(
+  date: Date,
+  futur: boolean,
+  series: Contenu[],
+  films: Contenu[],
+  totaux?: Comptes
+): TitreDescription {
   const titre = `Nouveautés streaming du ${formatDateFR(date)}`;
   const jour = jourMinuscule(date);
   if (futur) {
@@ -175,7 +208,8 @@ export function metaJour(date: Date, futur: boolean, series: Contenu[], films: C
       ),
     };
   }
-  const comptes = libelleComptes(series.length, films.length);
+  const n = nombres(series, films, totaux);
+  const comptes = libelleComptes(n.series, n.films);
   if (!comptes) {
     return {
       titre,
@@ -191,7 +225,7 @@ export function metaJour(date: Date, futur: boolean, series: Contenu[], films: C
   return {
     titre,
     description: composerDescription(
-      `${majuscule(comptes)} sorti${accord(series.length, films.length)} le ${jour} sur ${PLATEFORMES_PHRASE}.`,
+      `${majuscule(comptes)} sorti${accord(n.series, n.films)} le ${jour} sur ${PLATEFORMES_PHRASE}.`,
       variantesExemples("Parmi eux :", [...series, ...films]),
       ["Classés par plateforme.", "Par plateforme."]
     ),
@@ -217,7 +251,8 @@ export function metaSemaine(
   annee: number,
   futur: boolean,
   series: Contenu[],
-  films: Contenu[]
+  films: Contenu[],
+  totaux?: Comptes
 ): TitreDescription {
   const periode = periodeSemaine(semaine, annee);
   const titre = `Nouveautés streaming ${periode}`;
@@ -230,37 +265,52 @@ export function metaSemaine(
       ),
     };
   }
-  const comptes = libelleComptes(series.length, films.length) || "Les séries et films";
+  const n = nombres(series, films, totaux);
+  const comptes = libelleComptes(n.series, n.films) || "Les séries et films";
   return {
     titre,
     description: composerDescription(
-      `${majuscule(comptes)} sorti${accord(series.length, films.length)} ${periode} sur ${PLATEFORMES_PHRASE}.`,
+      `${majuscule(comptes)} sorti${accord(n.series, n.films)} ${periode} sur ${PLATEFORMES_PHRASE}.`,
       variantesExemples("Parmi eux :", [...series, ...films]),
       ["Classés par plateforme.", "Par plateforme."]
     ),
   };
 }
 
-export function metaMois(mois: number, annee: number, series: Contenu[], films: Contenu[]): TitreDescription {
-  const comptes = libelleComptes(series.length, films.length) || "Les séries et films";
+export function metaMois(
+  mois: number,
+  annee: number,
+  series: Contenu[],
+  films: Contenu[],
+  totaux?: Comptes
+): TitreDescription {
+  const n = nombres(series, films, totaux);
+  const comptes = libelleComptes(n.series, n.films) || "Les séries et films";
   return {
     titre: `Nouveautés streaming ${deMois(mois, annee)}`,
     description: composerDescription(
-      `Le récap ${deMois(mois, annee)} : ${comptes.charAt(0).toLowerCase() + comptes.slice(1)} arrivé${accord(series.length, films.length)} sur ${PLATEFORMES_PHRASE}.`,
+      `Le récap ${deMois(mois, annee)} : ${comptes.charAt(0).toLowerCase() + comptes.slice(1)} arrivé${accord(n.series, n.films)} sur ${PLATEFORMES_PHRASE}.`,
       variantesExemples("Parmi eux :", [...series, ...films]),
       ["Classés par plateforme.", "Par plateforme."]
     ),
   };
 }
 
-export function metaSeriesOuFilms(nom: string, type: "series" | "films", contenus: Contenu[]): TitreDescription {
+export function metaSeriesOuFilms(
+  nom: string,
+  type: "series" | "films",
+  contenus: Contenu[],
+  totalReel?: number
+): TitreDescription {
   const estSeries = type === "series";
-  const n = contenus.length;
+  const n = totalReel ?? contenus.length;
   // accord : « 12 séries ajoutées… triées », « 1 film ajouté… trié »
   const fin = `${estSeries ? "e" : ""}${n > 1 ? "s" : ""}`;
   const base =
     n > 0
-      ? `${n} ${estSeries ? "série" : "film"}${n > 1 ? "s" : ""} ajouté${fin} au catalogue ${nom} en France ces quatre dernières semaines, trié${fin} par note.`
+      ? `${n} ${estSeries ? "série" : "film"}${n > 1 ? "s" : ""} ajouté${fin} au catalogue ${nom} en France ces quatre dernières semaines${
+          n > contenus.length && contenus.length > 0 ? `, les ${contenus.length} plus populaires affiché${estSeries ? "es" : "s"}` : `, trié${fin} par note`
+        }.`
       : `Les ${estSeries ? "nouvelles séries" : "nouveaux films"} ajouté${estSeries ? "es" : "s"} au catalogue ${nom} en France ces quatre dernières semaines.`;
   return {
     titre: estSeries ? `Nouvelles séries ${nom}` : `Nouveaux films ${nom}`,
@@ -286,13 +336,15 @@ export function metaMoisPlateforme(
   mois: number,
   annee: number,
   series: Contenu[],
-  films: Contenu[]
+  films: Contenu[],
+  totaux?: Comptes
 ): TitreDescription {
-  const comptes = libelleComptes(series.length, films.length) || "Les séries et films";
+  const n = nombres(series, films, totaux);
+  const comptes = libelleComptes(n.series, n.films) || "Les séries et films";
   return {
     titre: `Nouveautés ${nom} ${deMois(mois, annee)}`,
     description: composerDescription(
-      `${majuscule(comptes)} arrivé${accord(series.length, films.length)} sur ${nom} en ${moisMinuscule(mois, annee)} en France, trié${accord(series.length, films.length)} par note des spectateurs.`,
+      `${majuscule(comptes)} arrivé${accord(n.series, n.films)} sur ${nom} en ${moisMinuscule(mois, annee)} en France.`,
       variantesExemples("Parmi eux :", [...series, ...films]),
       ["Avec les liens vers les autres mois.", "Archives par mois."],
       ["Données TMDB et JustWatch."]

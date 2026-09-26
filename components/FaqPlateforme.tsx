@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Contenu, Plateforme } from "@/types";
 import { libelleComptes, scoreBayesien } from "@/lib/utils";
 import { jsonLdFaq } from "@/lib/seo";
+import { accord } from "@/lib/meta";
 
 interface Props {
   plateforme: Plateforme;
@@ -9,6 +10,8 @@ interface Props {
   films: Contenu[];
   /** "cette semaine" | "ces quatre dernières semaines" */
   periodeIntro: string;
+  /** Comptes réels TMDB (les listes sont plafonnées à 20 titres par type) */
+  totaux?: { series: number; films: number };
 }
 
 interface Entree {
@@ -25,18 +28,25 @@ const parNote = (a: Contenu, b: Contenu) =>
  * requêtes utilisateurs dans les moteurs et assistants IA, les réponses sont
  * des phrases complètes et datées, citables telles quelles.
  */
-export default function FaqPlateforme({ plateforme, series, films, periodeIntro }: Props) {
+export default function FaqPlateforme({ plateforme, series, films, periodeIntro, totaux }: Props) {
   const nom = plateforme.nom;
   const tous = [...series, ...films].sort(parNote);
   const entrees: Entree[] = [];
 
-  const comptes = libelleComptes(series.length, films.length);
+  const nbSeries = totaux?.series ?? series.length;
+  const nbFilms = totaux?.films ?? films.length;
+  const comptes = libelleComptes(nbSeries, nbFilms);
+  const tronquee = nbSeries + nbFilms > series.length + films.length;
   const exemples = tous.slice(0, 3).map((c) => `« ${c.titre} »`);
   entrees.push({
     question: `Quelles sont les nouveautés ${nom} en ce moment ?`,
     reponse:
       tous.length > 0
-        ? `${comptes} ont été ajoutés ${periodeIntro} au catalogue ${nom} en France, dont ${exemples.join(", ")}. La liste complète, triée par note des spectateurs, est présentée sur cette page.`
+        ? `${comptes} ${nbSeries + nbFilms > 1 ? "ont" : "a"} été ajouté${accord(nbSeries, nbFilms)} ${periodeIntro} au catalogue ${nom} en France, dont ${exemples.join(", ")}. ${
+            tronquee
+              ? "Les plus populaires sont présentés sur cette page, triés par note des spectateurs."
+              : "La liste complète, triée par note des spectateurs, est présentée sur cette page."
+          }`
         : `Aucune sortie n'a été recensée ces dernières semaines sur ${nom} en France. Les archives des mois précédents restent consultables sur cette page.`,
   });
 
