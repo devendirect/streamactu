@@ -3,6 +3,7 @@ import type { Contenu } from "@/types";
 import { getContenusJeuDuJour, getDetailFilm, getDetailSerie } from "@/lib/tmdb";
 import { toISO } from "@/lib/utils";
 import JeuxClient from "@/components/JeuxClient";
+import TexteEditorial from "@/components/TexteEditorial";
 import { metadonnees } from "@/lib/meta";
 
 // 1h : la rotation des jeux à minuit UTC ne doit pas traîner derrière l'ISR
@@ -69,6 +70,28 @@ export default async function JeuxPage() {
         Titre du jour &amp; Pochette mystère
       </h1>
       <JeuxClient contenuTitre={contenuTitre} contenuPochette={pochette} dateISO={dateISO} />
+      <div className="mt-12 space-y-8">
+        <TexteEditorial
+          titre="Titre du jour : les règles"
+          paragraphes={[
+            "Trouvez la série ou le film du jour en six essais au plus. Au départ, seule l'année de sortie est affichée. Chaque essai raté révèle un indice de plus, dans cet ordre : les genres, le casting, un extrait du synopsis (le titre y est masqué), la plateforme où le regarder, puis la note des spectateurs.",
+          ]}
+        />
+        <TexteEditorial
+          titre="Pochette mystère : les règles"
+          paragraphes={[
+            "Devinez le titre à partir de son affiche, très floutée au départ. Vous avez quatre essais, et chaque erreur rend l'affiche un peu plus nette. En cas de blocage, un bouton révèle un indice, au prix d'un essai.",
+          ]}
+        />
+        <TexteEditorial
+          titre="D'où viennent les titres"
+          paragraphes={[
+            "Les deux titres sont tirés chaque jour parmi les séries et films les plus populaires disponibles en streaming par abonnement en France, avec au moins 200 votes sur TMDB : ce sont des titres connus, pas des raretés. Ils sont toujours différents, pour que trouver l'un ne donne pas l'autre.",
+            "Les jeux changent à minuit UTC, soit à 2 h du matin l'été et à 1 h l'hiver, heure de Paris. Votre partie est gardée dans votre navigateur, sans compte. Le résultat se partage sous forme de cases colorées, sans dévoiler la réponse.",
+          ]}
+          liens={[{ href: "/prochaines-sorties", label: "Prochaines sorties streaming" }]}
+        />
+      </div>
     </div>
   );
 }

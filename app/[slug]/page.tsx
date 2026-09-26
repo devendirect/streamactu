@@ -33,6 +33,9 @@ import SectionPlateforme from "@/components/SectionPlateforme";
 import MaillagePlateformes from "@/components/MaillagePlateformes";
 import ArchivesMoisPlateforme from "@/components/ArchivesMoisPlateforme";
 import FaqPlateforme from "@/components/FaqPlateforme";
+import TexteEditorial from "@/components/TexteEditorial";
+import { CONTENU_PLATEFORME } from "@/lib/plateformes-contenu";
+import { syntheseJour } from "@/lib/syntheses";
 
 // 1h : les pages plateforme suivent la fraîcheur des données semaine
 export const revalidate = 3600;
@@ -210,6 +213,15 @@ export default async function SlugPage({ params }: Props) {
 
           {data && <SectionPlateforme data={data} priorite lienTitre={false} />}
 
+          <TexteEditorial
+            titre={`${pf.nom} en France`}
+            paragraphes={CONTENU_PLATEFORME[pf.slug]?.presentation ?? []}
+            liens={[
+              { href: `/${pf.slug}/${new Date().getUTCFullYear()}`, label: `Récap ${pf.nom} ${new Date().getUTCFullYear()}` },
+              { href: "/a-propos#methode", label: "Comment sont faites ces listes" },
+            ]}
+          />
+
           <FaqPlateforme
             plateforme={pf}
             series={data?.series ?? []}
@@ -247,6 +259,26 @@ export default async function SlugPage({ params }: Props) {
           plateformes={nouveautes}
           contexte={{ mode: "jour", dateISO: iso }}
         />
+        <div className="sa-container pb-10">
+          <TexteEditorial
+            titre="Ce jour-là"
+            paragraphes={[
+              futur
+                ? "Ces sorties sont annoncées : la page sera mise à jour d'ici là, et certaines dates peuvent encore bouger."
+                : syntheseJour(
+                    nouveautes.map((p) => ({ nom: p.plateforme.nom, nb: p.series.length + p.films.length })),
+                    label
+                  ),
+            ]}
+            liens={[
+              { href: `/${formatSemaineURL(getISOWeek(date).semaine, getISOWeek(date).annee)}`, label: "Toute la semaine" },
+              // la page du mois n'existe qu'une fois le mois commencé
+              ...(bornesMois(date.getUTCMonth() + 1, date.getUTCFullYear()).debut <= aujourdhui
+                ? [{ href: `/${formatMoisURL(date.getUTCMonth() + 1, date.getUTCFullYear())}`, label: "Tout le mois" }]
+                : []),
+            ]}
+          />
+        </div>
       </>
     );
   }

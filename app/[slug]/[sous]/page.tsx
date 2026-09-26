@@ -32,6 +32,9 @@ import SectionPlateforme from "@/components/SectionPlateforme";
 import MaillagePlateformes from "@/components/MaillagePlateformes";
 import ArchivesMoisPlateforme from "@/components/ArchivesMoisPlateforme";
 import MoisDeLAnnee from "@/components/MoisDeLAnnee";
+import TexteEditorial from "@/components/TexteEditorial";
+import { CONTENU_PLATEFORME, methodeCalendrier, methodeListe } from "@/lib/plateformes-contenu";
+import { syntheseCalendrier, syntheseFilms, syntheseMois, syntheseSeries } from "@/lib/syntheses";
 import ListeSortiesParJour, { agregerSortiesParJour } from "@/components/ListeSortiesParJour";
 
 export const revalidate = 3600;
@@ -40,6 +43,13 @@ const MAX_TYPE = 20;
 
 interface Props {
   params: Promise<{ slug: string; sous: string }>;
+}
+
+/** Début de la fenêtre « quatre dernières semaines » des pages séries/films */
+function ilYA28Jours(): string {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - 28);
+  return toISO(d);
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -189,6 +199,19 @@ export default async function SousPlateformePage({ params }: Props) {
             />
           )}
 
+          <TexteEditorial
+            titre={estSeries ? `Les séries sur ${pf.nom}` : `Les films sur ${pf.nom}`}
+            paragraphes={[
+              estSeries ? CONTENU_PLATEFORME[pf.slug]?.series : CONTENU_PLATEFORME[pf.slug]?.films,
+              estSeries ? syntheseSeries(contenus, ilYA28Jours(), toISO(new Date())) : syntheseFilms(contenus),
+              methodeListe(pf.nom, sous),
+            ]}
+            liens={[
+              { href: `/${pf.slug}/prochaines-sorties`, label: `Prochaines sorties ${pf.nom}` },
+              { href: `/${pf.slug}/${new Date().getUTCFullYear()}`, label: `Récap ${pf.nom} ${new Date().getUTCFullYear()}` },
+            ]}
+          />
+
           <MaillagePlateformes actuelle={pf.id} />
         </div>
       </>
@@ -229,6 +252,16 @@ export default async function SousPlateformePage({ params }: Props) {
 
           <ListeSortiesParJour jours={jours} />
 
+          <TexteEditorial
+            titre={`Lire le calendrier ${pf.nom}`}
+            paragraphes={[
+              CONTENU_PLATEFORME[pf.slug]?.calendrier,
+              syntheseCalendrier(jours),
+              methodeCalendrier(pf.nom),
+            ]}
+            liens={[{ href: `/${pf.slug}/series`, label: `Nouvelles séries ${pf.nom}` }]}
+          />
+
           <MaillagePlateformes actuelle={pf.id} />
         </div>
       </>
@@ -266,6 +299,19 @@ export default async function SousPlateformePage({ params }: Props) {
           </nav>
 
           <SectionPlateforme data={data} priorite lienTitre={false} />
+
+          <TexteEditorial
+            titre={`${pf.nom} en ${label.toLowerCase()}`}
+            paragraphes={[
+              syntheseMois(data.series, data.films, debut, bornesMois(mois.mois, mois.annee).fin, label.toLowerCase()),
+              `Cette archive rassemble les séries et films disponibles sur ${pf.nom} dont un épisode ou la sortie tombe en ${label.toLowerCase()}, d'après les dates TMDB. Un film passé d'abord par le cinéma y figure au mois de sa sortie en salle.`,
+              `Une série apparaît le mois où l'un de ses épisodes est diffusé : une série hebdomadaire peut donc figurer sur deux mois de suite. Les titres de moins de cinq votes sur TMDB ne sont pas encore comptés. Pour comparer avec les autres plateformes sur la même période, le récap du mois les rassemble toutes.`,
+            ]}
+            liens={[
+              { href: `/${pf.slug}/${mois.annee}`, label: `Récap ${pf.nom} ${mois.annee}` },
+              { href: `/${formatMoisURL(mois.mois, mois.annee)}`, label: `Toutes les plateformes en ${label.toLowerCase()}` },
+            ]}
+          />
 
           <ArchivesMoisPlateforme plateforme={pf} moisActuel={sous} annee={mois.annee} />
           <MaillagePlateformes actuelle={pf.id} />
