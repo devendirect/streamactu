@@ -1,5 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { ACTU_PUBLIEE, ARTICLES, NAV_ACCUEIL, TOUS_LES_ARTICLES } from "./actu";
+import {
+  ACTU_PUBLIEE,
+  ARTICLES,
+  ARTICLES_PAR_PAGE,
+  NAV_ACCUEIL,
+  NB_PAGES_ACTU,
+  TOUS_LES_ARTICLES,
+  articlesDeLaPage,
+  cheminPageActu,
+} from "./actu";
 import { liensInternes, textesGuide, type Guide } from "./guides";
 import { DESCRIPTION_MAX, DESCRIPTION_MIN, TITRE_MAX, titreAffiche } from "./meta";
 import { PLATEFORMES } from "./plateformes";
@@ -32,6 +41,17 @@ describe("rubrique Actu", () => {
     } else {
       expect(NAV_ACCUEIL).toEqual([{ href: "/", label: "Actu" }]);
     }
+  });
+
+  it("découpe la liste en pages de 12, la page 1 étant /actu", () => {
+    expect(articlesDeLaPage(1)).toEqual(ARTICLES.slice(0, ARTICLES_PAR_PAGE));
+    expect(articlesDeLaPage(0)).toEqual([]);
+    expect(articlesDeLaPage(NB_PAGES_ACTU + 1)).toEqual([]);
+    expect(articlesDeLaPage(1.5)).toEqual([]);
+    expect(cheminPageActu(1)).toBe("/actu");
+    expect(cheminPageActu(3)).toBe("/actu/page/3");
+    const toutes = Array.from({ length: NB_PAGES_ACTU }, (_, i) => articlesDeLaPage(i + 1)).flat();
+    expect(toutes).toEqual(ARTICLES);
   });
 
   it("a des slugs uniques", () => {

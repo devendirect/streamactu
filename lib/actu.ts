@@ -54,6 +54,22 @@ export const ACTU_PUBLIEE = ARTICLES.length > 0;
 /** En dessous, la liste /actu reste en noindex (même garde-fou que /guides) */
 export const MIN_ARTICLES_INDEX = 3;
 
+/** Articles par page de liste : /actu, puis /actu/page/2, /actu/page/3… */
+export const ARTICLES_PAR_PAGE = 12;
+
+export const NB_PAGES_ACTU = Math.max(1, Math.ceil(ARTICLES.length / ARTICLES_PAR_PAGE));
+
+/** Articles de la page n (1 = /actu) ; [] si la page n'existe pas */
+export function articlesDeLaPage(n: number): Article[] {
+  if (!Number.isInteger(n) || n < 1 || n > NB_PAGES_ACTU) return [];
+  return ARTICLES.slice((n - 1) * ARTICLES_PAR_PAGE, n * ARTICLES_PAR_PAGE);
+}
+
+/** Adresse de la page n de la liste */
+export function cheminPageActu(n: number): string {
+  return n <= 1 ? "/actu" : `/actu/page/${n}`;
+}
+
 export function trouverArticle(slug: string): Article | undefined {
   return ARTICLES.find((a) => a.slug === slug);
 }

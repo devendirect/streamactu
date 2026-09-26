@@ -9,7 +9,7 @@ import {
 import { PLATEFORMES } from "@/lib/plateformes";
 import { GENRES_SEO } from "@/lib/genres";
 import { GUIDES, MIN_GUIDES_INDEX } from "@/lib/guides";
-import { ARTICLES, MIN_ARTICLES_INDEX } from "@/lib/actu";
+import { ARTICLES, MIN_ARTICLES_INDEX, NB_PAGES_ACTU } from "@/lib/actu";
 import {
   decalerSemaineISO,
   formatDateURL,
@@ -237,6 +237,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Actu (rien tant qu'aucun article n'est publié ; la liste à partir de MIN_ARTICLES_INDEX) ──
   if (ARTICLES.length >= MIN_ARTICLES_INDEX) {
     entries.push({ url: `${BASE}/actu`, changeFrequency: "weekly", priority: 0.6 });
+  }
+  for (let n = 2; n <= NB_PAGES_ACTU; n++) {
+    entries.push({ url: `${BASE}/actu/page/${n}`, changeFrequency: "weekly", priority: 0.3 });
   }
   for (const a of ARTICLES) {
     entries.push({
