@@ -71,13 +71,16 @@ async function pagesIndexables(urls) {
 }
 
 /** URLs des fiches du flux RSS (liens des <item>, hors lien du canal) */
-async function urlsDuFlux() {
-  const res = await fetch(`${SITE}/flux.xml`, { signal: AbortSignal.timeout(15000) });
-  if (!res.ok) throw new Error(`flux.xml → HTTP ${res.status}`);
+async function urlsDuFlux(chemin, obligatoire) {
+  const res = await fetch(`${SITE}${chemin}`, { signal: AbortSignal.timeout(15000) });
+  // Flux des articles : 404 tant qu'aucun article Actu n'est publié
+  if (res.status === 404 && !obligatoire) return [];
+  if (!res.ok) throw new Error(`${chemin} → HTTP ${res.status}`);
   const xml = await res.text();
-  const urls = [...xml.matchAll(/<link>([^<]+)<\/link>/g)]
+  // Liens des <item> seulement : le <link> du canal (racine, /actu) n'est pas une page à soumettre
+  const urls = [...xml.matchAll(/<item>[\s\S]*?<link>([^<]+)<\/link>/g)]
     .map((m) => m[1].trim().replace(/&amp;/g, "&"))
-    .filter((u) => u.startsWith(`${SITE}/`)); // écarte le <link> racine du canal
+    .filter((u) => u.startsWith(`${SITE}/`));
   return [...new Set(urls)];
 }
 
@@ -124,7 +127,9 @@ async function soumettre(urlList) {
   return dernier;
 }
 
-const fiches = await urlsDuFlux();
+const fiches = [
+  ...new Set([...(await urlsDuFlux("/flux.xml", true)), ...(await urlsDuFlux("/actu/flux.xml", false))]),
+];
 const dejaSoumises = await lireEtat();
 const nouvelles = fiches.filter((u) => !dejaSoumises.has(u));
 const chaudes = await pagesIndexables(pagesChaudes());

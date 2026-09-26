@@ -1,0 +1,56 @@
+import type { SectionGuide } from "./guides";
+import { ARTICLE_2026_10_02_WEEKEND } from "./actu/2026-10-02-que-regarder-ce-week-end";
+
+/**
+ * Rubrique Actu (/actu/[slug]) : un article « Que regarder ce week-end »
+ * publié le vendredi matin, rédigé avec Claude à partir des données du site et
+ * relu par l'éditeur avant publication (décision du 2026-09-26, voir
+ * docs/nommage-rubriques.md et docs/ligne-editoriale.md).
+ *
+ * Un article `brouillon: true` n'existe nulle part (404, ni menu, ni sitemap,
+ * ni flux). Tant qu'aucun article n'est publié, la rubrique entière est
+ * absente et le menu garde « Actu » pour l'accueil : on peut déployer le code
+ * avant le premier article. Les articles publiés restent en ligne.
+ *
+ * Même format de texte que les guides : [libellé](/chemin) pour les liens
+ * internes, rien d'autre.
+ */
+export interface Article {
+  slug: string;
+  titre: string;
+  /** meta description, 120–155 caractères */
+  description: string;
+  /** chapeau : la réponse courte, citable telle quelle */
+  chapo: string;
+  publie: string; // AAAA-MM-JJ
+  misAJour: string; // AAAA-MM-JJ
+  sections: SectionGuide[];
+  /** true : absent du site (relecture en cours) */
+  brouillon?: boolean;
+}
+
+/** Tous les articles, brouillons compris (tests) */
+export const TOUS_LES_ARTICLES: Article[] = [ARTICLE_2026_10_02_WEEKEND];
+
+/** Articles publiés, du plus récent au plus ancien */
+export const ARTICLES: Article[] = TOUS_LES_ARTICLES.filter((a) => !a.brouillon).sort((a, b) =>
+  b.publie.localeCompare(a.publie)
+);
+
+/** La rubrique n'apparaît (menu, sitemap, flux, llms) qu'avec au moins un article publié */
+export const ACTU_PUBLIEE = ARTICLES.length > 0;
+
+/** En dessous, la liste /actu reste en noindex (même garde-fou que /guides) */
+export const MIN_ARTICLES_INDEX = 3;
+
+export function trouverArticle(slug: string): Article | undefined {
+  return ARTICLES.find((a) => a.slug === slug);
+}
+
+/** Entrées de menu : « Sorties » + « Actu » une fois la rubrique publiée, « Actu » pour l'accueil sinon */
+export const NAV_ACCUEIL = ACTU_PUBLIEE
+  ? [
+      { href: "/", label: "Sorties" },
+      { href: "/actu", label: "Actu" },
+    ]
+  : [{ href: "/", label: "Actu" }];

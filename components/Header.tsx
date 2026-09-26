@@ -1,7 +1,9 @@
+import { NAV_ACCUEIL } from "@/lib/actu";
 import Link from "next/link";
 
+// « Actu » = accueil tant qu'aucun article n'est publié, puis « Sorties » + « Actu » (lib/actu.ts)
 const NAV = [
-  { href: "/", label: "Actu" },
+  ...NAV_ACCUEIL,
   { href: "/prochaines-sorties", label: "À venir" },
   { href: "/retrouver", label: "Retrouver" },
   { href: "/surprise", label: "À la surprise" },

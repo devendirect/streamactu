@@ -1,5 +1,6 @@
 import { PLATEFORMES } from "@/lib/plateformes";
 import { GUIDES } from "@/lib/guides";
+import { ACTU_PUBLIEE, ARTICLES } from "@/lib/actu";
 import { formatMoisFR, formatMoisURL } from "@/lib/utils";
 
 // 24h : seuls les liens de classements (mois/année) changent
@@ -68,7 +69,17 @@ ${recapsAnnuels}
 
 ${GUIDES.map((g) => `- [${g.titre}](${SITE_URL}/guides/${g.slug}) : ${g.chapo.split(". ")[0]}.`).join("\n")}
 
-## À propos
+${
+  ACTU_PUBLIEE
+    ? `## Actu
+
+Chaque vendredi, les séries et films à regarder ce week-end ([flux RSS](${SITE_URL}/actu/flux.xml)) :
+
+${ARTICLES.slice(0, 4).map((a) => `- [${a.titre}](${SITE_URL}/actu/${a.slug})`).join("\n")}
+
+`
+    : ""
+}## À propos
 
 - [Qui édite le site, d'où viennent les données et comment sont faits les classements](${SITE_URL}/a-propos)
 - [Contact](${SITE_URL}/contact) : signaler une erreur de disponibilité ou de fiche

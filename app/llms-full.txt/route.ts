@@ -2,6 +2,7 @@ import type { Contenu } from "@/types";
 import { getTopAnnee, getTopMois } from "@/lib/tmdb";
 import { PLATEFORMES } from "@/lib/plateformes";
 import { GUIDES } from "@/lib/guides";
+import { ACTU_PUBLIEE } from "@/lib/actu";
 import { formatMoisFR } from "@/lib/utils";
 
 // 24h : mêmes caches que les pages top (getTopAnnee / getNouveautesMois)
@@ -70,7 +71,8 @@ ${PLATEFORMES.map((pf) => `- [Nouveautés ${pf.nom} ${annee}](${SITE_URL}/${pf.s
 - [Flux RSS](${SITE_URL}/flux.xml) : les nouveautés des 7 derniers jours
 - [À propos](${SITE_URL}/a-propos) : éditeur, sources, méthode de classement, limites, financement
 ${GUIDES.map((g) => `- [${g.titre}](${SITE_URL}/guides/${g.slug}) : ${g.description}`).join("\n")}
-- [Retrouveur](${SITE_URL}/retrouver) : retrouver un film ou une série oubliés à partir d'une description (Claude Haiku)
+${ACTU_PUBLIEE ? `- [Actu](${SITE_URL}/actu) : chaque vendredi, que regarder ce week-end (flux : ${SITE_URL}/actu/flux.xml)
+` : ""}- [Retrouveur](${SITE_URL}/retrouver) : retrouver un film ou une série oubliés à partir d'une description (Claude Haiku)
 - [Contact](${SITE_URL}/contact) : signaler une erreur de disponibilité ou de fiche
 `;
 

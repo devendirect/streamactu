@@ -9,6 +9,7 @@ import {
 import { PLATEFORMES } from "@/lib/plateformes";
 import { GENRES_SEO } from "@/lib/genres";
 import { GUIDES, MIN_GUIDES_INDEX } from "@/lib/guides";
+import { ARTICLES, MIN_ARTICLES_INDEX } from "@/lib/actu";
 import {
   decalerSemaineISO,
   formatDateURL,
@@ -232,6 +233,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/jeux`, changeFrequency: "daily", priority: 0.5 },
     { url: `${BASE}/retrouver`, changeFrequency: "monthly", priority: 0.5 }
   );
+
+  // ── Actu (rien tant qu'aucun article n'est publié ; la liste à partir de MIN_ARTICLES_INDEX) ──
+  if (ARTICLES.length >= MIN_ARTICLES_INDEX) {
+    entries.push({ url: `${BASE}/actu`, changeFrequency: "weekly", priority: 0.6 });
+  }
+  for (const a of ARTICLES) {
+    entries.push({
+      url: `${BASE}/actu/${a.slug}`,
+      lastModified: new Date(`${a.misAJour}T07:00:00Z`),
+      changeFrequency: "yearly",
+      priority: 0.5,
+    });
+  }
 
   // ── Guides (la liste /guides n'entre qu'à partir de MIN_GUIDES_INDEX guides) ──
   if (GUIDES.length >= MIN_GUIDES_INDEX) {
