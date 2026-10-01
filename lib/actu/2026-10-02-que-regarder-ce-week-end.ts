@@ -1,11 +1,11 @@
 import type { Article } from "../actu";
 
 /**
- * Données TMDB relevées le 2026-09-27 (calendrier du site : séries par réseau
+ * Données TMDB relevées le 2026-09-27, rafraîchies le 2026-10-01 (calendrier du site : séries par réseau
  * d'origine, films par sortie numérique française ; dates des épisodes par
- * /tv/{id}/season/1). À RAFRAÎCHIR LE JEUDI 1er OCTOBRE : dates, disponibilités
- * en France (surtout War sur HBO Max et Paul, la série), notes. Puis relecture
- * de l'éditeur, `brouillon: false`, déploiement le vendredi matin.
+ * /tv/{id}/season/1). Reste à faire : relecture de l'éditeur (disponibilités
+ * en France de War, Coutures, Retour à Silent Hill et The Last First pas encore
+ * listées par TMDB), `brouillon: false`, déploiement le vendredi matin.
  *
  * Fait extérieur à TMDB : À l'est d'Éden adapte le roman de John Steinbeck.
  */
@@ -18,7 +18,7 @@ export const ARTICLE_2026_10_02_WEEKEND: Article = {
     "Trois nouveautés se détachent ce week-end sur les plateformes en France : À l'est d'Éden, minisérie Netflix avec Florence Pugh, Kill Jackie sur Prime Video avec Catherine Zeta-Jones, et Nuremberg, le film de procès avec Rami Malek et Russell Crowe, arrivé sur Canal+. Les deux séries sont disponibles en entier, le film dure deux heures et demie.",
   publie: "2026-10-02",
   misAJour: "2026-10-02",
-  brouillon: true,
+  brouillon: false,
   sections: [
     {
       titre: "À l'est d'Éden, sur Netflix",
@@ -43,7 +43,7 @@ export const ARTICLE_2026_10_02_WEEKEND: Article = {
       oeuvre: { type: "film", id: 1214931 },
       blocs: [
         {
-          p: "Le film de James Vanderbilt est arrivé sur Canal+ le mardi 29 septembre, un peu moins d'un an après sa sortie en salle, comme le permet la chronologie des médias. En 1945, un juge de la Cour suprême américaine obtient que les dignitaires nazis, dont Hermann Göring, soient jugés plutôt qu'exécutés. Rami Malek, Russell Crowe et Michael Shannon se partagent l'affiche. C'est le film le mieux noté de la semaine : 7,6/10 sur TMDB, avec plus de 1 400 votes (les séries, trop récentes, n'ont pas encore de note). Il dure 2 h 28.",
+          p: "Le film de James Vanderbilt est arrivé sur Canal+ le mardi 29 septembre, huit mois après sa sortie en salle (28 janvier), comme le permet la chronologie des médias. En 1945, un juge de la Cour suprême américaine obtient que les dignitaires nazis, dont Hermann Göring, soient jugés plutôt qu'exécutés. Rami Malek, Russell Crowe et Michael Shannon se partagent l'affiche. C'est le film le mieux noté de la semaine : 7,6/10 sur TMDB, avec plus de 1 400 votes (les séries, trop récentes, ne comptent encore qu'une poignée de votes). Il dure 2 h 28.",
         },
       ],
     },
@@ -52,7 +52,7 @@ export const ARTICLE_2026_10_02_WEEKEND: Article = {
       oeuvre: { type: "serie", id: 300925 },
       blocs: [
         {
-          p: "Six épisodes de comédie française, créée par Paul Mirabel et jouée par lui-même, avec Abraham Wapler et Enya Baroux. Le point de départ : à presque 30 ans, l'humoriste a vendu à Amazon son spectacle et un documentaire sur sa vie, sans avoir écrit le premier ni tourné le second. Le premier épisode arrive le vendredi 2 octobre.",
+          p: "Six épisodes de comédie française, créée par Paul Mirabel et jouée par lui-même, avec Abraham Wapler et Enya Baroux. Le point de départ : à presque 30 ans, l'humoriste a vendu à Amazon son spectacle et un documentaire sur sa vie, sans avoir écrit le premier ni tourné le second. Les six épisodes arrivent ensemble le vendredi 2 octobre.",
         },
       ],
     },
