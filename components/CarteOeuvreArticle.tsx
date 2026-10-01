@@ -29,7 +29,7 @@ export default function CarteOeuvreArticle({ oeuvre }: { oeuvre: OeuvreArticle }
         <div className="font-mono-label text-ink-3">
           {oeuvre.type === "serie" ? "Série" : "Film"}
           {oeuvre.annee ? ` · ${oeuvre.annee}` : ""}
-          {oeuvre.nbVotes > 0 ? ` · ★ ${oeuvre.note.toFixed(1)}` : ""}
+          {oeuvre.nbVotes >= 10 ?` · ★ ${oeuvre.note.toFixed(1)}` : ""}
           {oeuvre.plateformes.length > 0 ? ` · ${oeuvre.plateformes.map((p) => p.nom).join(", ")}` : ""}
         </div>
         <div className="font-mono-label text-foreground">Voir la fiche →</div>
