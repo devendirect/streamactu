@@ -46,3 +46,4 @@ docs/
 
 # état local du script IndexNow (URLs déjà soumises)
 scripts/.indexnow-etat.json
+brag-output*/

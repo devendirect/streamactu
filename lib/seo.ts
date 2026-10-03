@@ -46,6 +46,17 @@ export function descriptionFiche(contenu: Serie | Film): string {
 }
 
 /**
+ * Fiche sans rien à montrer : ni résumé en français, ni plateforme en France,
+ * ni vote. La route rend n'importe quel identifiant TMDB (liens de la
+ * recherche), y compris des entrées annexes presque vides — « Locker Diaries:
+ * Coven Academy », mini-série verticale homonyme de « Sorcières Academy ».
+ * Accessible, mais pas indexée.
+ */
+export function fichePauvre(contenu: Serie | Film): boolean {
+  return !contenu.synopsis?.trim() && !(contenu.dispo ?? []).length && contenu.nbVotes === 0;
+}
+
+/**
  * JSON-LD Movie / TVSeries pour les fiches — éligibilité aux résultats
  * enrichis Google (note, genres, casting).
  */

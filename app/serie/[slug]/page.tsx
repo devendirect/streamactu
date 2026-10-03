@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { titreAffiche, titreMeta } from "@/lib/meta";
 import { getDetailSerie } from "@/lib/tmdb";
 import { idDepuisSlug } from "@/lib/utils";
-import { descriptionFiche, jsonLdFiche } from "@/lib/seo";
+import { descriptionFiche, fichePauvre, jsonLdFiche } from "@/lib/seo";
 import { suggestionsFiche } from "@/lib/suggestions";
 import FicheDetail from "@/components/FicheDetail";
 
@@ -33,6 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: titreMeta(serie.titre),
     description,
     alternates: { canonical: `/serie/${serie.slug}` },
+    ...(fichePauvre(serie) ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       type: "video.tv_show",
       title: titreAffiche(serie.titre),
