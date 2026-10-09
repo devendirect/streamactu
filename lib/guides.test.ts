@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { GUIDES, liensInternes, textesGuide } from "./guides";
+import { GUIDES, idEtape, liensInternes, textesGuide } from "./guides";
 import { DESCRIPTION_MAX, DESCRIPTION_MIN, TITRE_MAX, titreAffiche } from "./meta";
 import { PLATEFORMES } from "./plateformes";
 import { parseMoisURL } from "./utils";
@@ -58,6 +58,11 @@ describe("guides", () => {
               for (const o of b.oeuvres) expect(o.repere.trim(), o.titre).not.toBe("");
               // Une portion n'a de sens que dans l'ordre de l'histoire
               if (b.ordre === "sortie") for (const o of b.oeuvres) expect(o.portion, o.titre).toBeUndefined();
+              // Suivi de visionnage : deux étapes ne partagent jamais leur état « vue »
+              if (b.ordre === "histoire") {
+                const ids = b.oeuvres.map(idEtape);
+                expect(new Set(ids).size, ids.join(", ")).toBe(ids.length);
+              }
             }
       });
     });

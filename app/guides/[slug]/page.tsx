@@ -18,6 +18,7 @@ import { jsonLdFaq } from "@/lib/seo";
 import { ORG_ID, SITE_URL } from "@/lib/site";
 import { formatDateFR } from "@/lib/utils";
 import CorpsGuide from "@/components/CorpsGuide";
+import CompteVues from "@/components/CompteVues";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -165,13 +166,21 @@ export default async function GuidePage({ params }: Props) {
             {sommaire.map((c) => (
               <a key={c.ancre} href={`#${c.ancre}`} className="flex flex-col gap-1.5 bg-card px-4 py-3.5 transition-colors hover:bg-[#221E17]">
                 <span className="font-mono-label text-primary">{c.libelle}</span>
-                <span className="text-[17px] font-bold text-foreground">{c.valeur}</span>
+                <span className="text-[17px] font-bold text-foreground">
+                  {c.valeur}
+                  {c.ordre === "histoire" && <CompteVues cle={c.cleSuivi} etapes={c.etapes} />}
+                </span>
               </a>
             ))}
           </nav>
         )}
 
-        <CorpsGuide sections={guide.sections} oeuvres={oeuvres} ancres={ordre ? ancresOrdre(guide.sections) : undefined} />
+        <CorpsGuide
+          sections={guide.sections}
+          oeuvres={oeuvres}
+          ancres={ordre ? ancresOrdre(guide.sections) : undefined}
+          slugGuide={guide.slug}
+        />
       </article>
 
       {guide.faq.length > 0 && (

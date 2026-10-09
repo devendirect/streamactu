@@ -4,9 +4,10 @@
  *   node scripts/indexnow.mjs --dry-run  affiche les URLs sans rien envoyer
  *
  * Rejoue les fiches du flux RSS (7 derniers jours, déjà dédupliquées et sans
- * pages noindex) et les pages « chaudes » qui changent chaque jour. Un fichier
- * d'état à côté du script mémorise les fiches déjà soumises : seules les
- * nouvelles repartent, plus les pages chaudes (légitimement « modifiées »).
+ * pages noindex), les guides du sitemap et les pages « chaudes » qui changent
+ * chaque jour. Un fichier d'état à côté du script mémorise les URLs déjà
+ * soumises : seules les nouvelles repartent, plus les pages chaudes
+ * (légitimement « modifiées »).
  *
  * Node ≥ 18 (fetch natif), aucune dépendance. Codes de sortie : 0 OK (ou 429,
  * on réessaiera demain), 1 échec — configurer Plesk pour notifier sur erreur.
@@ -127,8 +128,31 @@ async function soumettre(urlList) {
   return dernier;
 }
 
+/**
+ * Guides (/guides/…) : absents des flux, on les lit dans le sitemap. Ils
+ * entrent dans l'état comme les fiches : chaque guide n'est soumis qu'une
+ * fois, à sa publication. Un échec ici n'empêche pas le reste de l'envoi.
+ */
+async function urlsDesGuides() {
+  try {
+    const res = await fetch(`${SITE}/sitemap.xml`, { signal: AbortSignal.timeout(15000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const xml = await res.text();
+    return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)]
+      .map((m) => m[1].trim())
+      .filter((u) => u.startsWith(`${SITE}/guides/`));
+  } catch (err) {
+    console.warn("[indexnow] guides du sitemap illisibles :", err instanceof Error ? err.message : err);
+    return [];
+  }
+}
+
 const fiches = [
-  ...new Set([...(await urlsDuFlux("/flux.xml", true)), ...(await urlsDuFlux("/actu/flux.xml", false))]),
+  ...new Set([
+    ...(await urlsDuFlux("/flux.xml", true)),
+    ...(await urlsDuFlux("/actu/flux.xml", false)),
+    ...(await urlsDesGuides()),
+  ]),
 ];
 const dejaSoumises = await lireEtat();
 const nouvelles = fiches.filter((u) => !dejaSoumises.has(u));

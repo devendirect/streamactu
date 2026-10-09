@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { cheminOeuvreGuide, SEUIL_GROUPE_ANNEES, type AncresOrdre, type BlocOrdre, type OeuvreGuide } from "@/lib/guides";
+import { cheminOeuvreGuide, idEtape, SEUIL_GROUPE_ANNEES, type AncresOrdre, type BlocOrdre, type OeuvreGuide } from "@/lib/guides";
 import { cleOeuvre, type OeuvreArticle } from "@/lib/actu-oeuvres";
 import type { Plateforme } from "@/types";
+import { Etiquette, Plateformes } from "@/components/PiecesOrdre";
 import { TexteEnLigne } from "@/components/TexteEnLigne";
+import ListeHistoire, { type EtapeAffichee } from "@/components/ListeHistoire";
 
 /**
  * Listes des guides « ordre de visionnage » (maquette du 2026-10-09,
@@ -21,44 +23,6 @@ interface Contexte {
   ancres: AncresOrdre;
 }
 
-/** Plateformes du jour, ou mention « au cinéma » / « aucune plateforme » ; le nom est toujours écrit */
-function Plateformes({ plateformes, auCinema }: { plateformes: Plateforme[]; auCinema?: boolean }) {
-  if (plateformes.length > 0) {
-    return (
-      <ul className="flex flex-wrap gap-x-4 gap-y-[5px]" aria-label="Plateformes en France">
-        {plateformes.map((p) => (
-          <li
-            key={p.id}
-            data-pf={p.id}
-            className="inline-flex items-center gap-[7px] font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-foreground"
-          >
-            <span
-              aria-hidden="true"
-              className="size-2 shadow-[inset_0_0_0_1px_rgba(236,230,216,0.18)]"
-              style={{ background: p.couleur }}
-            />
-            {p.nom}
-          </li>
-        ))}
-      </ul>
-    );
-  }
-  if (auCinema) {
-    return (
-      <p className="inline-flex items-center gap-[7px] font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
-        <span aria-hidden="true" className="size-[7px] border border-primary" />
-        Au cinéma · pas encore en streaming
-      </p>
-    );
-  }
-  return (
-    <p className="inline-flex items-center gap-[7px] font-mono text-[11px] uppercase tracking-[0.12em] text-[#9A9282]">
-      <span aria-hidden="true" className="size-[7px] border border-dashed border-[#9A9282]" />
-      Aucune plateforme d&apos;abonnement
-    </p>
-  );
-}
-
 /** Barre de 3 px sous la vignette : un segment par plateforme, pointillés sans plateforme, doré au cinéma */
 function BarrePlateformes({ plateformes, auCinema }: { plateformes: Plateforme[]; auCinema?: boolean }) {
   const segments =
@@ -71,14 +35,6 @@ function BarrePlateformes({ plateformes, auCinema }: { plateformes: Plateforme[]
         <span key={i} className="flex-1" style={{ background: fond }} />
       ))}
     </div>
-  );
-}
-
-function Etiquette({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="rounded-[2px] border border-[rgba(236,230,216,0.24)] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[#C4BBA9]">
-      {children}
-    </span>
   );
 }
 
@@ -197,52 +153,41 @@ function ListeSortie({ bloc, idListe, ctx }: { bloc: BlocOrdre; idListe: string;
 // Ordre de l'histoire
 // ──────────────────────────────────────────────
 
-function ListeHistoire({ bloc, ctx }: { bloc: BlocOrdre; ctx: Contexte }) {
+/** Données de la liste client : tout est calculé ici, côté serveur */
+function etapesAffichees(bloc: BlocOrdre, ctx: Contexte): EtapeAffichee[] {
   const vus = new Set<string>();
-  return (
-    <ol className="m-0 list-none p-0">
-      {bloc.oeuvres.map((item, i) => {
-        const cle = cleOeuvre(item);
-        const o = ctx.oeuvres?.get(cle);
-        const suite = vus.has(cle);
-        vus.add(cle);
-        const ancre = ctx.ancres.get(cle);
-        const portion = item.portion ?? (item.type === "serie" ? "Toutes les saisons disponibles" : undefined);
-        return (
-          <li key={`${cle}-${i}`} {...dataLigne(o)} className="flex flex-col gap-1.5 border-t border-border py-2.5">
-            <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1 pt-2.5">
-              <span className="text-[17px] font-extrabold text-primary">{i + 1}</span>
-              <Link
-                href={hrefOeuvre(item, o)}
-                className="text-[17px] font-bold leading-[1.2] text-foreground hover:text-primary transition-colors"
-              >
-                {o?.titre ?? item.titre}
-              </Link>
-              {suite && <Etiquette>Suite</Etiquette>}
-              {item.facultatif && <Etiquette>Facultatif</Etiquette>}
-            </div>
-            {portion && <span className="font-serif text-[17px] leading-[1.35] text-foreground">{portion}</span>}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-[5px]">
-              {o && <Plateformes plateformes={o.plateformes} auCinema={item.auCinema} />}
-              {ancre && (
-                <a
-                  href={`#${ancre.ancre}`}
-                  className="ml-auto font-mono text-[11px] uppercase tracking-[0.2em] text-ink-3 hover:text-primary transition-colors"
-                >
-                  Fiche {ancre.numero} ↑
-                </a>
-              )}
-            </div>
-            <p className="m-0 font-serif text-[16px] leading-normal text-[#C4BBA9] [text-wrap:pretty]">
-              <TexteEnLigne texte={item.repere} />
-            </p>
-          </li>
-        );
-      })}
-    </ol>
-  );
+  return bloc.oeuvres.map((item) => {
+    const cle = cleOeuvre(item);
+    const o = ctx.oeuvres?.get(cle);
+    const suite = vus.has(cle);
+    vus.add(cle);
+    const ancre = ctx.ancres.get(cle);
+    return {
+      id: idEtape(item),
+      type: item.type,
+      titre: o?.titre ?? item.titre,
+      href: hrefOeuvre(item, o),
+      portion: item.portion,
+      plateformes: o ? o.plateformes.map(({ id, nom, couleur }) => ({ id, nom, couleur })) : null,
+      auCinema: item.auCinema,
+      facultatif: item.facultatif,
+      repere: item.repere,
+      suite,
+      fiche: ancre ? { ancre: ancre.ancre, numero: ancre.numero } : undefined,
+      image: o?.grandeImage ?? null,
+    };
+  });
 }
 
-export default function ListeOrdre({ bloc, idListe, ...ctx }: { bloc: BlocOrdre; idListe: string } & Contexte) {
-  return bloc.ordre === "sortie" ? <ListeSortie bloc={bloc} idListe={idListe} ctx={ctx} /> : <ListeHistoire bloc={bloc} ctx={ctx} />;
+export default function ListeOrdre({
+  bloc,
+  idListe,
+  cleSuivi,
+  ...ctx
+}: { bloc: BlocOrdre; idListe: string; cleSuivi: string } & Contexte) {
+  return bloc.ordre === "sortie" ? (
+    <ListeSortie bloc={bloc} idListe={idListe} ctx={ctx} />
+  ) : (
+    <ListeHistoire cle={cleSuivi} etapes={etapesAffichees(bloc, ctx)} />
+  );
 }

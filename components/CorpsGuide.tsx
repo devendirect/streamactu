@@ -1,4 +1,4 @@
-import { ancreSection, type AncresOrdre, type BlocOrdre, type SectionGuide } from "@/lib/guides";
+import { ancreSection, cleSuivi, type AncresOrdre, type BlocOrdre, type SectionGuide } from "@/lib/guides";
 import { cleOeuvre, type OeuvreArticle } from "@/lib/actu-oeuvres";
 import { PLATEFORMES } from "@/lib/plateformes";
 import { TexteEnLigne } from "@/components/TexteEnLigne";
@@ -18,11 +18,14 @@ export function BlocsGuide({
   oeuvres,
   ancres,
   idSection,
+  cleSuivi,
 }: {
   blocs: SectionGuide["blocs"];
   oeuvres?: Map<string, OeuvreArticle>;
   ancres?: AncresOrdre;
   idSection?: string;
+  /** Clé de stockage de la progression (ordre de l'histoire) */
+  cleSuivi?: string;
 }) {
   return (
     <>
@@ -35,7 +38,14 @@ export function BlocsGuide({
           );
         }
         if ("oeuvres" in b) {
-          return <ListeOrdre key={i} bloc={b} idListe={idSection ?? "liste"} oeuvres={oeuvres} ancres={ancres ?? new Map()} />;
+          return <ListeOrdre
+              key={i}
+              bloc={b}
+              idListe={idSection ?? "liste"}
+              cleSuivi={cleSuivi ?? idSection ?? "liste"}
+              oeuvres={oeuvres}
+              ancres={ancres ?? new Map()}
+            />;
         }
         if ("ul" in b || "ol" in b) {
           const items = "ul" in b ? b.ul : b.ol;
@@ -120,8 +130,11 @@ export default function CorpsGuide({
   sections,
   oeuvres,
   ancres,
+  slugGuide,
 }: {
   sections: SectionGuide[];
+  /** Préfixe de la clé de progression du suivi de visionnage */
+  slugGuide?: string;
   /** Fiches des listes ordonnées (chargerOeuvres), indexées par cleOeuvre */
   oeuvres?: Map<string, OeuvreArticle>;
   /** Ancres des titres dans les listes de sortie (ancresOrdre) : guide d'ordre, avec la barre « Mes abonnements » */
@@ -130,7 +143,13 @@ export default function CorpsGuide({
   const section = (s: SectionGuide, dansZone = false) => (
     <section key={s.titre} id={ancreSection(s)} className={`${dansZone ? "scroll-mt-40" : "scroll-mt-4"} space-y-4`}>
       <h2 className="text-2xl font-extrabold tracking-[-0.02em]">{s.titre}</h2>
-      <BlocsGuide blocs={s.blocs} oeuvres={oeuvres} ancres={ancres} idSection={ancreSection(s)} />
+      <BlocsGuide
+        blocs={s.blocs}
+        oeuvres={oeuvres}
+        ancres={ancres}
+        idSection={ancreSection(s)}
+        cleSuivi={slugGuide ? cleSuivi(slugGuide, s) : undefined}
+      />
     </section>
   );
 

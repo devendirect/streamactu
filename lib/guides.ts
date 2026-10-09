@@ -73,8 +73,23 @@ export function ancreSection(s: SectionGuide): string {
   return slugify(s.titre);
 }
 
+/**
+ * Identifiant stable d'une étape de l'ordre de l'histoire (suivi de
+ * visionnage) : la progression enregistrée survit à un réordonnancement.
+ */
+export function idEtape(o: OeuvreGuide): string {
+  return `${o.type}-${o.id}${o.portion ? `-${slugify(o.portion)}` : ""}`;
+}
+
+/** Clé de stockage de la progression d'une liste de l'histoire */
+export function cleSuivi(slugGuide: string, s: SectionGuide): string {
+  return `${slugGuide}-${ancreSection(s)}`;
+}
+
 /** Cartes du sommaire en tête d'un guide d'ordre : une par liste, vers sa section */
-export function sommaireOrdres(g: Guide): { ancre: string; libelle: string; valeur: string; ordre: BlocOrdre["ordre"] }[] {
+export function sommaireOrdres(
+  g: Guide
+): { ancre: string; libelle: string; valeur: string; ordre: BlocOrdre["ordre"]; cleSuivi: string; etapes: string[] }[] {
   return g.sections.flatMap((s) =>
     s.blocs.flatMap((b) => {
       if (!("oeuvres" in b)) return [];
@@ -85,7 +100,16 @@ export function sommaireOrdres(g: Guide): { ancre: string; libelle: string; vale
           ? `${n} étapes`
           : `${n} ${types.size > 1 ? "titres" : types.has("film") ? "films" : "séries"}`;
       const libelle = b.sommaire ?? (b.ordre === "sortie" ? "Ordre de sortie" : "Ordre de l'histoire");
-      return [{ ancre: ancreSection(s), libelle, valeur, ordre: b.ordre }];
+      return [
+        {
+          ancre: ancreSection(s),
+          libelle,
+          valeur,
+          ordre: b.ordre,
+          cleSuivi: cleSuivi(g.slug, s),
+          etapes: b.ordre === "histoire" ? b.oeuvres.map(idEtape) : [],
+        },
+      ];
     })
   );
 }
