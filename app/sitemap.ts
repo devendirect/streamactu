@@ -9,7 +9,7 @@ import {
 import { PLATEFORMES } from "@/lib/plateformes";
 import { GENRES_SEO } from "@/lib/genres";
 import { GUIDES, MIN_GUIDES_INDEX } from "@/lib/guides";
-import { ARTICLES, MIN_ARTICLES_INDEX, NB_PAGES_ACTU } from "@/lib/actu";
+import { ARTICLES, CHEMIN_EDITION_COURANTE, EDITION_COURANTE, MIN_ARTICLES_INDEX, NB_PAGES_ACTU } from "@/lib/actu";
 import {
   decalerSemaineISO,
   formatDateURL,
@@ -241,7 +241,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (let n = 2; n <= NB_PAGES_ACTU; n++) {
     entries.push({ url: `${BASE}/actu/page/${n}`, changeFrequency: "weekly", priority: 0.3 });
   }
-  for (const a of ARTICLES) {
+  // Édition courante à son adresse fixe ; son adresse datée (canonical vers
+  // l'adresse fixe) n'entre qu'une fois archivée
+  if (EDITION_COURANTE) {
+    entries.push({
+      url: `${BASE}${CHEMIN_EDITION_COURANTE}`,
+      lastModified: new Date(`${EDITION_COURANTE.misAJour}T07:00:00Z`),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    });
+  }
+  for (const a of ARTICLES.filter((a) => a !== EDITION_COURANTE)) {
     entries.push({
       url: `${BASE}/actu/${a.slug}`,
       lastModified: new Date(`${a.misAJour}T07:00:00Z`),

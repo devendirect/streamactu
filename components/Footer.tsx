@@ -1,4 +1,4 @@
-import { NAV_ACCUEIL } from "@/lib/actu";
+import { ACTU_PUBLIEE, CHEMIN_EDITION_COURANTE, NAV_ACCUEIL } from "@/lib/actu";
 import { REPO_URL } from "@/lib/site";
 import Link from "next/link";
 import { BoutonGererCookies } from "@/components/ConsentAnalytics";
@@ -12,6 +12,8 @@ const GENRES_FOOTER = ["thriller", "comedie", "drame", "horreur", "science-ficti
 // « Actu » = accueil tant qu'aucun article n'est publié, puis « Sorties » + « Actu » (lib/actu.ts)
 const NAV = [
   ...NAV_ACCUEIL,
+  // Adresse fixe de l'édition de la semaine, une fois la rubrique publiée
+  ...(ACTU_PUBLIEE ? [{ href: CHEMIN_EDITION_COURANTE, label: "Ce week-end" }] : []),
   { href: "/prochaines-sorties", label: "À venir" },
   { href: "/retrouver", label: "Retrouver" },
   { href: "/surprise", label: "À la surprise" },

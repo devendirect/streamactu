@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Article } from "@/lib/actu";
-import { NB_PAGES_ACTU, cheminPageActu } from "@/lib/actu";
+import { NB_PAGES_ACTU, cheminArticle, cheminPageActu } from "@/lib/actu";
 import type { OeuvreArticle } from "@/lib/actu-oeuvres";
 import { formatDateFR } from "@/lib/utils";
 
@@ -28,7 +28,7 @@ export default function ListeArticles({ articles, images, page }: Props) {
         <article className="space-y-3">
           {images[0]?.grandeImage && (
             <Link
-              href={`/actu/${vedette.slug}`}
+              href={cheminArticle(vedette)}
               className="block relative aspect-[2/1] overflow-hidden border border-border bg-white/5"
             >
               <Image
@@ -43,7 +43,7 @@ export default function ListeArticles({ articles, images, page }: Props) {
           )}
           <p className="font-mono-label text-ink-3">Dernier article · {formatDateFR(vedette.publie)}</p>
           <h2 className="text-2xl font-extrabold tracking-[-0.02em]">
-            <Link href={`/actu/${vedette.slug}`} className="hover:text-primary transition-colors">
+            <Link href={cheminArticle(vedette)} className="hover:text-primary transition-colors">
               {vedette.titre}
             </Link>
           </h2>
@@ -64,7 +64,7 @@ export default function ListeArticles({ articles, images, page }: Props) {
               const image = images[i + decalage];
               return (
                 <li key={a.slug} className="border-t border-border">
-                  <Link href={`/actu/${a.slug}`} className="flex items-center gap-4 py-3 group">
+                  <Link href={cheminArticle(a)} className="flex items-center gap-4 py-3 group">
                     <div className="relative w-[112px] sm:w-[140px] aspect-[16/9] shrink-0 overflow-hidden border border-border bg-white/5">
                       {image?.grandeImage && (
                         <Image

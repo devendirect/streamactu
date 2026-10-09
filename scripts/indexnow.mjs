@@ -132,7 +132,13 @@ const fiches = [
 ];
 const dejaSoumises = await lireEtat();
 const nouvelles = fiches.filter((u) => !dejaSoumises.has(u));
-const chaudes = await pagesIndexables(pagesChaudes());
+// Nouvel article Actu : l'adresse fixe de l'édition de la semaine change de contenu
+// (voir SLUG_EDITION_COURANTE dans lib/actu.ts), on la soumet avec lui
+const nouvelArticle = nouvelles.some((u) => u.startsWith(`${SITE}/actu/`));
+const chaudes = await pagesIndexables([
+  ...pagesChaudes(),
+  ...(nouvelArticle ? [`${SITE}/actu/que-regarder-ce-week-end`] : []),
+]);
 const urlList = [...new Set([...chaudes, ...nouvelles])];
 
 console.log(

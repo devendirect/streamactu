@@ -6,8 +6,13 @@ import {
   NAV_ACCUEIL,
   NB_PAGES_ACTU,
   TOUS_LES_ARTICLES,
+  CHEMIN_EDITION_COURANTE,
+  EDITION_COURANTE,
+  SLUG_EDITION_COURANTE,
   articlesDeLaPage,
+  cheminArticle,
   cheminPageActu,
+  periodeArticle,
 } from "./actu";
 import { liensInternes, textesGuide, type Guide } from "./guides";
 import { DESCRIPTION_MAX, DESCRIPTION_MIN, TITRE_MAX, titreAffiche } from "./meta";
@@ -54,6 +59,17 @@ describe("rubrique Actu", () => {
     expect(toutes).toEqual(ARTICLES);
   });
 
+  it("sert l'édition courante à l'adresse fixe, les autres à leur date", () => {
+    if (!ACTU_PUBLIEE) return;
+    expect(EDITION_COURANTE).toBe(ARTICLES[0]);
+    expect(cheminArticle(ARTICLES[0])).toBe(CHEMIN_EDITION_COURANTE);
+    for (const a of ARTICLES.slice(1)) expect(cheminArticle(a)).toBe(`/actu/${a.slug}`);
+  });
+
+  it("n'a aucun slug qui masque l'adresse fixe", () => {
+    expect(TOUS_LES_ARTICLES.some((a) => a.slug === SLUG_EDITION_COURANTE)).toBe(false);
+  });
+
   it("a des slugs uniques", () => {
     expect(new Set(TOUS_LES_ARTICLES.map((a) => a.slug)).size).toBe(TOUS_LES_ARTICLES.length);
   });
@@ -66,6 +82,9 @@ describe("rubrique Actu", () => {
         expect(titreAffiche(a.titre).length).toBeLessThanOrEqual(TITRE_MAX);
         expect(a.description.length).toBeGreaterThanOrEqual(DESCRIPTION_MIN);
         expect(a.description.length).toBeLessThanOrEqual(DESCRIPTION_MAX);
+      });
+      it("porte sa période dans le titre (« … : 9 au 11 octobre 2026 »), reprise par l'adresse fixe", () => {
+        expect(periodeArticle(a)).toMatch(/^\d{1,2}(er)?( [a-zéû]+)? au \d{1,2}(er)? [a-zéû]+ \d{4}$/);
       });
       it("paraît un vendredi (rendez-vous du week-end)", () => {
         expect(new Date(`${a.publie}T12:00:00Z`).getUTCDay()).toBe(5);

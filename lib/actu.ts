@@ -75,6 +75,30 @@ export function trouverArticle(slug: string): Article | undefined {
   return ARTICLES.find((a) => a.slug === slug);
 }
 
+/**
+ * Adresse fixe de l'édition de la semaine (décision du 2026-10-09) : un
+ * article daté n'a pas le temps d'être indexé avant la fin du week-end, une
+ * adresse stable accumule son classement d'une semaine à l'autre. Le dernier
+ * article y est servi ; son adresse datée y renvoie par canonical, puis
+ * redevient une archive autonome quand l'article suivant paraît.
+ */
+export const SLUG_EDITION_COURANTE = "que-regarder-ce-week-end";
+export const CHEMIN_EDITION_COURANTE = `/actu/${SLUG_EDITION_COURANTE}`;
+
+/** Dernier article publié, servi à l'adresse fixe */
+export const EDITION_COURANTE: Article | undefined = ARTICLES[0];
+
+/** Adresse de référence d'un article : l'adresse fixe pour l'édition courante, sa date sinon */
+export function cheminArticle(article: Article): string {
+  return article.slug === EDITION_COURANTE?.slug ? CHEMIN_EDITION_COURANTE : `/actu/${article.slug}`;
+}
+
+/** Période couverte, tirée du titre (« Que regarder ce week-end : 9 au 11 octobre 2026 ») */
+export function periodeArticle(article: Article): string {
+  const i = article.titre.indexOf(" : ");
+  return i >= 0 ? article.titre.slice(i + 3) : article.titre;
+}
+
 /** Entrées de menu : « Sorties » + « Actu » une fois la rubrique publiée, « Actu » pour l'accueil sinon */
 export const NAV_ACCUEIL = ACTU_PUBLIEE
   ? [

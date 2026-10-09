@@ -1,6 +1,6 @@
 import { PLATEFORMES } from "@/lib/plateformes";
 import { GUIDES } from "@/lib/guides";
-import { ACTU_PUBLIEE, ARTICLES } from "@/lib/actu";
+import { ACTU_PUBLIEE, ARTICLES, CHEMIN_EDITION_COURANTE } from "@/lib/actu";
 import { formatMoisFR, formatMoisURL } from "@/lib/utils";
 
 // 24h : seuls les liens de classements (mois/année) changent
@@ -75,7 +75,8 @@ ${
 
 Chaque vendredi, les séries et films à regarder ce week-end ([flux RSS](${SITE_URL}/actu/flux.xml)) :
 
-${ARTICLES.slice(0, 4).map((a) => `- [${a.titre}](${SITE_URL}/actu/${a.slug})`).join("\n")}
+- [Que regarder ce week-end](${SITE_URL}${CHEMIN_EDITION_COURANTE}) : l'édition de la semaine, toujours à cette adresse
+${ARTICLES.slice(1, 4).map((a) => `- [${a.titre}](${SITE_URL}/actu/${a.slug})`).join("\n")}
 
 `
     : ""
