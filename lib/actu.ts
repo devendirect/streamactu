@@ -1,6 +1,7 @@
 import type { SectionGuide } from "./guides";
 import { ARTICLE_2026_09_25_WEEKEND } from "./actu/2026-09-25-que-regarder-ce-week-end";
 import { ARTICLE_2026_10_02_WEEKEND } from "./actu/2026-10-02-que-regarder-ce-week-end";
+import { ARTICLE_2026_10_09_WEEKEND } from "./actu/2026-10-09-que-regarder-ce-week-end";
 
 /**
  * Rubrique Actu (/actu/[slug]) : un article « Que regarder ce week-end »
@@ -41,7 +42,7 @@ export interface Article {
 }
 
 /** Tous les articles, brouillons compris (tests) */
-export const TOUS_LES_ARTICLES: Article[] = [ARTICLE_2026_10_02_WEEKEND, ARTICLE_2026_09_25_WEEKEND];
+export const TOUS_LES_ARTICLES: Article[] = [ARTICLE_2026_10_09_WEEKEND, ARTICLE_2026_10_02_WEEKEND, ARTICLE_2026_09_25_WEEKEND];
 
 /** Articles publiés, du plus récent au plus ancien */
 export const ARTICLES: Article[] = TOUS_LES_ARTICLES.filter((a) => !a.brouillon).sort((a, b) =>
