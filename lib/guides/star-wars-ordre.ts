@@ -61,6 +61,8 @@ export const GUIDE_STAR_WARS_ORDRE: Guide = {
           p: "C'est l'ordre dans lequel le public a découvert la saga, et celui qui préserve ses révélations. La trilogie originale d'abord, puis la prélogie, qui raconte ce qui s'est passé avant, puis la suite.",
         },
         {
+          ordre: "sortie",
+          sommaire: "Les films, ordre de sortie",
           oeuvres: [
             { ...EPISODE_IV, repere: "Épisode IV, aussi appelé Un nouvel espoir. Sorti en 1977 : le point de départ." },
             { ...EPISODE_V, repere: "Épisode V, 1980." },
@@ -68,17 +70,13 @@ export const GUIDE_STAR_WARS_ORDRE: Guide = {
             { ...EPISODE_I, repere: "1999. Début de la prélogie, plus de trente ans avant l'Épisode IV dans l'histoire." },
             { ...EPISODE_II, repere: "2002." },
             { ...EPISODE_III, repere: "2005. Fin de la prélogie : elle rejoint le début de l'Épisode IV." },
-            { ...CLONE_WARS_FILM, repere: "2008. Film d'animation qui lance la série du même nom ; facultatif." },
+            { ...CLONE_WARS_FILM, facultatif: true, repere: "2008. Film d'animation qui lance la série du même nom." },
             { ...EPISODE_VII, repere: "2015. Début de la troisième trilogie, trente ans après l'Épisode VI." },
             { ...ROGUE_ONE, repere: "2016. Premier film dérivé en prises de vues réelles : il se termine là où commence l'Épisode IV." },
             { ...EPISODE_VIII, repere: "2017." },
             { ...SOLO, repere: "2018. La jeunesse de Han Solo." },
             { ...EPISODE_IX, repere: "2019. Fin de la saga Skywalker." },
-            {
-              ...MANDO_GROGU,
-              repere:
-                "Sorti en salle le 20 mai 2026. Suite de la série The Mandalorian, pas encore sur Disney+ (voir plus bas).",
-            },
+            { ...MANDO_GROGU, auCinema: true, repere: "Sorti en salle le 20 mai 2026. Suite de la série The Mandalorian." },
           ],
         },
       ],
@@ -90,6 +88,8 @@ export const GUIDE_STAR_WARS_ORDRE: Guide = {
           p: "Pour revoir la saga ou suivre les séries, voici les films et les principales séries rangés selon l'époque où ils se passent. Plusieurs séries couvrent plusieurs années et se chevauchent : leur place est celle de leur début. Les repères sont donnés par rapport à l'Épisode IV.",
         },
         {
+          ordre: "histoire",
+          sommaire: "Toute la saga, ordre de l'histoire",
           oeuvres: [
             {
               type: "serie",
@@ -104,6 +104,7 @@ export const GUIDE_STAR_WARS_ORDRE: Guide = {
               type: "serie",
               id: 4194,
               titre: "Star Wars : The Clone Wars",
+              portion: "Saisons 1 à 7",
               repere:
                 "Sept saisons d'animation entre les Épisodes II et III. Les derniers épisodes de la saison 7 se déroulent en même temps que l'Épisode III : on peut les garder pour après le film.",
             },
@@ -165,13 +166,21 @@ export const GUIDE_STAR_WARS_ORDRE: Guide = {
               type: "serie",
               id: 82856,
               titre: "The Mandalorian",
-              repere: "Environ 5 ans après l'Épisode VI. Regarder les saisons 1 et 2, puis Le Livre de Boba Fett, puis la saison 3.",
+              portion: "Saisons 1 et 2",
+              repere: "Environ 5 ans après l'Épisode VI.",
             },
             {
               type: "serie",
               id: 115036,
               titre: "Le Livre de Boba Fett",
               repere: "Entre les saisons 2 et 3 de The Mandalorian ; les épisodes 5 et 6 en sont la suite directe.",
+            },
+            {
+              type: "serie",
+              id: 82856,
+              titre: "The Mandalorian",
+              portion: "Saison 3",
+              repere: "Après Le Livre de Boba Fett.",
             },
             {
               type: "serie",
@@ -185,7 +194,7 @@ export const GUIDE_STAR_WARS_ORDRE: Guide = {
               titre: "Ahsoka",
               repere: "Après la saison 3 de The Mandalorian. Suite directe de Star Wars Rebels.",
             },
-            { ...MANDO_GROGU, repere: "Après la saison 3 de The Mandalorian. Pas encore sur Disney+." },
+            { ...MANDO_GROGU, auCinema: true, repere: "Après la saison 3 de The Mandalorian." },
             {
               type: "serie",
               id: 79093,

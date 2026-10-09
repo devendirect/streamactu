@@ -48,6 +48,7 @@ export const GUIDE_HARRY_POTTER_ORDRE: Guide = {
           p: "Les huit films adaptent les sept romans de J.K. Rowling, le dernier en deux parties. Comptez environ 19 h 40 pour les huit, et 26 h 30 avec Les Animaux fantastiques.",
         },
         {
+          ordre: "sortie",
           oeuvres: [
             { ...HP1, repere: "2001. Première année à Poudlard." },
             { ...HP2, repere: "2002. Deuxième année." },
@@ -71,6 +72,7 @@ export const GUIDE_HARRY_POTTER_ORDRE: Guide = {
           p: "Les Animaux fantastiques racontent la jeunesse d'Albus Dumbledore et la montée de Grindelwald, des décennies avant la naissance de Harry. Les voir d'abord fonctionne, mais certaines révélations supposent de connaître les personnages de Harry Potter : pour une première fois, l'ordre de sortie reste préférable.",
         },
         {
+          ordre: "histoire",
           oeuvres: [
             { ...AF1, repere: "1926." },
             { ...AF2, repere: "1927." },

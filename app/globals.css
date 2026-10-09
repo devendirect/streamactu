@@ -284,3 +284,34 @@
 .sa-splash[data-phase="exit"] .sa-splash__tagline {
   animation: sa-exit-fade 0.25s ease forwards;
 }
+
+/* ── Guides d'ordre : filtre « Mes abonnements » (components/ZoneAbonnements.tsx) ──
+   Hors couche : doit l'emporter sur les utilitaires (text-foreground des plateformes).
+   La zone porte data-filtre dès qu'une plateforme est cochée, et data-abo-{id}
+   pour chacune ; une ligne porte data-ligne="{ids de ses plateformes}". */
+[data-ligne] { transition: opacity 0.25s; }
+.sa-hors { display: none; }
+[data-filtre] [data-ligne] { opacity: 0.38; }
+[data-filtre] [data-ligne] .sa-hors { display: block; }
+[data-filtre] [data-pf] { color: #6F685B; }
+[data-abo-8] [data-ligne~="8"] { opacity: 1; }
+[data-abo-8] [data-ligne~="8"] .sa-hors { display: none; }
+[data-abo-8] [data-pf="8"] { color: var(--foreground); }
+[data-abo-119] [data-ligne~="119"] { opacity: 1; }
+[data-abo-119] [data-ligne~="119"] .sa-hors { display: none; }
+[data-abo-119] [data-pf="119"] { color: var(--foreground); }
+[data-abo-337] [data-ligne~="337"] { opacity: 1; }
+[data-abo-337] [data-ligne~="337"] .sa-hors { display: none; }
+[data-abo-337] [data-pf="337"] { color: var(--foreground); }
+[data-abo-350] [data-ligne~="350"] { opacity: 1; }
+[data-abo-350] [data-ligne~="350"] .sa-hors { display: none; }
+[data-abo-350] [data-pf="350"] { color: var(--foreground); }
+[data-abo-381] [data-ligne~="381"] { opacity: 1; }
+[data-abo-381] [data-ligne~="381"] .sa-hors { display: none; }
+[data-abo-381] [data-pf="381"] { color: var(--foreground); }
+[data-abo-1899] [data-ligne~="1899"] { opacity: 1; }
+[data-abo-1899] [data-ligne~="1899"] .sa-hors { display: none; }
+[data-abo-1899] [data-pf="1899"] { color: var(--foreground); }
+[data-abo-582] [data-ligne~="582"] { opacity: 1; }
+[data-abo-582] [data-ligne~="582"] .sa-hors { display: none; }
+[data-abo-582] [data-pf="582"] { color: var(--foreground); }

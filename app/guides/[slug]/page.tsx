@@ -1,8 +1,18 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GUIDES, minutesDeLecture, oeuvresDesSections, trouverGuide } from "@/lib/guides";
-import { chargerOeuvres } from "@/lib/actu-oeuvres";
+import {
+  GUIDES,
+  ancreSection,
+  ancresOrdre,
+  cheminOeuvreGuide,
+  estGuideOrdre,
+  minutesDeLecture,
+  oeuvresDesSections,
+  sommaireOrdres,
+  trouverGuide,
+} from "@/lib/guides";
+import { chargerOeuvres, cleOeuvre } from "@/lib/actu-oeuvres";
 import { metadonnees } from "@/lib/meta";
 import { jsonLdFaq } from "@/lib/seo";
 import { ORG_ID, SITE_URL } from "@/lib/site";
@@ -50,6 +60,34 @@ export default async function GuidePage({ params }: Props) {
   const url = `${SITE_URL}/guides/${guide.slug}`;
   const autres = GUIDES.filter((g) => g.slug !== guide.slug);
   const oeuvres = await chargerOeuvres(oeuvresDesSections(guide.sections));
+  // Guides d'ordre de visionnage : sommaire, listes dédiées, FAQ dépliable (maquette du 2026-10-09)
+  const ordre = estGuideOrdre(guide);
+  const sommaire = ordre ? sommaireOrdres(guide) : [];
+  const listes = guide.sections.flatMap((s) =>
+    s.blocs.flatMap((b) =>
+      "oeuvres" in b
+        ? [
+            {
+              "@context": "https://schema.org",
+              "@type": "ItemList",
+              name: s.titre,
+              url: `${url}#${ancreSection(s)}`,
+              itemListOrder: "https://schema.org/ItemListOrderAscending",
+              numberOfItems: b.oeuvres.length,
+              itemListElement: b.oeuvres.map((item, i) => {
+                const o = oeuvres.get(cleOeuvre(item));
+                return {
+                  "@type": "ListItem",
+                  position: i + 1,
+                  name: item.portion ? `${o?.titre ?? item.titre} (${item.portion})` : (o?.titre ?? item.titre),
+                  url: `${SITE_URL}${o ? `/${o.type}/${o.slug}` : cheminOeuvreGuide(item)}`,
+                };
+              }),
+            },
+          ]
+        : []
+    )
+  );
 
   const article = {
     "@context": "https://schema.org",
@@ -78,6 +116,9 @@ export default async function GuidePage({ params }: Props) {
     <div className="sa-container py-10 max-w-2xl space-y-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(article) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(filAriane) }} />
+      {listes.map((l) => (
+        <script key={l.url} type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(l) }} />
+      ))}
       {guide.faq.length > 0 && (
         <script
           type="application/ld+json"
@@ -116,23 +157,51 @@ export default async function GuidePage({ params }: Props) {
           </p>
         </header>
 
-        <CorpsGuide sections={guide.sections} oeuvres={oeuvres} />
+        {sommaire.length > 0 && (
+          <nav
+            aria-label="Les ordres de ce guide"
+            className={`grid gap-px overflow-hidden rounded-[4px] border border-border bg-border ${sommaire.length === 2 ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-3"}`}
+          >
+            {sommaire.map((c) => (
+              <a key={c.ancre} href={`#${c.ancre}`} className="flex flex-col gap-1.5 bg-card px-4 py-3.5 transition-colors hover:bg-[#221E17]">
+                <span className="font-mono-label text-primary">{c.libelle}</span>
+                <span className="text-[17px] font-bold text-foreground">{c.valeur}</span>
+              </a>
+            ))}
+          </nav>
+        )}
+
+        <CorpsGuide sections={guide.sections} oeuvres={oeuvres} ancres={ordre ? ancresOrdre(guide.sections) : undefined} />
       </article>
 
       {guide.faq.length > 0 && (
-        <section className="space-y-5 border-t border-border pt-6">
-          <h2 className="font-mono-label text-[#9A9282]">Questions fréquentes</h2>
-          {guide.faq.map((f) => (
-            <div key={f.q}>
-              <h3 className="text-[17px] font-bold mb-1">{f.q}</h3>
-              <p
-                className="text-[15px] leading-relaxed text-[#9A9282]"
-                style={{ fontFamily: "var(--font-newsreader), serif" }}
-              >
-                {f.r}
-              </p>
-            </div>
-          ))}
+        <section className={ordre ? "" : "space-y-5 border-t border-border pt-6"}>
+          <h2 className={ordre ? "mb-2.5 text-2xl font-extrabold tracking-[-0.02em]" : "font-mono-label text-[#9A9282]"}>
+            Questions fréquentes
+          </h2>
+          {ordre
+            ? guide.faq.map((f, i) => (
+                <details key={f.q} open={i === 0} className="border-t border-border py-3.5">
+                  <summary className="flex cursor-pointer list-none justify-between gap-4 text-[17px] font-bold text-foreground [&::-webkit-details-marker]:hidden">
+                    {f.q}
+                    <span aria-hidden="true" className="flex-none font-mono text-primary">
+                      +
+                    </span>
+                  </summary>
+                  <p className="mt-2.5 font-serif text-[17px] leading-relaxed text-[#C4BBA9]">{f.r}</p>
+                </details>
+              ))
+            : guide.faq.map((f) => (
+                <div key={f.q}>
+                  <h3 className="text-[17px] font-bold mb-1">{f.q}</h3>
+                  <p
+                    className="text-[15px] leading-relaxed text-[#9A9282]"
+                    style={{ fontFamily: "var(--font-newsreader), serif" }}
+                  >
+                    {f.r}
+                  </p>
+                </div>
+              ))}
         </section>
       )}
 

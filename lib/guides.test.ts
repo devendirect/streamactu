@@ -56,6 +56,8 @@ describe("guides", () => {
             if ("oeuvres" in b) {
               expect(b.oeuvres.length).toBeGreaterThan(0);
               for (const o of b.oeuvres) expect(o.repere.trim(), o.titre).not.toBe("");
+              // Une portion n'a de sens que dans l'ordre de l'histoire
+              if (b.ordre === "sortie") for (const o of b.oeuvres) expect(o.portion, o.titre).toBeUndefined();
             }
       });
     });

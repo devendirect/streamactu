@@ -1,7 +1,9 @@
-import Link from "next/link";
-import type { ReactNode } from "react";
-import { cheminOeuvreGuide, type OeuvreGuide, type SectionGuide } from "@/lib/guides";
+import { ancreSection, type AncresOrdre, type BlocOrdre, type SectionGuide } from "@/lib/guides";
 import { cleOeuvre, type OeuvreArticle } from "@/lib/actu-oeuvres";
+import { PLATEFORMES } from "@/lib/plateformes";
+import { TexteEnLigne } from "@/components/TexteEnLigne";
+import ListeOrdre from "@/components/ListeOrdre";
+import ZoneAbonnements from "@/components/ZoneAbonnements";
 
 const styleProse = {
   fontFamily: "var(--font-newsreader), serif",
@@ -10,63 +12,18 @@ const styleProse = {
 
 const classeProse = "text-[#C4BBA9] leading-relaxed";
 
-/** Texte brut avec liens internes [libellé](/chemin) */
-export function TexteEnLigne({ texte }: { texte: string }) {
-  const morceaux: ReactNode[] = [];
-  const re = /\[([^\]]+)\]\((\/[^)\s]*)\)/g;
-  let dernier = 0;
-  for (const m of texte.matchAll(re)) {
-    const debut = m.index ?? 0;
-    if (debut > dernier) morceaux.push(texte.slice(dernier, debut));
-    morceaux.push(
-      <Link key={debut} href={m[2]} className="text-primary underline">
-        {m[1]}
-      </Link>
-    );
-    dernier = debut + m[0].length;
-  }
-  if (dernier < texte.length) morceaux.push(texte.slice(dernier));
-  return <>{morceaux}</>;
-}
-
-/**
- * Liste ordonnée de titres : année et plateformes lues sur la fiche du jour
- * (`oeuvres`), titre écrit dans le guide en repli si la fiche ne répond pas.
- */
-function ListeOeuvres({ items, oeuvres }: { items: OeuvreGuide[]; oeuvres?: Map<string, OeuvreArticle> }) {
-  return (
-    <ol className="space-y-3 list-decimal pl-6 marker:text-ink-3 marker:font-mono">
-      {items.map((item, i) => {
-        const o = oeuvres?.get(cleOeuvre(item));
-        const href = o ? `/${o.type}/${o.slug}` : cheminOeuvreGuide(item);
-        return (
-          <li key={`${item.type}-${item.id}-${i}`} className="pl-1 space-y-1">
-            <div className="flex flex-wrap items-baseline gap-x-2">
-              <Link href={href} className="text-[17px] font-semibold text-foreground hover:text-primary transition-colors">
-                {o?.titre ?? item.titre}
-              </Link>
-              <span className="font-mono-label text-ink-3">
-                {item.type === "serie" ? "Série" : "Film"}
-                {o?.annee ? ` · ${o.annee}` : ""}
-                {o
-                  ? o.plateformes.length > 0
-                    ? ` · ${o.plateformes.map((p) => p.nom).join(", ")}`
-                    : " · pas en streaming par abonnement aujourd'hui"
-                  : ""}
-              </span>
-            </div>
-            <p className="text-[15px] leading-relaxed text-[#9A9282]" style={{ fontFamily: "var(--font-newsreader), serif" }}>
-              <TexteEnLigne texte={item.repere} />
-            </p>
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
-
 /** Blocs de texte d'une section (paragraphes, listes, tableaux), partagés par les guides et les articles */
-export function BlocsGuide({ blocs, oeuvres }: { blocs: SectionGuide["blocs"]; oeuvres?: Map<string, OeuvreArticle> }) {
+export function BlocsGuide({
+  blocs,
+  oeuvres,
+  ancres,
+  idSection,
+}: {
+  blocs: SectionGuide["blocs"];
+  oeuvres?: Map<string, OeuvreArticle>;
+  ancres?: AncresOrdre;
+  idSection?: string;
+}) {
   return (
     <>
       {blocs.map((b, i) => {
@@ -77,7 +34,9 @@ export function BlocsGuide({ blocs, oeuvres }: { blocs: SectionGuide["blocs"]; o
             </p>
           );
         }
-        if ("oeuvres" in b) return <ListeOeuvres key={i} items={b.oeuvres} oeuvres={oeuvres} />;
+        if ("oeuvres" in b) {
+          return <ListeOrdre key={i} bloc={b} idListe={idSection ?? "liste"} oeuvres={oeuvres} ancres={ancres ?? new Map()} />;
+        }
         if ("ul" in b || "ol" in b) {
           const items = "ul" in b ? b.ul : b.ol;
           const Liste = "ul" in b ? "ul" : "ol";
@@ -126,22 +85,70 @@ export function BlocsGuide({ blocs, oeuvres }: { blocs: SectionGuide["blocs"]; o
   );
 }
 
+/** Données de la barre « Mes abonnements » : plateformes du guide, titres distincts, étapes de l'histoire */
+function donneesAbonnements(sections: SectionGuide[], oeuvres: Map<string, OeuvreArticle>) {
+  const blocs = sections.flatMap((s) => s.blocs.filter((b): b is BlocOrdre => "oeuvres" in b));
+  const distincts = new Map<string, OeuvreArticle>();
+  for (const b of blocs)
+    for (const item of b.oeuvres) {
+      const o = oeuvres.get(cleOeuvre(item));
+      if (o) distincts.set(cleOeuvre(o), o);
+    }
+  const titres = [...distincts.values()];
+  const types = new Set(titres.map((o) => o.type));
+  const etapes = blocs
+    .filter((b) => b.ordre === "histoire")
+    .flatMap((b) => b.oeuvres.flatMap((item) => oeuvres.get(cleOeuvre(item)) ?? []))
+    .map((o) => o.plateformes.map((p) => p.id));
+  const plateformes = PLATEFORMES.map((p) => ({
+    id: p.id,
+    nom: p.nom,
+    couleur: p.couleur,
+    nombre: titres.filter((o) => o.plateformes.some((x) => x.id === p.id)).length,
+  }))
+    .filter((p) => p.nombre > 0)
+    .sort((a, b) => b.nombre - a.nombre);
+  return {
+    plateformes,
+    titres: titres.map((o) => o.plateformes.map((p) => p.id)),
+    unite: types.size > 1 ? "titres" : types.has("film") ? "films" : "séries",
+    etapes,
+  };
+}
+
 export default function CorpsGuide({
   sections,
   oeuvres,
+  ancres,
 }: {
   sections: SectionGuide[];
   /** Fiches des listes ordonnées (chargerOeuvres), indexées par cleOeuvre */
   oeuvres?: Map<string, OeuvreArticle>;
+  /** Ancres des titres dans les listes de sortie (ancresOrdre) : guide d'ordre, avec la barre « Mes abonnements » */
+  ancres?: AncresOrdre;
 }) {
+  const section = (s: SectionGuide, dansZone = false) => (
+    <section key={s.titre} id={ancreSection(s)} className={`${dansZone ? "scroll-mt-40" : "scroll-mt-4"} space-y-4`}>
+      <h2 className="text-2xl font-extrabold tracking-[-0.02em]">{s.titre}</h2>
+      <BlocsGuide blocs={s.blocs} oeuvres={oeuvres} ancres={ancres} idSection={ancreSection(s)} />
+    </section>
+  );
+
+  // Guide d'ordre : la barre colle du début de la première liste à la fin de la dernière
+  const avecListe = sections.map((s) => s.blocs.some((b) => "oeuvres" in b));
+  const premiere = avecListe.indexOf(true);
+  const derniere = avecListe.lastIndexOf(true);
+  if (!ancres || !oeuvres || premiere < 0) {
+    return <div className="space-y-10">{sections.map((s) => section(s))}</div>;
+  }
+
   return (
     <div className="space-y-10">
-      {sections.map((s) => (
-        <section key={s.titre} className="space-y-4">
-          <h2 className="text-2xl font-extrabold tracking-[-0.02em]">{s.titre}</h2>
-          <BlocsGuide blocs={s.blocs} oeuvres={oeuvres} />
-        </section>
-      ))}
+      {sections.slice(0, premiere).map((s) => section(s))}
+      <ZoneAbonnements {...donneesAbonnements(sections, oeuvres)}>
+        <div className="space-y-12 pt-7">{sections.slice(premiere, derniere + 1).map((s) => section(s, true))}</div>
+      </ZoneAbonnements>
+      {sections.slice(derniere + 1).map((s) => section(s))}
     </div>
   );
 }

@@ -25,18 +25,69 @@ export type BlocGuide =
   | { ul: string[] }
   | { ol: string[] }
   | { table: { entetes: string[]; lignes: string[][] } }
-  | { oeuvres: OeuvreGuide[] };
+  | BlocOrdre;
 
 /**
- * Titre d'une liste ordonnée (ordre de visionnage) : la page tire de sa fiche
- * l'année et les plateformes du jour ; `titre` sert de repli si la fiche ne
- * répond pas, `repere` situe le titre dans l'ordre (texte, liens permis).
+ * Liste d'un guide « ordre de visionnage » (maquette du 2026-10-09) :
+ * - `sortie` : une ligne par titre, avec vignette, regroupée par année
+ *   au-delà de SEUIL_GROUPE_ANNEES titres ;
+ * - `histoire` : des étapes ; un même titre peut revenir avec une autre
+ *   `portion` (« Saisons 4 à 8 »).
+ * `sommaire` est le libellé de la carte de sommaire en tête de page
+ * (« Ordre de sortie » ou « Ordre de l'histoire » par défaut).
+ */
+export interface BlocOrdre {
+  oeuvres: OeuvreGuide[];
+  ordre: "sortie" | "histoire";
+  sommaire?: string;
+}
+
+/**
+ * Titre d'une liste ordonnée : la page tire de sa fiche l'année, l'affiche et
+ * les plateformes du jour ; `titre` sert de repli si la fiche ne répond pas,
+ * `repere` situe le titre dans l'ordre (texte, liens permis).
  */
 export interface OeuvreGuide {
   type: "film" | "serie";
   id: number;
   titre: string;
   repere: string;
+  /** Étape de l'ordre de l'histoire : la partie à regarder (« Saisons 1 à 3 ») */
+  portion?: string;
+  /** Titre dont on peut se passer : étiquette « Facultatif » */
+  facultatif?: boolean;
+  /** Sorti en salle, pas encore en streaming : remplace « aucune plateforme » tant qu'il n'en a pas */
+  auCinema?: boolean;
+}
+
+/** Au-delà, une liste de sortie est regroupée par année, avec des raccourcis */
+export const SEUIL_GROUPE_ANNEES = 12;
+
+/** Le guide contient-il des listes d'ordre ? (mise en page dédiée) */
+export function estGuideOrdre(g: Guide): boolean {
+  return g.sections.some((s) => s.blocs.some((b) => "oeuvres" in b));
+}
+
+/** Ancre d'une section (sommaire, fil des ordres) */
+export function ancreSection(s: SectionGuide): string {
+  return slugify(s.titre);
+}
+
+/** Cartes du sommaire en tête d'un guide d'ordre : une par liste, vers sa section */
+export function sommaireOrdres(g: Guide): { ancre: string; libelle: string; valeur: string; ordre: BlocOrdre["ordre"] }[] {
+  return g.sections.flatMap((s) =>
+    s.blocs.flatMap((b) => {
+      if (!("oeuvres" in b)) return [];
+      const n = b.oeuvres.length;
+      const types = new Set(b.oeuvres.map((o) => o.type));
+      const valeur =
+        b.ordre === "histoire"
+          ? `${n} étapes`
+          : `${n} ${types.size > 1 ? "titres" : types.has("film") ? "films" : "séries"}`;
+      const libelle = b.sommaire ?? (b.ordre === "sortie" ? "Ordre de sortie" : "Ordre de l'histoire");
+      return [{ ancre: ancreSection(s), libelle, valeur, ordre: b.ordre }];
+    })
+  );
 }
 
 export interface SectionGuide {
@@ -89,7 +140,7 @@ export function textesGuide(g: Guide): string[] {
           : "ol" in b
             ? b.ol
             : "oeuvres" in b
-              ? b.oeuvres.flatMap((o) => [`[${o.titre}](${cheminOeuvreGuide(o)})`, o.repere])
+              ? b.oeuvres.flatMap((o) => [`[${o.titre}](${cheminOeuvreGuide(o)})`, o.portion ?? "", o.repere])
               : [...b.table.entetes, ...b.table.lignes.flat()]
     ),
   ]);
@@ -107,6 +158,25 @@ export function oeuvresDesSections(sections: SectionGuide[]): OeuvreGuide[] {
   for (const s of sections)
     for (const b of s.blocs) if ("oeuvres" in b) for (const o of b.oeuvres) vues.set(`${o.type}-${o.id}`, o);
   return [...vues.values()];
+}
+
+/**
+ * Ancre de chaque titre dans la première liste de sortie où il figure, avec
+ * son numéro (« 02 ») : les étapes de l'ordre de l'histoire y renvoient.
+ * Clé : `${type}-${id}`.
+ */
+export type AncresOrdre = Map<string, { ancre: string; numero: string; bloc: BlocOrdre }>;
+
+export function ancresOrdre(sections: SectionGuide[]): AncresOrdre {
+  const ancres: AncresOrdre = new Map();
+  for (const s of sections)
+    for (const b of s.blocs)
+      if ("oeuvres" in b && b.ordre === "sortie")
+        b.oeuvres.forEach((o, i) => {
+          const cle = `${o.type}-${o.id}`;
+          if (!ancres.has(cle)) ancres.set(cle, { ancre: `t-${cle}`, numero: String(i + 1).padStart(2, "0"), bloc: b });
+        });
+  return ancres;
 }
 
 export function minutesDeLecture(g: Guide): number {

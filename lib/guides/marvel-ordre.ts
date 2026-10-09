@@ -64,9 +64,11 @@ export const GUIDE_MARVEL_ORDRE: Guide = {
           p: "Les 23 premiers films, de 2008 à 2019, racontent une seule grande histoire qui culmine avec Avengers : Infinity War et Avengers : Endgame. L'ordre de sortie est le plus sûr : chaque film prépare les suivants, et les scènes après le générique annoncent souvent le prochain.",
         },
         {
+          ordre: "sortie",
+          sommaire: "Saga de l'Infini, ordre de sortie",
           oeuvres: [
             { ...IRON_MAN, repere: "2008. Le point de départ." },
-            { ...HULK, repere: "2008. Le seul film où Bruce Banner est joué par Edward Norton ; facultatif." },
+            { ...HULK, facultatif: true, repere: "2008. Le seul film où Bruce Banner est joué par Edward Norton." },
             { ...IRON_MAN_2, repere: "2010." },
             { ...THOR, repere: "2011." },
             { ...CAP_1, repere: "2011. Se passe pendant la Seconde Guerre mondiale." },
@@ -99,6 +101,8 @@ export const GUIDE_MARVEL_ORDRE: Guide = {
           p: "Pour revoir la saga, on peut ranger les films selon l'époque où ils se passent. Les guides divergent sur une ou deux places (L'Incroyable Hulk avant ou après Iron Man 2, Iron Man 3 avant ou après Thor : Le Monde des ténèbres), sans incidence sur la compréhension. Black Widow, sorti en 2021, y trouve sa place, entre Civil War et Infinity War.",
         },
         {
+          ordre: "histoire",
+          sommaire: "Saga de l'Infini, ordre de l'histoire",
           oeuvres: [
             { ...CAP_1, repere: "Seconde Guerre mondiale." },
             { ...CAPTAIN_MARVEL, repere: "1995." },
@@ -132,15 +136,17 @@ export const GUIDE_MARVEL_ORDRE: Guide = {
       titre: "Depuis Endgame : films et séries dans l'ordre de sortie",
       blocs: [
         {
-          p: "Depuis 2021, Marvel alterne films au cinéma et séries sur Disney+, et l'histoire avance à peu près au rythme des sorties : l'ordre de sortie fait office d'ordre chronologique. Les séries d'animation et les épisodes spéciaux sont facultatifs.",
+          p: "Depuis 2021, Marvel alterne films au cinéma et séries sur Disney+, et l'histoire avance à peu près au rythme des sorties : l'ordre de sortie fait office d'ordre chronologique. Les séries d'animation et les épisodes spéciaux, marqués « facultatif », ne sont pas indispensables.",
         },
         {
+          ordre: "sortie",
+          sommaire: "Depuis Endgame",
           oeuvres: [
             { ...s(85271, "WandaVision"), repere: "Janvier 2021. Wanda et Vision, juste après Endgame." },
             { ...s(88396, "Falcon et le Soldat de l'hiver"), repere: "Mars 2021. Qui reprend le bouclier de Captain America." },
             { ...s(84958, "Loki"), repere: "Saison 1 en juin 2021, saison 2 en octobre 2023. Ouvre le multivers." },
             { ...BLACK_WIDOW, repere: "Juillet 2021. Se passe avant Infinity War : peut aussi se voir avec la saga de l'Infini." },
-            { ...s(91363, "What If...?"), repere: "Animation, à partir d'août 2021 : versions alternatives des films. Facultatif." },
+            { ...s(91363, "What If...?"), facultatif: true, repere: "Animation, à partir d'août 2021 : versions alternatives des films." },
             { ...f(566525, "Shang-Chi et la Légende des Dix Anneaux"), repere: "Septembre 2021. Nouveau héros." },
             { ...f(524434, "Les Éternels"), repere: "Novembre 2021. Histoire largement indépendante." },
             { ...s(88329, "Hawkeye"), repere: "Novembre 2021. Se passe à Noël." },
@@ -150,7 +156,7 @@ export const GUIDE_MARVEL_ORDRE: Guide = {
             { ...s(92782, "Miss Marvel"), repere: "Juin 2022. À voir avant The Marvels." },
             { ...f(616037, "Thor : Love and Thunder"), repere: "Juillet 2022." },
             { ...s(92783, "She-Hulk : Avocate"), repere: "Août 2022. Comédie." },
-            { ...f(894205, "Werewolf by Night"), repere: "Épisode spécial en noir et blanc, octobre 2022. Facultatif." },
+            { ...f(894205, "Werewolf by Night"), facultatif: true, repere: "Épisode spécial en noir et blanc, octobre 2022." },
             { ...f(505642, "Black Panther : Wakanda Forever"), repere: "Novembre 2022." },
             { ...f(774752, "Les Gardiens de la Galaxie : Joyeuses Fêtes"), repere: "Épisode spécial, novembre 2022, avant le Volume 3." },
             { ...f(640146, "Ant-Man et la Guêpe : Quantumania"), repere: "Février 2023." },
@@ -165,13 +171,14 @@ export const GUIDE_MARVEL_ORDRE: Guide = {
             { ...f(986056, "Thunderbolts*"), repere: "Avril 2025." },
             { ...s(114471, "Ironheart"), repere: "Juin 2025. Riri Williams, apparue dans Wakanda Forever." },
             { ...f(617126, "Les 4 Fantastiques : Premiers Pas"), repere: "Juillet 2025. Se passe dans un univers parallèle à celui des autres films." },
-            { ...s(241388, "Eyes of Wakanda"), repere: "Animation, août 2025. Facultatif." },
-            { ...s(138505, "Marvel Zombies"), repere: "Animation, septembre 2025. Facultatif." },
-            { ...s(198178, "Wonder Man"), repere: "Janvier 2026. Comédie sur un acteur à Hollywood ; facultatif." },
+            { ...s(241388, "Eyes of Wakanda"), facultatif: true, repere: "Animation, août 2025." },
+            { ...s(138505, "Marvel Zombies"), facultatif: true, repere: "Animation, septembre 2025." },
+            { ...s(198178, "Wonder Man"), facultatif: true, repere: "Janvier 2026. Comédie sur un acteur à Hollywood." },
             { ...f(1439930, "The Punisher : One Last Kill"), repere: "Épisode spécial, mai 2026." },
             {
               ...f(969681, "Spider-Man : Brand New Day"),
-              repere: "Sorti en salle le 29 juillet 2026. Film Sony Pictures : sa plateforme s'affichera ici dès qu'il sera en streaming.",
+              auCinema: true,
+              repere: "Sorti en salle le 29 juillet 2026. Film Sony Pictures.",
             },
           ],
         },
