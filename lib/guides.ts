@@ -1,7 +1,12 @@
+import { slugify } from "./utils";
 import { GUIDE_CHOISIR_PLATEFORME } from "./guides/choisir-plateforme";
 import { GUIDE_CLASSEMENT_TOPS } from "./guides/classement-tops";
 import { GUIDE_FILM_QUITTE_PLATEFORME } from "./guides/film-quitte-plateforme";
 import { GUIDE_SERIES_HBO_FRANCE } from "./guides/series-hbo-france";
+import { GUIDE_HARRY_POTTER_ORDRE } from "./guides/harry-potter-ordre";
+import { GUIDE_MARVEL_ORDRE } from "./guides/marvel-ordre";
+import { GUIDE_STAR_WARS_ORDRE } from "./guides/star-wars-ordre";
+import { GUIDE_WALKING_DEAD_ORDRE } from "./guides/walking-dead-ordre";
 
 /**
  * Guides éditoriaux (/guides/[slug]) : contenus durables, signés « l'éditeur
@@ -19,7 +24,20 @@ export type BlocGuide =
   | { p: string }
   | { ul: string[] }
   | { ol: string[] }
-  | { table: { entetes: string[]; lignes: string[][] } };
+  | { table: { entetes: string[]; lignes: string[][] } }
+  | { oeuvres: OeuvreGuide[] };
+
+/**
+ * Titre d'une liste ordonnée (ordre de visionnage) : la page tire de sa fiche
+ * l'année et les plateformes du jour ; `titre` sert de repli si la fiche ne
+ * répond pas, `repere` situe le titre dans l'ordre (texte, liens permis).
+ */
+export interface OeuvreGuide {
+  type: "film" | "serie";
+  id: number;
+  titre: string;
+  repere: string;
+}
 
 export interface SectionGuide {
   titre: string;
@@ -46,6 +64,10 @@ export const GUIDES: Guide[] = [
   GUIDE_SERIES_HBO_FRANCE,
   GUIDE_FILM_QUITTE_PLATEFORME,
   GUIDE_CLASSEMENT_TOPS,
+  GUIDE_STAR_WARS_ORDRE,
+  GUIDE_MARVEL_ORDRE,
+  GUIDE_WALKING_DEAD_ORDRE,
+  GUIDE_HARRY_POTTER_ORDRE,
 ];
 
 /** En dessous, la page /guides reste en noindex : une liste d'un ou deux liens est trop maigre */
@@ -60,10 +82,31 @@ export function textesGuide(g: Guide): string[] {
   const blocs = g.sections.flatMap((s) => [
     s.titre,
     ...s.blocs.flatMap((b) =>
-      "p" in b ? [b.p] : "ul" in b ? b.ul : "ol" in b ? b.ol : [...b.table.entetes, ...b.table.lignes.flat()]
+      "p" in b
+        ? [b.p]
+        : "ul" in b
+          ? b.ul
+          : "ol" in b
+            ? b.ol
+            : "oeuvres" in b
+              ? b.oeuvres.flatMap((o) => [`[${o.titre}](${cheminOeuvreGuide(o)})`, o.repere])
+              : [...b.table.entetes, ...b.table.lignes.flat()]
     ),
   ]);
   return [g.titre, g.chapo, ...blocs, ...g.faq.flatMap((f) => [f.q, f.r])];
+}
+
+/** Adresse de la fiche, tirée du titre en français (même slug que lib/tmdb.ts) */
+export function cheminOeuvreGuide(o: OeuvreGuide): string {
+  return `/${o.type}/${slugify(o.titre)}-${o.id}`;
+}
+
+/** Œuvres des listes ordonnées d'un guide, sans doublon */
+export function oeuvresDesSections(sections: SectionGuide[]): OeuvreGuide[] {
+  const vues = new Map<string, OeuvreGuide>();
+  for (const s of sections)
+    for (const b of s.blocs) if ("oeuvres" in b) for (const o of b.oeuvres) vues.set(`${o.type}-${o.id}`, o);
+  return [...vues.values()];
 }
 
 export function minutesDeLecture(g: Guide): number {

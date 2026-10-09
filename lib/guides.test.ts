@@ -50,6 +50,14 @@ describe("guides", () => {
       it("cite ses sources extérieures en https", () => {
         for (const s of g.sources ?? []) expect(s.url).toMatch(/^https:\/\//);
       });
+      it("situe chaque titre de ses listes ordonnées", () => {
+        for (const s of g.sections)
+          for (const b of s.blocs)
+            if ("oeuvres" in b) {
+              expect(b.oeuvres.length).toBeGreaterThan(0);
+              for (const o of b.oeuvres) expect(o.repere.trim(), o.titre).not.toBe("");
+            }
+      });
     });
   }
 });

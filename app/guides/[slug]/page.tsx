@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GUIDES, minutesDeLecture, trouverGuide } from "@/lib/guides";
+import { GUIDES, minutesDeLecture, oeuvresDesSections, trouverGuide } from "@/lib/guides";
+import { chargerOeuvres } from "@/lib/actu-oeuvres";
 import { metadonnees } from "@/lib/meta";
 import { jsonLdFaq } from "@/lib/seo";
 import { ORG_ID, SITE_URL } from "@/lib/site";
@@ -13,6 +14,9 @@ interface Props {
 }
 
 export const dynamicParams = false;
+
+// Listes ordonnées : année et plateformes viennent du cache des fiches, rafraîchies chaque jour
+export const revalidate = 86400;
 
 export function generateStaticParams() {
   return GUIDES.map((g) => ({ slug: g.slug }));
@@ -45,6 +49,7 @@ export default async function GuidePage({ params }: Props) {
 
   const url = `${SITE_URL}/guides/${guide.slug}`;
   const autres = GUIDES.filter((g) => g.slug !== guide.slug);
+  const oeuvres = await chargerOeuvres(oeuvresDesSections(guide.sections));
 
   const article = {
     "@context": "https://schema.org",
@@ -111,7 +116,7 @@ export default async function GuidePage({ params }: Props) {
           </p>
         </header>
 
-        <CorpsGuide sections={guide.sections} />
+        <CorpsGuide sections={guide.sections} oeuvres={oeuvres} />
       </article>
 
       {guide.faq.length > 0 && (

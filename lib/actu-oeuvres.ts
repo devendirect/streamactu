@@ -53,7 +53,13 @@ async function chargerOeuvre(o: { type: "film" | "serie"; id: number }): Promise
 
 /** Toutes les œuvres citées par un article, indexées par cleOeuvre */
 export async function oeuvresArticle(article: Article): Promise<Map<string, OeuvreArticle>> {
-  const refs = article.sections.flatMap((s) => (s.oeuvre ? [s.oeuvre] : []));
+  return chargerOeuvres(article.sections.flatMap((s) => (s.oeuvre ? [s.oeuvre] : [])));
+}
+
+/** Œuvres données, indexées par cleOeuvre (listes ordonnées des guides) ; les absentes sont omises */
+export async function chargerOeuvres(
+  refs: { type: "film" | "serie"; id: number }[]
+): Promise<Map<string, OeuvreArticle>> {
   const charges = await Promise.all(refs.map(chargerOeuvre));
   return new Map(charges.filter((o): o is OeuvreArticle => o !== null).map((o) => [cleOeuvre(o), o]));
 }

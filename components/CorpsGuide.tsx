@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import type { SectionGuide } from "@/lib/guides";
+import { cheminOeuvreGuide, type OeuvreGuide, type SectionGuide } from "@/lib/guides";
+import { cleOeuvre, type OeuvreArticle } from "@/lib/actu-oeuvres";
 
 const styleProse = {
   fontFamily: "var(--font-newsreader), serif",
@@ -28,8 +29,44 @@ export function TexteEnLigne({ texte }: { texte: string }) {
   return <>{morceaux}</>;
 }
 
+/**
+ * Liste ordonnée de titres : année et plateformes lues sur la fiche du jour
+ * (`oeuvres`), titre écrit dans le guide en repli si la fiche ne répond pas.
+ */
+function ListeOeuvres({ items, oeuvres }: { items: OeuvreGuide[]; oeuvres?: Map<string, OeuvreArticle> }) {
+  return (
+    <ol className="space-y-3 list-decimal pl-6 marker:text-ink-3 marker:font-mono">
+      {items.map((item, i) => {
+        const o = oeuvres?.get(cleOeuvre(item));
+        const href = o ? `/${o.type}/${o.slug}` : cheminOeuvreGuide(item);
+        return (
+          <li key={`${item.type}-${item.id}-${i}`} className="pl-1 space-y-1">
+            <div className="flex flex-wrap items-baseline gap-x-2">
+              <Link href={href} className="text-[17px] font-semibold text-foreground hover:text-primary transition-colors">
+                {o?.titre ?? item.titre}
+              </Link>
+              <span className="font-mono-label text-ink-3">
+                {item.type === "serie" ? "Série" : "Film"}
+                {o?.annee ? ` · ${o.annee}` : ""}
+                {o
+                  ? o.plateformes.length > 0
+                    ? ` · ${o.plateformes.map((p) => p.nom).join(", ")}`
+                    : " · pas en streaming par abonnement aujourd'hui"
+                  : ""}
+              </span>
+            </div>
+            <p className="text-[15px] leading-relaxed text-[#9A9282]" style={{ fontFamily: "var(--font-newsreader), serif" }}>
+              <TexteEnLigne texte={item.repere} />
+            </p>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 /** Blocs de texte d'une section (paragraphes, listes, tableaux), partagés par les guides et les articles */
-export function BlocsGuide({ blocs }: { blocs: SectionGuide["blocs"] }) {
+export function BlocsGuide({ blocs, oeuvres }: { blocs: SectionGuide["blocs"]; oeuvres?: Map<string, OeuvreArticle> }) {
   return (
     <>
       {blocs.map((b, i) => {
@@ -40,6 +77,7 @@ export function BlocsGuide({ blocs }: { blocs: SectionGuide["blocs"] }) {
             </p>
           );
         }
+        if ("oeuvres" in b) return <ListeOeuvres key={i} items={b.oeuvres} oeuvres={oeuvres} />;
         if ("ul" in b || "ol" in b) {
           const items = "ul" in b ? b.ul : b.ol;
           const Liste = "ul" in b ? "ul" : "ol";
@@ -88,13 +126,20 @@ export function BlocsGuide({ blocs }: { blocs: SectionGuide["blocs"] }) {
   );
 }
 
-export default function CorpsGuide({ sections }: { sections: SectionGuide[] }) {
+export default function CorpsGuide({
+  sections,
+  oeuvres,
+}: {
+  sections: SectionGuide[];
+  /** Fiches des listes ordonnées (chargerOeuvres), indexées par cleOeuvre */
+  oeuvres?: Map<string, OeuvreArticle>;
+}) {
   return (
     <div className="space-y-10">
       {sections.map((s) => (
         <section key={s.titre} className="space-y-4">
           <h2 className="text-2xl font-extrabold tracking-[-0.02em]">{s.titre}</h2>
-          <BlocsGuide blocs={s.blocs} />
+          <BlocsGuide blocs={s.blocs} oeuvres={oeuvres} />
         </section>
       ))}
     </div>
