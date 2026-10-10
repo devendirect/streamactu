@@ -1,7 +1,9 @@
 import type { SectionGuide } from "./guides";
+import { slugify } from "./utils";
 import { ARTICLE_2026_09_25_WEEKEND } from "./actu/2026-09-25-que-regarder-ce-week-end";
 import { ARTICLE_2026_10_02_WEEKEND } from "./actu/2026-10-02-que-regarder-ce-week-end";
 import { ARTICLE_2026_10_09_WEEKEND } from "./actu/2026-10-09-que-regarder-ce-week-end";
+import { ARTICLE_2026_10_27_NOVEMBRE } from "./actu/2026-10-27-nouveautes-streaming-novembre-2026";
 
 /**
  * Rubrique Actu (/actu/[slug]) : un article « Que regarder ce week-end »
@@ -25,7 +27,25 @@ import { ARTICLE_2026_10_09_WEEKEND } from "./actu/2026-10-09-que-regarder-ce-we
  */
 export type SectionArticle = SectionGuide & {
   oeuvre?: { type: "film" | "serie"; id: number };
+  /**
+   * Rubrique de la section (article du mois : la plateforme, « Netflix »). Les
+   * sections consécutives d'une même rubrique sont regroupées sous un titre
+   * ancré, repris par le sommaire en tête d'article.
+   */
+  rubrique?: string;
 };
+
+/** Rubriques d'un article, dans l'ordre, avec leur ancre (sommaire) */
+export function rubriquesArticle(article: Article): { titre: string; ancre: string }[] {
+  const vues = new Set<string>();
+  const rubriques: { titre: string; ancre: string }[] = [];
+  for (const s of article.sections) {
+    if (!s.rubrique || vues.has(s.rubrique)) continue;
+    vues.add(s.rubrique);
+    rubriques.push({ titre: s.rubrique, ancre: slugify(s.rubrique) });
+  }
+  return rubriques;
+}
 
 /**
  * Formats d'article, chacun avec son adresse fixe (voir ADRESSES_FIXES) :
@@ -51,7 +71,12 @@ export interface Article {
 }
 
 /** Tous les articles, brouillons compris (tests) */
-export const TOUS_LES_ARTICLES: Article[] = [ARTICLE_2026_10_09_WEEKEND, ARTICLE_2026_10_02_WEEKEND, ARTICLE_2026_09_25_WEEKEND];
+export const TOUS_LES_ARTICLES: Article[] = [
+  ARTICLE_2026_10_27_NOVEMBRE,
+  ARTICLE_2026_10_09_WEEKEND,
+  ARTICLE_2026_10_02_WEEKEND,
+  ARTICLE_2026_09_25_WEEKEND,
+];
 
 /** Articles publiés, du plus récent au plus ancien */
 export const ARTICLES: Article[] = TOUS_LES_ARTICLES.filter((a) => !a.brouillon).sort((a, b) =>

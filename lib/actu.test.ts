@@ -19,6 +19,7 @@ import {
 import { liensInternes, textesGuide, type Guide } from "./guides";
 import { DESCRIPTION_MAX, DESCRIPTION_MIN, TITRE_MAX, titreAffiche } from "./meta";
 import { PLATEFORMES } from "./plateformes";
+import { parseMoisURL } from "./utils";
 
 const PLATEFORMES_SLUGS = new Set(PLATEFORMES.map((p) => p.slug));
 
@@ -29,7 +30,7 @@ function routeConnue(lien: string): boolean {
   const [, a, b] = chemin.split("/");
   if (a === "film" || a === "serie") return /^[a-z0-9-]+-\d+$/.test(b ?? "");
   if (a === "guides" || a === "actu" || a === "genre") return Boolean(b);
-  if (PLATEFORMES_SLUGS.has(a)) return !b || ["series", "films", "prochaines-sorties"].includes(b);
+  if (PLATEFORMES_SLUGS.has(a)) return !b || ["series", "films", "prochaines-sorties"].includes(b) || parseMoisURL(b) !== null;
   return false;
 }
 

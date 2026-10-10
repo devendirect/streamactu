@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ARTICLES, cheminArticle, type Article } from "@/lib/actu";
+import { ARTICLES, cheminArticle, rubriquesArticle, type Article } from "@/lib/actu";
+import { slugify } from "@/lib/utils";
 import { cleOeuvre, imagePrincipale, type OeuvreArticle } from "@/lib/actu-oeuvres";
 import { ORG_ID, SITE_URL } from "@/lib/site";
 import { formatDateFR } from "@/lib/utils";
@@ -25,6 +26,7 @@ export default function ArticleActu({ article, oeuvres, titre, edition }: Props)
   const url = `${SITE_URL}${cheminArticle(article)}`;
   const principale = imagePrincipale(article, oeuvres);
   // Éditions précédentes du même format (un week-end renvoie aux week-ends, un mois aux mois)
+  const rubriques = rubriquesArticle(article);
   const autres = ARTICLES.filter((a) => a.format === article.format && a.slug !== article.slug).slice(0, 5);
 
   const donnees = {
@@ -103,12 +105,40 @@ export default function ArticleActu({ article, oeuvres, titre, edition }: Props)
           </p>
         </header>
 
+        {rubriques.length > 0 && (
+          <nav aria-label="Sommaire" className="border border-border p-4 space-y-2">
+            <p className="font-mono-label text-ink-3">Par plateforme</p>
+            <ul className="flex flex-wrap gap-x-5 gap-y-2">
+              {rubriques.map((r) => (
+                <li key={r.ancre}>
+                  <a href={`#${r.ancre}`} className="text-foreground hover:text-primary transition-colors">
+                    {r.titre}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+
         <div className="space-y-10">
-          {article.sections.map((s) => {
+          {article.sections.map((s, i) => {
             const oeuvre = s.oeuvre ? oeuvres.get(cleOeuvre(s.oeuvre)) : undefined;
+            // Article à rubriques : titre de rubrique (h2 ancré) à chaque changement, sections en h3
+            const nouvelleRubrique = s.rubrique && s.rubrique !== article.sections[i - 1]?.rubrique;
+            const Titre = rubriques.length > 0 && s.rubrique ? "h3" : "h2";
             return (
               <section key={s.titre} className="space-y-4">
-                <h2 className="text-2xl font-extrabold tracking-[-0.02em]">{s.titre}</h2>
+                {nouvelleRubrique && (
+                  <h2
+                    id={slugify(s.rubrique!)}
+                    className="scroll-mt-24 text-3xl font-extrabold tracking-[-0.025em] border-t border-border pt-8"
+                  >
+                    {s.rubrique}
+                  </h2>
+                )}
+                <Titre className={Titre === "h3" ? "text-xl font-bold tracking-[-0.015em]" : "text-2xl font-extrabold tracking-[-0.02em]"}>
+                  {s.titre}
+                </Titre>
                 <BlocsGuide blocs={s.blocs} />
                 {oeuvre && <CarteOeuvreArticle oeuvre={oeuvre} />}
               </section>
