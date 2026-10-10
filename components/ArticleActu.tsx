@@ -24,7 +24,8 @@ function jsonLd(data: unknown): string {
 export default function ArticleActu({ article, oeuvres, titre, edition }: Props) {
   const url = `${SITE_URL}${cheminArticle(article)}`;
   const principale = imagePrincipale(article, oeuvres);
-  const autres = ARTICLES.filter((a) => a.slug !== article.slug).slice(0, 5);
+  // Éditions précédentes du même format (un week-end renvoie aux week-ends, un mois aux mois)
+  const autres = ARTICLES.filter((a) => a.format === article.format && a.slug !== article.slug).slice(0, 5);
 
   const donnees = {
     "@context": "https://schema.org",
@@ -118,7 +119,9 @@ export default function ArticleActu({ article, oeuvres, titre, edition }: Props)
 
       {autres.length > 0 && (
         <section className="space-y-3 border-t border-border pt-6">
-          <h2 className="font-mono-label text-[#9A9282]">Les semaines précédentes</h2>
+          <h2 className="font-mono-label text-[#9A9282]">
+            {article.format === "mois" ? "Les mois précédents" : "Les semaines précédentes"}
+          </h2>
           <ul className="space-y-2">
             {autres.map((a) => (
               <li key={a.slug}>

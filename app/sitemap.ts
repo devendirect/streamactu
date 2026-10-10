@@ -9,7 +9,7 @@ import {
 import { PLATEFORMES } from "@/lib/plateformes";
 import { GENRES_SEO } from "@/lib/genres";
 import { GUIDES, MIN_GUIDES_INDEX } from "@/lib/guides";
-import { ARTICLES, CHEMIN_EDITION_COURANTE, EDITION_COURANTE, MIN_ARTICLES_INDEX, NB_PAGES_ACTU } from "@/lib/actu";
+import { ARTICLES, EDITIONS_COURANTES, MIN_ARTICLES_INDEX, NB_PAGES_ACTU, cheminFixe } from "@/lib/actu";
 import {
   decalerSemaineISO,
   formatDateURL,
@@ -241,17 +241,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (let n = 2; n <= NB_PAGES_ACTU; n++) {
     entries.push({ url: `${BASE}/actu/page/${n}`, changeFrequency: "weekly", priority: 0.3 });
   }
-  // Édition courante à son adresse fixe ; son adresse datée (canonical vers
-  // l'adresse fixe) n'entre qu'une fois archivée
-  if (EDITION_COURANTE) {
+  // Édition courante de chaque format à son adresse fixe ; son adresse datée
+  // (canonical vers l'adresse fixe) n'entre qu'une fois archivée
+  for (const a of EDITIONS_COURANTES) {
     entries.push({
-      url: `${BASE}${CHEMIN_EDITION_COURANTE}`,
-      lastModified: new Date(`${EDITION_COURANTE.misAJour}T07:00:00Z`),
-      changeFrequency: "weekly",
+      url: `${BASE}${cheminFixe(a.format)}`,
+      lastModified: new Date(`${a.misAJour}T07:00:00Z`),
+      changeFrequency: a.format === "mois" ? "monthly" : "weekly",
       priority: 0.7,
     });
   }
-  for (const a of ARTICLES.filter((a) => a !== EDITION_COURANTE)) {
+  for (const a of ARTICLES.filter((a) => !EDITIONS_COURANTES.includes(a))) {
     entries.push({
       url: `${BASE}/actu/${a.slug}`,
       lastModified: new Date(`${a.misAJour}T07:00:00Z`),

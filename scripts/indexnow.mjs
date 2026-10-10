@@ -156,13 +156,17 @@ const fiches = [
 ];
 const dejaSoumises = await lireEtat();
 const nouvelles = fiches.filter((u) => !dejaSoumises.has(u));
-// Nouvel article Actu : l'adresse fixe de l'édition de la semaine change de contenu
-// (voir SLUG_EDITION_COURANTE dans lib/actu.ts), on la soumet avec lui
-const nouvelArticle = nouvelles.some((u) => u.startsWith(`${SITE}/actu/`));
-const chaudes = await pagesIndexables([
-  ...pagesChaudes(),
-  ...(nouvelArticle ? [`${SITE}/actu/que-regarder-ce-week-end`] : []),
-]);
+// Nouvel article Actu : l'adresse fixe de son format change de contenu (voir
+// ADRESSES_FIXES dans lib/actu.ts), on la soumet avec lui. Le format se lit au
+// début du slug daté.
+const ADRESSES_FIXES = [
+  ["que-regarder-ce-week-end-", "que-regarder-ce-week-end"],
+  ["nouveautes-streaming-", "nouveautes-streaming-du-mois"],
+];
+const fixes = ADRESSES_FIXES.filter(([prefixe]) => nouvelles.some((u) => u.startsWith(`${SITE}/actu/${prefixe}`))).map(
+  ([, slug]) => `${SITE}/actu/${slug}`
+);
+const chaudes = await pagesIndexables([...pagesChaudes(), ...fixes]);
 const urlList = [...new Set([...chaudes, ...nouvelles])];
 
 console.log(

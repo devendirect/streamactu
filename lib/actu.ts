@@ -27,8 +27,17 @@ export type SectionArticle = SectionGuide & {
   oeuvre?: { type: "film" | "serie"; id: number };
 };
 
+/**
+ * Formats d'article, chacun avec son adresse fixe (voir ADRESSES_FIXES) :
+ * - « week-end » : « Que regarder ce week-end », chaque vendredi ;
+ * - « mois » : « Nouveautés streaming de [mois] », fin du mois précédent
+ *   (décision du 2026-10-10, voir docs/idees-formats.md).
+ */
+export type FormatArticle = "week-end" | "mois";
+
 export interface Article {
   slug: string;
+  format: FormatArticle;
   titre: string;
   /** meta description, 120–155 caractères */
   description: string;
@@ -76,24 +85,38 @@ export function trouverArticle(slug: string): Article | undefined {
 }
 
 /**
- * Adresse fixe de l'édition de la semaine (décision du 2026-10-09) : un
- * article daté n'a pas le temps d'être indexé avant la fin du week-end, une
- * adresse stable accumule son classement d'une semaine à l'autre. Le dernier
- * article y est servi ; son adresse datée y renvoie par canonical, puis
- * redevient une archive autonome quand l'article suivant paraît.
+ * Adresses fixes (décision du 2026-10-09, étendue au mois le 2026-10-10) : un
+ * article daté n'a pas le temps d'être indexé avant la fin de sa période, une
+ * adresse stable accumule son classement d'une édition à l'autre. Chaque
+ * format y sert son dernier article publié ; l'adresse datée de celui-ci y
+ * renvoie par canonical, puis redevient une archive autonome quand l'article
+ * suivant du même format paraît.
  */
-export const SLUG_EDITION_COURANTE = "que-regarder-ce-week-end";
-export const CHEMIN_EDITION_COURANTE = `/actu/${SLUG_EDITION_COURANTE}`;
+export const ADRESSES_FIXES: Record<FormatArticle, { slug: string; libelle: string }> = {
+  "week-end": { slug: "que-regarder-ce-week-end", libelle: "Ce week-end" },
+  mois: { slug: "nouveautes-streaming-du-mois", libelle: "Ce mois-ci" },
+};
 
-/** Dernier article publié, servi à l'adresse fixe */
-export const EDITION_COURANTE: Article | undefined = ARTICLES[0];
+export const FORMATS = Object.keys(ADRESSES_FIXES) as FormatArticle[];
 
-/** Adresse de référence d'un article : l'adresse fixe pour l'édition courante, sa date sinon */
-export function cheminArticle(article: Article): string {
-  return article.slug === EDITION_COURANTE?.slug ? CHEMIN_EDITION_COURANTE : `/actu/${article.slug}`;
+export function cheminFixe(format: FormatArticle): string {
+  return `/actu/${ADRESSES_FIXES[format].slug}`;
 }
 
-/** Période couverte, tirée du titre (« Que regarder ce week-end : 9 au 11 octobre 2026 ») */
+/** Dernier article publié d'un format, servi à son adresse fixe */
+export function editionCourante(format: FormatArticle): Article | undefined {
+  return ARTICLES.find((a) => a.format === format);
+}
+
+/** Éditions courantes publiées, une par format au plus */
+export const EDITIONS_COURANTES: Article[] = FORMATS.flatMap((f) => editionCourante(f) ?? []);
+
+/** Adresse de référence d'un article : l'adresse fixe pour l'édition courante de son format, sa date sinon */
+export function cheminArticle(article: Article): string {
+  return editionCourante(article.format)?.slug === article.slug ? cheminFixe(article.format) : `/actu/${article.slug}`;
+}
+
+/** Période couverte, tirée du titre (« … : 9 au 11 octobre 2026 », « … : novembre 2026 ») */
 export function periodeArticle(article: Article): string {
   const i = article.titre.indexOf(" : ");
   return i >= 0 ? article.titre.slice(i + 3) : article.titre;

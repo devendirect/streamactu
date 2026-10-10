@@ -10,6 +10,7 @@ import type { Article } from "../actu";
  */
 export const ARTICLE_2026_09_25_WEEKEND: Article = {
   slug: "que-regarder-ce-week-end-25-septembre-2026",
+  format: "week-end",
   titre: "Que regarder ce week-end : 25 au 27 septembre 2026",
   description:
     "UNABOMBER sur Netflix, The Love Hypothesis sur Prime Video, « Hurlevent » sur Canal+ : que regarder le week-end du 25 septembre, et les autres sorties.",

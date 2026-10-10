@@ -11,6 +11,7 @@ import type { Article } from "../actu";
  */
 export const ARTICLE_2026_10_02_WEEKEND: Article = {
   slug: "que-regarder-ce-week-end-2-octobre-2026",
+  format: "week-end",
   titre: "Que regarder ce week-end : 2 au 4 octobre 2026",
   description:
     "À l'est d'Éden sur Netflix, Kill Jackie sur Prime Video, Nuremberg sur Canal+ : que regarder le week-end du 2 octobre, et les autres sorties de la semaine.",

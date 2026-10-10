@@ -1,6 +1,6 @@
 import { PLATEFORMES } from "@/lib/plateformes";
 import { GUIDES } from "@/lib/guides";
-import { ACTU_PUBLIEE, ARTICLES, CHEMIN_EDITION_COURANTE } from "@/lib/actu";
+import { ACTU_PUBLIEE, ARTICLES, EDITIONS_COURANTES, cheminFixe } from "@/lib/actu";
 import { formatMoisFR, formatMoisURL } from "@/lib/utils";
 
 // 24h : seuls les liens de classements (mois/année) changent
@@ -73,10 +73,9 @@ ${
   ACTU_PUBLIEE
     ? `## Actu
 
-Chaque vendredi, les séries et films à regarder ce week-end ([flux RSS](${SITE_URL}/actu/flux.xml)) :
+Chaque vendredi, les séries et films à regarder ce week-end ; en fin de mois, les nouveautés du mois suivant ([flux RSS](${SITE_URL}/actu/flux.xml)) :
 
-- [Que regarder ce week-end](${SITE_URL}${CHEMIN_EDITION_COURANTE}) : l'édition de la semaine, toujours à cette adresse
-${ARTICLES.slice(1, 4).map((a) => `- [${a.titre}](${SITE_URL}/actu/${a.slug})`).join("\n")}
+${lignesActu()}
 
 `
     : ""
@@ -97,4 +96,17 @@ ${ARTICLES.slice(1, 4).map((a) => `- [${a.titre}](${SITE_URL}/actu/${a.slug})`).
       "X-Content-Type-Options": "nosniff",
     },
   });
+}
+
+/** Rubrique Actu : les adresses fixes publiées (week-end, mois), puis les trois dernières archives */
+function lignesActu(): string {
+  const fixes = EDITIONS_COURANTES.map((a) =>
+    a.format === "mois"
+      ? `- [${a.titre}](${SITE_URL}${cheminFixe("mois")}) : les nouveautés du mois, plateforme par plateforme, toujours à cette adresse`
+      : `- [Que regarder ce week-end](${SITE_URL}${cheminFixe("week-end")}) : l'édition de la semaine, toujours à cette adresse`
+  );
+  const archives = ARTICLES.filter((a) => !EDITIONS_COURANTES.includes(a))
+    .slice(0, 3)
+    .map((a) => `- [${a.titre}](${SITE_URL}/actu/${a.slug})`);
+  return [...fixes, ...archives].join("\n");
 }

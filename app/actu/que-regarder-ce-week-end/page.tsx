@@ -1,20 +1,20 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { CHEMIN_EDITION_COURANTE, EDITION_COURANTE, periodeArticle } from "@/lib/actu";
+import { cheminFixe, editionCourante, periodeArticle } from "@/lib/actu";
 import { metadonnees } from "@/lib/meta";
 import ArticleActu from "@/components/ArticleActu";
 import { imagePrincipale, oeuvresArticle } from "@/lib/actu-oeuvres";
 
-// Adresse fixe de l'édition de la semaine (voir SLUG_EDITION_COURANTE) : le
-// titre ne change pas, le contenu est celui du dernier article publié.
+// Adresse fixe de l'édition de la semaine (voir ADRESSES_FIXES) : le titre ne
+// change pas, le contenu est celui du dernier article « week-end » publié.
 export const revalidate = 86400;
 
 const TITRE = "Que regarder ce week-end";
 
 export async function generateMetadata(): Promise<Metadata> {
-  if (!EDITION_COURANTE) return { title: "Page non trouvée" };
-  const article = EDITION_COURANTE;
-  const meta = metadonnees(`${TITRE} en streaming`, article.description, CHEMIN_EDITION_COURANTE);
+  const article = editionCourante("week-end");
+  if (!article) return { title: "Page non trouvée" };
+  const meta = metadonnees(`${TITRE} en streaming`, article.description, cheminFixe("week-end"));
   const image = imagePrincipale(article, await oeuvresArticle(article));
   return {
     ...meta,
@@ -29,15 +29,16 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function EditionCourantePage() {
+  const article = editionCourante("week-end");
   // Rubrique absente tant qu'aucun article n'est publié
-  if (!EDITION_COURANTE) notFound();
-  const oeuvres = await oeuvresArticle(EDITION_COURANTE);
+  if (!article) notFound();
+  const oeuvres = await oeuvresArticle(article);
   return (
     <ArticleActu
-      article={EDITION_COURANTE}
+      article={article}
       oeuvres={oeuvres}
       titre={TITRE}
-      edition={`Édition du ${periodeArticle(EDITION_COURANTE)}`}
+      edition={`Édition du ${periodeArticle(article)}`}
     />
   );
 }

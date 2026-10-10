@@ -15,6 +15,7 @@ import type { Article } from "../actu";
  */
 export const ARTICLE_2026_10_09_WEEKEND: Article = {
   slug: "que-regarder-ce-week-end-9-octobre-2026",
+  format: "week-end",
   titre: "Que regarder ce week-end : 9 au 11 octobre 2026",
   description:
     "Carrie sur Prime Video, Below sur Netflix, Hamnet sur Canal+ : que regarder le week-end du 9 octobre, et les autres sorties de la semaine.",

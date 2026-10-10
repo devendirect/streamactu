@@ -2,7 +2,7 @@ import type { Contenu } from "@/types";
 import { getTopAnnee, getTopMois } from "@/lib/tmdb";
 import { PLATEFORMES } from "@/lib/plateformes";
 import { GUIDES } from "@/lib/guides";
-import { ACTU_PUBLIEE, CHEMIN_EDITION_COURANTE } from "@/lib/actu";
+import { ACTU_PUBLIEE, cheminFixe, editionCourante } from "@/lib/actu";
 import { formatMoisFR } from "@/lib/utils";
 
 // 24h : mêmes caches que les pages top (getTopAnnee / getNouveautesMois)
@@ -71,8 +71,9 @@ ${PLATEFORMES.map((pf) => `- [Nouveautés ${pf.nom} ${annee}](${SITE_URL}/${pf.s
 - [Flux RSS](${SITE_URL}/flux.xml) : les nouveautés des 7 derniers jours
 - [À propos](${SITE_URL}/a-propos) : éditeur, sources, méthode de classement, limites, financement
 ${GUIDES.map((g) => `- [${g.titre}](${SITE_URL}/guides/${g.slug}) : ${g.description}`).join("\n")}
-${ACTU_PUBLIEE ? `- [Que regarder ce week-end](${SITE_URL}${CHEMIN_EDITION_COURANTE}) : l'édition de la semaine, mise à jour chaque vendredi à cette adresse
-- [Actu](${SITE_URL}/actu) : toutes les éditions, de la plus récente à la plus ancienne (flux : ${SITE_URL}/actu/flux.xml)
+${editionCourante("week-end") ? `- [Que regarder ce week-end](${SITE_URL}${cheminFixe("week-end")}) : l'édition de la semaine, mise à jour chaque vendredi à cette adresse
+` : ""}${editionCourante("mois") ? `- [Nouveautés streaming du mois](${SITE_URL}${cheminFixe("mois")}) : les nouveautés du mois suivant, plateforme par plateforme, publiées en fin de mois à cette adresse
+` : ""}${ACTU_PUBLIEE ? `- [Actu](${SITE_URL}/actu) : toutes les éditions, de la plus récente à la plus ancienne (flux : ${SITE_URL}/actu/flux.xml)
 ` : ""}- [Retrouveur](${SITE_URL}/retrouver) : retrouver un film ou une série oubliés à partir d'une description (Claude Haiku)
 - [Contact](${SITE_URL}/contact) : signaler une erreur de disponibilité ou de fiche
 `;
