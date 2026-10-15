@@ -23,7 +23,7 @@ export const ARTICLE_2026_10_16_WEEKEND: Article = {
     "Marvel revient en série ce week-end sur les plateformes en France : VisionQuest, avec Paul Bettany et James Spader, a commencé mercredi sur Disney+. Sylvester Stallone reprend Tulsa King pour une quatrième saison sur Paramount+, Netflix sort Sacrifice de Romain Gavras, et Canal+ propose le film le mieux noté de la semaine, La Maison des Femmes.",
   publie: "2026-10-16",
   misAJour: "2026-10-16",
-  brouillon: false,
+  brouillon: true,
   sections: [
     {
       titre: "VisionQuest, sur Disney+",
