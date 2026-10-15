@@ -12,7 +12,7 @@ export default function SuggestionsGenre({ suggestions }: { suggestions: Suggest
       <p className="text-[15px] leading-relaxed text-[#9A9282]" style={{ fontFamily: "var(--font-newsreader), serif" }}>
         {genre
           ? `D'autres titres du même genre disponibles sur ${plateforme.nom} en France, parmi les plus populaires du moment :`
-          : `D'autres séries et films arrivés sur ${plateforme.nom} en France ces quatre dernières semaines :`}
+          : `D'autres séries et films sortis sur ${plateforme.nom} en France ces quatre dernières semaines :`}
       </p>
       <ul className="space-y-2">
         {contenus.map((c) => (

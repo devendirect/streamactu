@@ -186,7 +186,7 @@ export default async function SousPlateformePage({ params }: Props) {
           titre={estSeries ? `Nouvelles séries ${pf.nom}` : `Nouveaux films ${pf.nom}`}
           intro={
             contenus.length > 0
-              ? `${total} ${estSeries ? "série" : "film"}${total > 1 ? "s" : ""} ajouté${accordType} sur ${pf.nom} ces quatre dernières semaines${
+              ? `${total} ${estSeries ? "série" : "film"}${total > 1 ? "s" : ""} sorti${accordType} sur ${pf.nom} ces quatre dernières semaines${
                   total > contenus.length
                     ? ` ; voici les ${contenus.length} plus populaires, trié${estSeries ? "es" : "s"} par note.`
                     : `, trié${accordType} par note.`
@@ -318,7 +318,7 @@ export default async function SousPlateformePage({ params }: Props) {
       <>
         <EnTeteNouveautes
           titre={`Nouveautés ${pf.nom} ${deMois(mois.mois, mois.annee)}`}
-          intro={introComptes(totaux, total, "arrivé", `sur ${pf.nom} en ${label.toLowerCase()}`)}
+          intro={introComptes(totaux, total, "sorti", `sur ${pf.nom} en ${label.toLowerCase()}`)}
         />
         <div className="sa-container py-4 space-y-10">
           <nav aria-label={`Navigation ${pf.nom}`}>
@@ -367,7 +367,7 @@ export default async function SousPlateformePage({ params }: Props) {
       <>
         <EnTeteNouveautes
           titre={`Nouveautés ${pf.nom} ${annee}`}
-          intro={`${libelleComptes(data.totalSeries, data.totalFilms)} arrivé${accord(data.totalSeries, data.totalFilms)} sur ${pf.nom} en ${annee}. Les mieux noté${accord(data.totalSeries, data.totalFilms)} d'abord, puis le détail mois par mois.`}
+          intro={`${libelleComptes(data.totalSeries, data.totalFilms)} sorti${accord(data.totalSeries, data.totalFilms)} sur ${pf.nom} en ${annee}. Les mieux noté${accord(data.totalSeries, data.totalFilms)} d'abord, puis le détail mois par mois.`}
         />
         <div className="sa-container py-4 space-y-10">
           <nav aria-label={`Navigation ${pf.nom}`}>

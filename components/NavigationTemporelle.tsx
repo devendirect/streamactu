@@ -16,6 +16,7 @@ import {
   formatMoisFR,
   getISOWeek,
   horizonFuturISO,
+  ANNEE_PLANCHER,
 } from "@/lib/utils";
 
 const MOIS_COURTS = ["", "Jan.", "Fév.", "Mar.", "Avr.", "Mai", "Juin", "Juil.", "Août", "Sep.", "Oct.", "Nov.", "Déc."];
@@ -44,6 +45,8 @@ export default function NavigationTemporelle({ contexte }: Props) {
   let prevHref = "/";
   let nextHref = "/";
   let canGoForward = false;
+  // Pas de lien vers une période sous ANNEE_PLANCHER (404)
+  let canGoBack = true;
 
   if (contexte.mode === "jour") {
     const d = parseISO(contexte.dateISO);
@@ -53,6 +56,7 @@ export default function NavigationTemporelle({ contexte }: Props) {
     const next = new Date(d); next.setUTCDate(d.getUTCDate() + 1);
     prevHref = toISO(prev) === todayISO ? "/" : `/${formatDateURL(prev)}`;
     nextHref = toISO(next) === todayISO ? "/" : `/${formatDateURL(next)}`;
+    canGoBack = prev.getUTCFullYear() >= ANNEE_PLANCHER;
     prevLabel = `← Hier`;
     nextLabel = `Demain →`;
     // Navigable dans le futur jusqu'à l'horizon (diffusions programmées)
@@ -70,6 +74,7 @@ export default function NavigationTemporelle({ contexte }: Props) {
     const next = decalerSemaineISO(semaine, annee, 1);
     prevHref = `/${formatSemaineURL(prev.semaine, prev.annee)}`;
     nextHref = `/${formatSemaineURL(next.semaine, next.annee)}`;
+    canGoBack = prev.annee >= ANNEE_PLANCHER;
     prevLabel = "← Semaine préc.";
     nextLabel = "Semaine suiv. →";
     // Navigable tant que la semaine suivante commence dans l'horizon
@@ -84,6 +89,7 @@ export default function NavigationTemporelle({ contexte }: Props) {
     const aS = mois === 12 ? annee + 1 : annee;
     prevHref = `/${formatMoisURL(mP, aP)}`;
     nextHref = `/${formatMoisURL(mS, aS)}`;
+    canGoBack = aP >= ANNEE_PLANCHER;
     prevLabel = `← ${MOIS_COURTS[mP]}`;
     nextLabel = `${MOIS_COURTS[mS]} →`;
     canGoForward =
@@ -121,12 +127,21 @@ export default function NavigationTemporelle({ contexte }: Props) {
 
       {/* Navigation contextuelle */}
       <div className="flex items-center gap-5">
-        <Link
-          href={prevHref}
-          className="font-mono text-sm text-[#9A9282] hover:text-foreground transition-colors whitespace-nowrap"
-        >
-          {prevLabel}
-        </Link>
+        {canGoBack ? (
+          <Link
+            href={prevHref}
+            className="font-mono text-sm text-[#9A9282] hover:text-foreground transition-colors whitespace-nowrap"
+          >
+            {prevLabel}
+          </Link>
+        ) : (
+          <span
+            aria-disabled="true"
+            className="font-mono text-sm text-[#9A9282] opacity-20 cursor-not-allowed whitespace-nowrap"
+          >
+            {prevLabel}
+          </span>
+        )}
         <div className="text-center min-w-0">
           <div className="font-bold leading-tight text-base">{navLabel}</div>
           <div className="font-mono text-[10px] text-ink-4 mt-0.5">{navSub}</div>

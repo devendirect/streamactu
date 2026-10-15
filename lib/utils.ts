@@ -56,6 +56,17 @@ function decoderSegment(slug: string): string {
   return sansAccents(decode);
 }
 
+/**
+ * Première année des pages datées (jour, semaine, mois, récaps annuels, tops) ;
+ * avant, 404. Ces pages affichent la date de sortie TMDB avec la plateforme
+ * d'aujourd'hui : en remontant, le texte devient faux (des titres « sortis sur
+ * Disney+ » en 2010) et le lien vers la veille ouvrait au crawl des milliers de
+ * pages sans demande. 2025 couvre les récaps de l'année précédente et les 13
+ * mois d'archives du sitemap (décision du 2026-10-14, voir
+ * docs/seo-geo/audit-2026-10-14/seo-technique.md).
+ */
+export const ANNEE_PLANCHER = 2025;
+
 /** "juin-2026" → { mois: 6, annee: 2026 } | null */
 export function parseMoisURL(brut: string): { mois: number; annee: number } | null {
   const slug = decoderSegment(brut);
@@ -64,7 +75,7 @@ export function parseMoisURL(brut: string): { mois: number; annee: number } | nu
   const nomMois = slug.slice(0, tiret);
   const annee = parseInt(slug.slice(tiret + 1), 10);
   const moisIdx = MOIS_URL.indexOf(nomMois);
-  if (moisIdx === -1 || isNaN(annee) || annee < 2000 || annee > 2100) return null;
+  if (moisIdx === -1 || isNaN(annee) || annee < ANNEE_PLANCHER || annee > 2100) return null;
   return { mois: moisIdx + 1, annee };
 }
 
@@ -73,7 +84,7 @@ export function parseAnneeURL(brut: string): number | null {
   const slug = decoderSegment(brut);
   if (!/^\d{4}$/.test(slug)) return null;
   const annee = parseInt(slug, 10);
-  if (annee < 2000 || annee > 2100) return null;
+  if (annee < ANNEE_PLANCHER || annee > 2100) return null;
   return annee;
 }
 
@@ -94,7 +105,7 @@ export function parseDateURL(brut: string): Date | null {
   const nomMois = parts[parts.length - 2];
   const jour = parseInt(parts[0], 10);
   const moisIdx = MOIS_URL.indexOf(nomMois);
-  if (isNaN(jour) || moisIdx === -1 || isNaN(annee)) return null;
+  if (isNaN(jour) || moisIdx === -1 || isNaN(annee) || annee < ANNEE_PLANCHER) return null;
   const d = new Date(Date.UTC(annee, moisIdx, jour));
   if (d.getUTCDate() !== jour) return null; // date invalide (ex: 31 juin)
   return d;
@@ -194,7 +205,7 @@ export function parseSemaineURL(slug: string): { semaine: number; annee: number 
   if (!match) return null;
   const semaine = parseInt(match[1], 10);
   const annee = parseInt(match[2], 10);
-  if (semaine < 1 || semaine > 53) return null;
+  if (semaine < 1 || semaine > 53 || annee < ANNEE_PLANCHER) return null;
   return { semaine, annee };
 }
 

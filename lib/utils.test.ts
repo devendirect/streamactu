@@ -18,6 +18,8 @@ import {
   scoreBayesien,
   libelleComptes,
   toISO,
+  parseAnneeURL,
+  ANNEE_PLANCHER,
 } from "./utils";
 
 describe("slugify / idDepuisSlug", () => {
@@ -122,6 +124,27 @@ describe("affichage", () => {
 describe("horizonFuturISO", () => {
   it("borne le futur à 28 jours, débordement de mois compris", () => {
     expect(horizonFuturISO(new Date(Date.UTC(2026, 6, 4)))).toBe("2026-08-01");
+  });
+});
+
+describe("date plancher (ANNEE_PLANCHER)", () => {
+  it("vaut 2025 : en dessous, les pages datées répondent 404", () => {
+    expect(ANNEE_PLANCHER).toBe(2025);
+  });
+  it("accepte le premier jour, la première semaine ISO, le premier mois et la première année", () => {
+    expect(toISO(parseDateURL("1-janvier-2025")!)).toBe("2025-01-01");
+    // la semaine 1 de 2025 commence le lundi 30 décembre 2024 : l'année ISO fait foi
+    expect(parseSemaineURL("semaine-1-2025")).toEqual({ semaine: 1, annee: 2025 });
+    expect(parseMoisURL("janvier-2025")).toEqual({ mois: 1, annee: 2025 });
+    expect(parseAnneeURL("2025")).toBe(2025);
+  });
+  it("rejette tout ce qui précède", () => {
+    expect(parseDateURL("31-decembre-2024")).toBeNull();
+    expect(parseDateURL("1-janvier-2010")).toBeNull();
+    expect(parseSemaineURL("semaine-52-2024")).toBeNull();
+    expect(parseMoisURL("decembre-2024")).toBeNull();
+    expect(parseMoisURL("janvier-2020")).toBeNull();
+    expect(parseAnneeURL("2024")).toBeNull();
   });
 });
 

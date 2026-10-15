@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PLATEFORMES } from "@/lib/plateformes";
 import { metadonnees } from "@/lib/meta";
-import { CONTACT_EMAIL, ORG_ID, REPO_URL, SITE_URL } from "@/lib/site";
+import { CHAINES_VIDEO, CONTACT_EMAIL, ORG_ID, REPO_URL, SITE_URL } from "@/lib/site";
 import { formatDateFR } from "@/lib/utils";
 import { GUIDES } from "@/lib/guides";
 
@@ -13,7 +13,7 @@ export const metadata: Metadata = metadonnees("À propos", DESCRIPTION, "/a-prop
 
 /** Dates affichées et déclarées dans le JSON-LD : mettre à jour MIS_A_JOUR à chaque modification du texte */
 const EN_LIGNE_DEPUIS = "juin 2026";
-const MIS_A_JOUR = "2026-09-26";
+const MIS_A_JOUR = "2026-10-14";
 
 const styleProse = {
   fontFamily: "var(--font-newsreader), serif",
@@ -197,6 +197,22 @@ export default function AProposPage() {
           <Link href="/prochaines-sorties" className={classeLien}>
             prochaines sorties
           </Link>
+          .
+        </P>
+        <P>
+          Chaque vendredi, l&apos;article{" "}
+          <Link href="/actu/que-regarder-ce-week-end" className={classeLien}>
+            Que regarder ce week-end
+          </Link>{" "}
+          existe aussi en vidéo courte, publiée par l&apos;éditeur sur{" "}
+          {CHAINES_VIDEO.map((c, i) => (
+            <span key={c.nom}>
+              {i > 0 && " et "}
+              <a href={c.url} target="_blank" rel="noopener noreferrer" className={classeLien}>
+                {c.nom}
+              </a>
+            </span>
+          ))}
           .
         </P>
         <P>

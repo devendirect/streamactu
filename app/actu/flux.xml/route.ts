@@ -1,4 +1,4 @@
-import { ACTU_PUBLIEE, ARTICLES } from "@/lib/actu";
+import { ACTU_PUBLIEE, ARTICLES, horodatageArticle } from "@/lib/actu";
 import { SITE_URL } from "@/lib/site";
 
 // Flux RSS des articles Actu, séparé du flux des sorties (/flux.xml) : un
@@ -21,7 +21,7 @@ export function GET() {
   const items = ARTICLES.map((a) => {
     const url = `${SITE_URL}/actu/${a.slug}`;
     // Publication le vendredi matin, heure de Paris
-    const pubDate = new Date(`${a.publie}T07:00:00Z`).toUTCString();
+    const pubDate = new Date(horodatageArticle(a.publie)).toUTCString();
     return `    <item>
       <title>${echapperXml(a.titre)}</title>
       <link>${echapperXml(url)}</link>

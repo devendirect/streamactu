@@ -1,5 +1,5 @@
 import { ADRESSES_FIXES, EDITIONS_COURANTES, NAV_ACCUEIL, cheminFixe } from "@/lib/actu";
-import { REPO_URL } from "@/lib/site";
+import { CHAINES_VIDEO, REPO_URL } from "@/lib/site";
 import Link from "next/link";
 import { BoutonGererCookies } from "@/components/ConsentAnalytics";
 import { PLATEFORMES } from "@/lib/plateformes";
@@ -153,6 +153,17 @@ export default function Footer() {
             >
               Code source
             </a>
+            {CHAINES_VIDEO.map((c) => (
+              <a
+                key={c.nom}
+                href={c.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono-label text-ink-3 hover:text-foreground transition-colors"
+              >
+                {c.nom}
+              </a>
+            ))}
             <BoutonGererCookies />
           </div>
 

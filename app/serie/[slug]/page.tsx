@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { titreAffiche, titreMeta } from "@/lib/meta";
+import { OG_BASE, titreAffiche, titreMeta } from "@/lib/meta";
 import { getDetailSerie } from "@/lib/tmdb";
 import { idDepuisSlug } from "@/lib/utils";
 import { descriptionFiche, fichePauvre, jsonLdFiche } from "@/lib/seo";
@@ -8,6 +8,13 @@ import { suggestionsFiche } from "@/lib/suggestions";
 import FicheDetail from "@/components/FicheDetail";
 
 export const revalidate = 3600;
+
+// Liste vide : aucune fiche rendue au build, chacune l'est à sa première
+// visite puis mise en cache une heure (ISR). Sans generateStaticParams, la
+// route est rendue à chaque requête, robots compris (audit du 2026-10-14).
+export async function generateStaticParams() {
+  return [];
+}
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -18,8 +25,12 @@ async function getSerie(slug: string) {
   if (!id) return null;
   try {
     return await getDetailSerie(id);
-  } catch {
-    return null;
+  } catch (err) {
+    // Seul un identifiant inconnu de TMDB donne une 404. Une panne passagère
+    // (429, 5xx, réseau) remonte en erreur : la page n'est pas mise en cache
+    // comme introuvable, et l'ancienne version reste servie.
+    if (err instanceof Error && err.message.startsWith("TMDB 404")) return null;
+    throw err;
   }
 }
 
@@ -35,7 +46,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: { canonical: `/serie/${serie.slug}` },
     ...(fichePauvre(serie) ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
+      ...OG_BASE,
       type: "video.tv_show",
+      url: `/serie/${serie.slug}`,
       title: titreAffiche(serie.titre),
       description,
       images: serie.backdrop ? [{ url: serie.backdrop }] : ["/og-default.png"],

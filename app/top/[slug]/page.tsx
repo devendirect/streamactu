@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Contenu, MediaType } from "@/types";
 import { getTopAnnee, getTopMois } from "@/lib/tmdb";
 import {
+  ANNEE_PLANCHER,
   bornesMois,
   formatMoisFR,
   formatMoisURL,
@@ -39,7 +40,7 @@ function parseTopSlug(brut: string): TopParams | null {
 
   if (/^\d{4}$/.test(m[2])) {
     const annee = parseInt(m[2], 10);
-    if (annee < 2000 || annee > 2100) return null;
+    if (annee < ANNEE_PLANCHER || annee > 2100) return null;
     return { type, portee: "annee", annee };
   }
 

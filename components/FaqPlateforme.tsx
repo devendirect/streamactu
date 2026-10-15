@@ -42,7 +42,9 @@ export default function FaqPlateforme({ plateforme, series, films, periodeIntro,
     question: `Quelles sont les nouveautés ${nom} en ce moment ?`,
     reponse:
       tous.length > 0
-        ? `${comptes} ${nbSeries + nbFilms > 1 ? "ont" : "a"} été ajouté${accord(nbSeries, nbFilms)} ${periodeIntro} au catalogue ${nom} en France, dont ${exemples.join(", ")}. ${
+        ? `${comptes} ${nbSeries + nbFilms > 1 ? "sont" : "est"} sorti${accord(nbSeries, nbFilms)} ${periodeIntro} sur ${nom} en France${
+            nbSeries > 0 ? " (nouvelles séries ou nouveaux épisodes)" : ""
+          }, dont ${exemples.join(", ")}. ${
             tronquee
               ? "Les plus populaires sont présentés sur cette page, triés par note des spectateurs."
               : "La liste complète, triée par note des spectateurs, est présentée sur cette page."
@@ -54,7 +56,7 @@ export default function FaqPlateforme({ plateforme, series, films, periodeIntro,
   if (meilleureSerie) {
     entrees.push({
       question: `Quelle série regarder sur ${nom} en ce moment ?`,
-      reponse: `Parmi les ajouts récents au catalogue ${nom}, la série la mieux notée par les spectateurs est « ${meilleureSerie.titre} » (${meilleureSerie.note.toFixed(1)}/10 sur TMDB).`,
+      reponse: `Parmi les sorties récentes sur ${nom}, la série la mieux notée par les spectateurs est « ${meilleureSerie.titre} » (${meilleureSerie.note.toFixed(1)}/10 sur TMDB).`,
       lien: { href: `/serie/${meilleureSerie.slug}`, label: `Voir la fiche` },
     });
   }
@@ -63,7 +65,7 @@ export default function FaqPlateforme({ plateforme, series, films, periodeIntro,
   if (meilleurFilm) {
     entrees.push({
       question: `Quel film regarder sur ${nom} en ce moment ?`,
-      reponse: `Parmi les films récemment ajoutés à ${nom}, le mieux noté par les spectateurs est « ${meilleurFilm.titre} » (${meilleurFilm.note.toFixed(1)}/10 sur TMDB).`,
+      reponse: `Parmi les films sortis récemment sur ${nom}, le mieux noté par les spectateurs est « ${meilleurFilm.titre} » (${meilleurFilm.note.toFixed(1)}/10 sur TMDB).`,
       lien: { href: `/film/${meilleurFilm.slug}`, label: `Voir la fiche` },
     });
   }

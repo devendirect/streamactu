@@ -83,7 +83,6 @@ export const metadata: Metadata = {
     siteName: "StreamActu.fr",
     title: "StreamActu.fr — Nouveautés streaming",
     description: DESCRIPTION,
-    url: SITE_URL,
     images: [
       {
         url: "/og-default.png",
@@ -93,11 +92,10 @@ export const metadata: Metadata = {
       },
     ],
   },
+  // Format de carte seulement : X reprend og:title, og:description et
+  // og:image de chaque page. Un titre ici s'imposait à toutes les pages.
   twitter: {
     card: "summary_large_image",
-    title: "StreamActu.fr — Nouveautés streaming",
-    description: DESCRIPTION,
-    images: ["/og-default.png"],
   },
   // Pas de canonical ici : il serait hérité par toutes les pages qui ne le
   // redéfinissent pas, les faisant passer pour des doublons de l'accueil.

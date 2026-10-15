@@ -42,6 +42,8 @@ import { syntheseJour } from "@/lib/syntheses";
 // 1h : les pages plateforme suivent la fraîcheur des données semaine
 export const revalidate = 3600;
 
+/** Âge maximal (jours) d'une page jour indexable ; au-delà, noindex */
+const JOURS_INDEXABLES = 90;
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -63,6 +65,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (date) {
     const iso = toISO(date);
     const futur = iso > toISO(new Date());
+    // Au-delà de JOURS_INDEXABLES, le jour reste consultable mais n'est plus
+    // proposé aux moteurs : il a quitté le sitemap (30 jours) et plus personne
+    // ne cherche les sorties d'un jour précis passé (audit du 2026-10-14)
+    const limite = new Date();
+    limite.setUTCDate(limite.getUTCDate() - JOURS_INDEXABLES);
+    const ancien = iso < toISO(limite);
     let comptes = { series: [] as Contenu[], films: [] as Contenu[] };
     let totaux: Comptes | undefined;
     let vide = false;
@@ -84,7 +92,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { titre, description } = metaJour(date, futur, comptes.series, comptes.films, totaux);
     // Futur : contenu prévisionnel et changeant, jamais indexé
     return metadonnees(titre, description, `/${formatDateURL(date)}`, {
-      ...(vide || futur ? { robots: { index: false } } : {}),
+      ...(vide || futur || ancien ? { robots: { index: false } } : {}),
     });
   }
 
@@ -209,7 +217,7 @@ export default async function SlugPage({ params }: Props) {
             films: data?.films.length ?? 0,
           })
         : { series: 0, films: 0 };
-    const intro = introComptes(totaux, nbAffiches, "ajouté", `${periodeIntro} au catalogue ${pf.nom} en France`);
+    const intro = introComptes(totaux, nbAffiches, "sorti", `${periodeIntro} sur ${pf.nom} en France`);
 
     return (
       <>
@@ -359,7 +367,7 @@ export default async function SlugPage({ params }: Props) {
       <>
         <EnTeteNouveautes
           titre={`Nouveautés streaming ${deMois(mois, annee)}`}
-          intro="Le récapitulatif du mois : toutes les séries et films arrivés sur Netflix, Prime Video, Disney+ et les autres plateformes."
+          intro="Le récapitulatif du mois : toutes les séries et films sortis sur Netflix, Prime Video, Disney+ et les autres plateformes."
         />
         <AccueilClient
           plateformes={nouveautes}

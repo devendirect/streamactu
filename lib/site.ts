@@ -9,6 +9,16 @@ export const CONTACT_EMAIL = "contact@streamactu.fr";
 /** Dépôt public du code (licence MIT), transféré dans l'organisation devendirect le 2026-09-26 */
 export const REPO_URL = "https://github.com/devendirect/streamactu";
 
+/**
+ * Chaînes de l'éditeur (DevEnDirect) où paraissent les shorts « Ce week-end ».
+ * Liées depuis le footer et la page À propos, mais pas dans le `sameAs` de
+ * l'Organization : ce sont les comptes de l'éditeur, pas ceux du site.
+ */
+export const CHAINES_VIDEO = [
+  { nom: "TikTok", url: "https://www.tiktok.com/@devendirect" },
+  { nom: "YouTube", url: "https://www.youtube.com/@DevEnDirect" },
+];
+
 /** @id de l'Organization JSON-LD : les autres schémas y renvoient */
 export const ORG_ID = `${SITE_URL}/#organization`;
 

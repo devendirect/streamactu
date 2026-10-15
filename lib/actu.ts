@@ -3,6 +3,7 @@ import { slugify } from "./utils";
 import { ARTICLE_2026_09_25_WEEKEND } from "./actu/2026-09-25-que-regarder-ce-week-end";
 import { ARTICLE_2026_10_02_WEEKEND } from "./actu/2026-10-02-que-regarder-ce-week-end";
 import { ARTICLE_2026_10_09_WEEKEND } from "./actu/2026-10-09-que-regarder-ce-week-end";
+import { ARTICLE_2026_10_16_WEEKEND } from "./actu/2026-10-16-que-regarder-ce-week-end";
 import { ARTICLE_2026_10_27_NOVEMBRE } from "./actu/2026-10-27-nouveautes-streaming-novembre-2026";
 
 /**
@@ -73,6 +74,7 @@ export interface Article {
 /** Tous les articles, brouillons compris (tests) */
 export const TOUS_LES_ARTICLES: Article[] = [
   ARTICLE_2026_10_27_NOVEMBRE,
+  ARTICLE_2026_10_16_WEEKEND,
   ARTICLE_2026_10_09_WEEKEND,
   ARTICLE_2026_10_02_WEEKEND,
   ARTICLE_2026_09_25_WEEKEND,
@@ -139,6 +141,15 @@ export const EDITIONS_COURANTES: Article[] = FORMATS.flatMap((f) => editionCoura
 /** Adresse de référence d'un article : l'adresse fixe pour l'édition courante de son format, sa date sinon */
 export function cheminArticle(article: Article): string {
   return editionCourante(article.format)?.slug === article.slug ? cheminFixe(article.format) : `/actu/${article.slug}`;
+}
+
+/**
+ * Date d'article avec heure et fuseau (« 2026-10-09T07:00:00Z ») : Google
+ * recommande le fuseau dans le JSON-LD. 7 h UTC, le matin de la publication à
+ * Paris ; même heure pour le sitemap, le flux RSS et Open Graph.
+ */
+export function horodatageArticle(jour: string): string {
+  return `${jour}T07:00:00Z`;
 }
 
 /** Période couverte, tirée du titre (« … : 9 au 11 octobre 2026 », « … : novembre 2026 ») */

@@ -22,6 +22,13 @@ export const DESCRIPTION_MIN = 120;
 export const DESCRIPTION_MAX = 155;
 
 const OG_IMAGES = ["/og-default.png"];
+
+/**
+ * Champs Open Graph de toutes les pages. Un `openGraph` de page remplace en
+ * entier celui du layout (Next ne fusionne pas) : chaque page qui en définit un
+ * reprend donc ces champs, et son `url` (le canonical).
+ */
+export const OG_BASE = { siteName: "StreamActu.fr", locale: "fr_FR" } as const;
 const PLATEFORMES_PHRASE = "Netflix, Prime Video, Disney+ et les autres plateformes";
 
 // ──────────────────────────────────────────────
@@ -68,7 +75,7 @@ export function metadonnees(
   return {
     title: titreMeta(titre),
     description,
-    openGraph: { title: titreAffiche(titre), description, images: OG_IMAGES },
+    openGraph: { ...OG_BASE, type: "website", url: canonical, title: titreAffiche(titre), description, images: OG_IMAGES },
     alternates: { canonical },
     ...extra,
   };
@@ -151,7 +158,7 @@ function nombres(series: Contenu[], films: Contenu[], totaux?: Comptes): Comptes
 }
 
 /**
- * Début d'intro de page : « 52 séries et 19 films arrivés sur Netflix en août
+ * Début d'intro de page : « 52 séries et 19 films sortis sur Netflix en août
  * 2026 », puis, si la liste affichée est tronquée, « voici les 39 plus
  * populaires, triés par note. »
  */
@@ -184,7 +191,7 @@ export function metaHubPlateforme(nom: string): TitreDescription {
   return {
     titre: `Nouveautés ${nom} de la semaine`,
     description: composerDescription(
-      `Les séries et films ajoutés cette semaine au catalogue ${nom} en France, triés par note des spectateurs.`,
+      `Les séries et films sortis cette semaine sur ${nom} en France, nouveaux épisodes compris, triés par note des spectateurs.`,
       ["Mis à jour chaque jour, avec les archives mois par mois.", "Mis à jour chaque jour."]
     ),
   };
@@ -289,7 +296,7 @@ export function metaMois(
   return {
     titre: `Nouveautés streaming ${deMois(mois, annee)}`,
     description: composerDescription(
-      `Le récap ${deMois(mois, annee)} : ${comptes.charAt(0).toLowerCase() + comptes.slice(1)} arrivé${accord(n.series, n.films)} sur ${PLATEFORMES_PHRASE}.`,
+      `Le récap ${deMois(mois, annee)} : ${comptes.charAt(0).toLowerCase() + comptes.slice(1)} sorti${accord(n.series, n.films)} sur ${PLATEFORMES_PHRASE}.`,
       variantesExemples("Parmi eux :", [...series, ...films]),
       ["Classés par plateforme.", "Par plateforme."]
     ),
@@ -304,14 +311,14 @@ export function metaSeriesOuFilms(
 ): TitreDescription {
   const estSeries = type === "series";
   const n = totalReel ?? contenus.length;
-  // accord : « 12 séries ajoutées… triées », « 1 film ajouté… trié »
+  // accord : « 12 séries sorties… triées », « 1 film sorti… trié »
   const fin = `${estSeries ? "e" : ""}${n > 1 ? "s" : ""}`;
   const base =
     n > 0
-      ? `${n} ${estSeries ? "série" : "film"}${n > 1 ? "s" : ""} ajouté${fin} au catalogue ${nom} en France ces quatre dernières semaines${
+      ? `${n} ${estSeries ? "série" : "film"}${n > 1 ? "s" : ""} sorti${fin} sur ${nom} en France ces quatre dernières semaines${
           n > contenus.length && contenus.length > 0 ? `, les ${contenus.length} plus populaires affiché${estSeries ? "es" : "s"}` : `, trié${fin} par note`
         }.`
-      : `Les ${estSeries ? "nouvelles séries" : "nouveaux films"} ajouté${estSeries ? "es" : "s"} au catalogue ${nom} en France ces quatre dernières semaines.`;
+      : `Les ${estSeries ? "nouvelles séries" : "nouveaux films"} sorti${estSeries ? "es" : "s"} sur ${nom} en France ces quatre dernières semaines.`;
   return {
     titre: estSeries ? `Nouvelles séries ${nom}` : `Nouveaux films ${nom}`,
     description: composerDescription(base, variantesExemples("À voir :", contenus), [
@@ -344,7 +351,7 @@ export function metaMoisPlateforme(
   return {
     titre: `Nouveautés ${nom} ${deMois(mois, annee)}`,
     description: composerDescription(
-      `${majuscule(comptes)} arrivé${accord(n.series, n.films)} sur ${nom} en ${moisMinuscule(mois, annee)} en France.`,
+      `${majuscule(comptes)} sorti${accord(n.series, n.films)} sur ${nom} en ${moisMinuscule(mois, annee)} en France.`,
       variantesExemples("Parmi eux :", [...series, ...films]),
       ["Avec les liens vers les autres mois.", "Archives par mois."],
       ["Données TMDB et JustWatch."]
@@ -363,7 +370,7 @@ export function metaAnneePlateforme(
   return {
     titre: `Nouveautés ${nom} ${annee}`,
     description: composerDescription(
-      `${majuscule(comptes)} arrivé${accord(totalSeries, totalFilms)} sur ${nom} en France en ${annee} : les mieux noté${accord(totalSeries, totalFilms)} d'abord, puis le détail mois par mois.`,
+      `${majuscule(comptes)} sorti${accord(totalSeries, totalFilms)} sur ${nom} en France en ${annee} : les mieux noté${accord(totalSeries, totalFilms)} d'abord, puis le détail mois par mois.`,
       variantesExemples("Parmi eux :", meilleurs),
       ["Mis à jour chaque jour."]
     ),

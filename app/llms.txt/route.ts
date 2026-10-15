@@ -2,6 +2,7 @@ import { PLATEFORMES } from "@/lib/plateformes";
 import { GUIDES } from "@/lib/guides";
 import { ACTU_PUBLIEE, ARTICLES, EDITIONS_COURANTES, cheminFixe } from "@/lib/actu";
 import { formatMoisFR, formatMoisURL } from "@/lib/utils";
+import { CHAINES_VIDEO } from "@/lib/site";
 
 // 24h : seuls les liens de classements (mois/année) changent
 export const revalidate = 86400;
@@ -20,14 +21,14 @@ export async function GET() {
   const anneeMois = dernierMois.getUTCFullYear();
 
   const plateformes = PLATEFORMES.map(
-    (pf) => `- [Nouveautés ${pf.nom}](${SITE_URL}/${pf.slug}) : séries et films ajoutés cette semaine sur ${pf.nom} en France`
+    (pf) => `- [Nouveautés ${pf.nom}](${SITE_URL}/${pf.slug}) : séries et films sortis cette semaine sur ${pf.nom} en France, nouveaux épisodes compris`
   ).join("\n");
 
   const moisURL = formatMoisURL(mois, anneeMois);
   const moisFR = formatMoisFR(mois, anneeMois);
 
   const recapsAnnuels = PLATEFORMES.map(
-    (pf) => `- [Nouveautés ${pf.nom} ${annee}](${SITE_URL}/${pf.slug}/${annee}) : tout ce qui est arrivé sur ${pf.nom} en ${annee}, mois par mois`
+    (pf) => `- [Nouveautés ${pf.nom} ${annee}](${SITE_URL}/${pf.slug}/${annee}) : tout ce qui est sorti sur ${pf.nom} en ${annee}, mois par mois`
   ).join("\n");
 
   const texte = `# StreamActu.fr
@@ -86,6 +87,7 @@ ${lignesActu()}
 - [Mentions légales](${SITE_URL}/mentions-legales) : éditeur, hébergeur, données personnelles, usage de l'IA
 - Données : TMDB (The Movie Database), disponibilités France uniquement
 - [Code source](https://github.com/devendirect/streamactu) : public, licence MIT
+- Vidéos courtes « Ce week-end », chaque vendredi : ${CHAINES_VIDEO.map((c) => `[${c.nom}](${c.url})`).join(", ")}
 - Langue : français
 - Mise à jour : quotidienne
 `;

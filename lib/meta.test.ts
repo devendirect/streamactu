@@ -23,8 +23,11 @@ import {
   periodeSemaine,
   titreAffiche,
   type TitreDescription,
+  metadonnees,
 } from "./meta";
 import { descriptionFiche } from "./seo";
+import { horodatageArticle } from "./actu";
+import { horodatageGuide } from "./guides";
 
 // Données simulées : noms réels des plateformes et genres, titres courts et
 // très longs pour pousser les gabarits dans leurs extrêmes.
@@ -85,6 +88,17 @@ describe("assemblage", () => {
     ]);
     expect(c.series).toHaveLength(1);
     expect(c.films).toHaveLength(1);
+  });
+});
+
+describe("Open Graph et dates", () => {
+  it("chaque page porte son url (le canonical), le nom du site et la langue", () => {
+    const og = metadonnees("Nouveautés Netflix de la semaine", "x", "/netflix").openGraph;
+    expect(og).toMatchObject({ url: "/netflix", siteName: "StreamActu.fr", locale: "fr_FR", type: "website" });
+  });
+  it("date les articles et les guides avec heure et fuseau", () => {
+    expect(horodatageArticle("2026-10-09")).toBe("2026-10-09T07:00:00Z");
+    expect(horodatageGuide("2026-10-09")).toBe("2026-10-09T12:00:00Z");
   });
 });
 
@@ -161,11 +175,11 @@ describe("rédaction", () => {
     expect(periodeSemaine(53, 2026)).toBe("du 28 décembre 2026 au 3 janvier 2027");
   });
   it("accorde séries et films", () => {
-    expect(metaSeriesOuFilms("Netflix", "series", [COURT[1]]).description).toMatch(/^1 série ajoutée .* triée par note/);
-    expect(metaSeriesOuFilms("Netflix", "films", COURT).description).toMatch(/^2 films ajoutés .* triés par note/);
-    expect(metaMoisPlateforme("Canal+", 5, 2026, LONG, []).description).toMatch(/^2 séries arrivées sur Canal\+ en mai 2026/);
+    expect(metaSeriesOuFilms("Netflix", "series", [COURT[1]]).description).toMatch(/^1 série sortie .* triée par note/);
+    expect(metaSeriesOuFilms("Netflix", "films", COURT).description).toMatch(/^2 films sortis .* triés par note/);
+    expect(metaMoisPlateforme("Canal+", 5, 2026, LONG, []).description).toMatch(/^2 séries sorties sur Canal\+ en mai 2026/);
     expect(metaMoisPlateforme("Canal+", 6, 2026, [COURT[1]], []).description).toContain("Parmi elles : You.");
-    expect(metaMoisPlateforme("Canal+", 5, 2026, [COURT[1]], [COURT[0]]).description).toMatch(/^1 série et 1 film arrivés/);
+    expect(metaMoisPlateforme("Canal+", 5, 2026, [COURT[1]], [COURT[0]]).description).toMatch(/^1 série et 1 film sortis/);
   });
   it("donne des descriptions différentes d'une plateforme à l'autre", () => {
     const hubs = new Set(PLATEFORMES.map((pf) => metaHubPlateforme(pf).description));
@@ -175,11 +189,11 @@ describe("rédaction", () => {
 
 describe("totaux réels (P11)", () => {
   it("préfère les totaux TMDB à la longueur des listes plafonnées", () => {
-    expect(metaMoisPlateforme("Netflix", 8, 2026, LONG, [], { series: 52, films: 19 }).description).toMatch(/^52 séries et 19 films arrivés sur Netflix/);
+    expect(metaMoisPlateforme("Netflix", 8, 2026, LONG, [], { series: 52, films: 19 }).description).toMatch(/^52 séries et 19 films sortis sur Netflix/);
     expect(metaJour(new Date("2026-08-31T12:00:00Z"), false, COURT, [], { series: 30, films: 4 }).description).toMatch(/^30 séries et 4 films sortis/);
   });
   it("dit quand la liste affichée est tronquée", () => {
-    expect(metaSeriesOuFilms("Netflix", "series", COURT, 52).description).toContain("52 séries ajoutées au catalogue Netflix en France ces quatre dernières semaines, les 2 plus populaires affichées.");
+    expect(metaSeriesOuFilms("Netflix", "series", COURT, 52).description).toContain("52 séries sorties sur Netflix en France ces quatre dernières semaines, les 2 plus populaires affichées.");
     expect(introComptes({ series: 52, films: 19 }, 39, "arrivé", "sur Netflix en août 2026")).toBe(
       "52 séries et 19 films arrivés sur Netflix en août 2026 ; voici les 39 plus populaires, triés par note."
     );

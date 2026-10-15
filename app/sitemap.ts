@@ -8,8 +8,8 @@ import {
 } from "@/lib/tmdb";
 import { PLATEFORMES } from "@/lib/plateformes";
 import { GENRES_SEO } from "@/lib/genres";
-import { GUIDES, MIN_GUIDES_INDEX } from "@/lib/guides";
-import { ARTICLES, EDITIONS_COURANTES, MIN_ARTICLES_INDEX, NB_PAGES_ACTU, cheminFixe } from "@/lib/actu";
+import { GUIDES, MIN_GUIDES_INDEX, horodatageGuide } from "@/lib/guides";
+import { ARTICLES, EDITIONS_COURANTES, MIN_ARTICLES_INDEX, NB_PAGES_ACTU, cheminFixe, horodatageArticle } from "@/lib/actu";
 import {
   decalerSemaineISO,
   formatDateURL,
@@ -246,7 +246,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const a of EDITIONS_COURANTES) {
     entries.push({
       url: `${BASE}${cheminFixe(a.format)}`,
-      lastModified: new Date(`${a.misAJour}T07:00:00Z`),
+      lastModified: new Date(horodatageArticle(a.misAJour)),
       changeFrequency: a.format === "mois" ? "monthly" : "weekly",
       priority: 0.7,
     });
@@ -254,7 +254,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const a of ARTICLES.filter((a) => !EDITIONS_COURANTES.includes(a))) {
     entries.push({
       url: `${BASE}/actu/${a.slug}`,
-      lastModified: new Date(`${a.misAJour}T07:00:00Z`),
+      lastModified: new Date(horodatageArticle(a.misAJour)),
       changeFrequency: "yearly",
       priority: 0.5,
     });
@@ -267,7 +267,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const g of GUIDES) {
     entries.push({
       url: `${BASE}/guides/${g.slug}`,
-      lastModified: new Date(`${g.misAJour}T12:00:00Z`),
+      lastModified: new Date(horodatageGuide(g.misAJour)),
       changeFrequency: "monthly",
       priority: 0.6,
     });

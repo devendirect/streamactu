@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ARTICLES, cheminArticle, rubriquesArticle, type Article } from "@/lib/actu";
+import { ARTICLES, cheminArticle, horodatageArticle, rubriquesArticle, type Article } from "@/lib/actu";
 import { slugify } from "@/lib/utils";
 import { cleOeuvre, imagePrincipale, type OeuvreArticle } from "@/lib/actu-oeuvres";
 import { ORG_ID, SITE_URL } from "@/lib/site";
@@ -35,8 +35,8 @@ export default function ArticleActu({ article, oeuvres, titre, edition }: Props)
     headline: article.titre,
     description: article.description,
     inLanguage: "fr-FR",
-    datePublished: article.publie,
-    dateModified: article.misAJour,
+    datePublished: horodatageArticle(article.publie),
+    dateModified: horodatageArticle(article.misAJour),
     mainEntityOfPage: url,
     image: principale?.grandeImage ?? `${SITE_URL}/og-default.png`,
     author: { "@id": ORG_ID },

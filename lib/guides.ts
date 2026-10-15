@@ -176,6 +176,11 @@ export function cheminOeuvreGuide(o: OeuvreGuide): string {
   return `/${o.type}/${slugify(o.titre)}-${o.id}`;
 }
 
+/** Date de guide avec heure et fuseau (JSON-LD, Open Graph, sitemap), comme horodatageArticle */
+export function horodatageGuide(jour: string): string {
+  return `${jour}T12:00:00Z`;
+}
+
 /** Œuvres des listes ordonnées d'un guide, sans doublon */
 export function oeuvresDesSections(sections: SectionGuide[]): OeuvreGuide[] {
   const vues = new Map<string, OeuvreGuide>();

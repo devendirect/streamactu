@@ -7,12 +7,13 @@ import {
   ancresOrdre,
   cheminOeuvreGuide,
   estGuideOrdre,
+  horodatageGuide,
   minutesDeLecture,
   oeuvresDesSections,
   sommaireOrdres,
   trouverGuide,
 } from "@/lib/guides";
-import { chargerOeuvres, cleOeuvre } from "@/lib/actu-oeuvres";
+import { chargerOeuvres, cleOeuvre, type OeuvreArticle } from "@/lib/actu-oeuvres";
 import { metadonnees } from "@/lib/meta";
 import { jsonLdFaq } from "@/lib/seo";
 import { ORG_ID, SITE_URL } from "@/lib/site";
@@ -33,18 +34,26 @@ export function generateStaticParams() {
   return GUIDES.map((g) => ({ slug: g.slug }));
 }
 
+/** Grande image du guide : celle du premier titre cité qui en a une (sinon l'image du site) */
+function imageGuide(oeuvres: Map<string, OeuvreArticle>): OeuvreArticle | undefined {
+  return [...oeuvres.values()].find((o) => o.grandeImage);
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const guide = trouverGuide(slug);
   if (!guide) return { title: "Page non trouvée" };
   const meta = metadonnees(guide.titre, guide.description, `/guides/${guide.slug}`);
+  // Mêmes caches que la page : aucun appel supplémentaire
+  const image = imageGuide(await chargerOeuvres(oeuvresDesSections(guide.sections)));
   return {
     ...meta,
     openGraph: {
       ...meta.openGraph,
       type: "article",
-      publishedTime: guide.publie,
-      modifiedTime: guide.misAJour,
+      publishedTime: horodatageGuide(guide.publie),
+      modifiedTime: horodatageGuide(guide.misAJour),
+      ...(image?.grandeImage ? { images: [{ url: image.grandeImage, width: 1280, height: 720, alt: image.titre }] } : {}),
     },
   };
 }
@@ -96,10 +105,10 @@ export default async function GuidePage({ params }: Props) {
     headline: guide.titre,
     description: guide.description,
     inLanguage: "fr-FR",
-    datePublished: guide.publie,
-    dateModified: guide.misAJour,
+    datePublished: horodatageGuide(guide.publie),
+    dateModified: horodatageGuide(guide.misAJour),
     mainEntityOfPage: url,
-    image: `${SITE_URL}/og-default.png`,
+    image: imageGuide(oeuvres)?.grandeImage ?? `${SITE_URL}/og-default.png`,
     author: { "@id": ORG_ID },
     publisher: { "@id": ORG_ID },
   };
