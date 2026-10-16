@@ -46,6 +46,21 @@ export function titreMeta(titre: string): Metadata["title"] {
 }
 
 /**
+ * Titre d'une fiche, calé sur les recherches « où regarder X », « X streaming »
+ * (décision du 2026-10-15) : la variante la plus complète qui tient sous
+ * TITRE_MAX, le titre seul en dernier recours.
+ */
+export function titreFiche(titre: string, type: "serie" | "film"): string {
+  const nature = type === "serie" ? "la série" : "le film";
+  const variantes = [
+    `${titre} : où regarder ${nature} en streaming`,
+    `${titre} : où regarder ${nature}`,
+    `${titre} en streaming`,
+  ];
+  return variantes.find((v) => v.length <= TITRE_MAX) ?? titre;
+}
+
+/**
  * Description = base, puis pour chaque groupe la première variante qui tient
  * encore sous DESCRIPTION_MAX (les variantes vont de la plus riche à la plus
  * courte).

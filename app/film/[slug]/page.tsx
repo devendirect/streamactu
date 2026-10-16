@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { OG_BASE, titreAffiche, titreMeta } from "@/lib/meta";
+import { OG_BASE, titreAffiche, titreFiche, titreMeta } from "@/lib/meta";
 import { getDetailFilm } from "@/lib/tmdb";
 import { idDepuisSlug } from "@/lib/utils";
 import { descriptionFiche, fichePauvre, jsonLdFiche } from "@/lib/seo";
@@ -40,8 +40,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!film) return { title: "Film introuvable" };
 
   const description = descriptionFiche(film);
+  const titre = titreFiche(film.titre, "film");
   return {
-    title: titreMeta(film.titre),
+    title: titreMeta(titre),
     description,
     alternates: { canonical: `/film/${film.slug}` },
     ...(fichePauvre(film) ? { robots: { index: false, follow: true } } : {}),
@@ -49,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ...OG_BASE,
       type: "video.movie",
       url: `/film/${film.slug}`,
-      title: titreAffiche(film.titre),
+      title: titreAffiche(titre),
       description,
       images: film.backdrop ? [{ url: film.backdrop }] : ["/og-default.png"],
     },

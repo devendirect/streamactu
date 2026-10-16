@@ -22,6 +22,7 @@ import {
   introComptes,
   periodeSemaine,
   titreAffiche,
+  titreFiche,
   type TitreDescription,
   metadonnees,
 } from "./meta";
@@ -226,5 +227,28 @@ describe("fiches", () => {
     const film = { ...contenu("Dune", "film"), synopsis: "", duree: 150, casting: [], realisateurs: [], dispo: [], trailer: null } as unknown as Film;
     const d = descriptionFiche(film);
     expect(d.startsWith("Dune : film de 2026.")).toBe(true);
+  });
+});
+
+describe("titre des fiches (« où regarder X »)", () => {
+  it("prend la variante la plus complète qui tient", () => {
+    expect(titreFiche("Carrie", "serie")).toBe("Carrie : où regarder la série en streaming");
+    expect(titreFiche("Hamnet", "film")).toBe("Hamnet : où regarder le film en streaming");
+    expect(titreAffiche(titreFiche("Carrie", "serie"))).toBe("Carrie : où regarder la série en streaming | StreamActu.fr");
+  });
+  it("raccourcit pour un titre long, puis garde le titre seul", () => {
+    expect(titreFiche("Avatar : Les Sept Refuges", "serie")).toBe("Avatar : Les Sept Refuges : où regarder la série");
+    expect(titreFiche("Tenzing : à la conquête de l'Everest", "film")).toBe("Tenzing : à la conquête de l'Everest : où regarder le film");
+    expect(titreFiche("Mission: Impossible – The Final Reckoning", "film")).toBe("Mission: Impossible – The Final Reckoning en streaming");
+    const tresLong = "Le Seigneur des anneaux : Les Anneaux de pouvoir, édition longue";
+    expect(titreFiche(tresLong, "serie")).toBe(tresLong);
+  });
+  it("ne dépasse jamais la limite, sauf titre seul déjà trop long", () => {
+    for (const t of ["X", "Dune", "Le Bureau des légendes", "Matchbox – Le film", "a".repeat(45), "a".repeat(58)]) {
+      for (const type of ["serie", "film"] as const) {
+        const r = titreFiche(t, type);
+        expect(r.length <= TITRE_MAX || r === t, r).toBe(true);
+      }
+    }
   });
 });

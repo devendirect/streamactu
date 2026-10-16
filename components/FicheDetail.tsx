@@ -113,43 +113,48 @@ export default function FicheDetail({ contenu, suggestions }: FicheDetailProps) 
           )}
         </div>
 
-        {/* ── Où regarder ── */}
-        <div className="flex items-baseline gap-3 flex-wrap">
-          <span className="font-mono-label text-ink-4">
-            {contenu.dispo && contenu.dispo.length > 0 ? "Disponible sur" : "Hors abonnement streaming FR"}
-          </span>
-          {contenu.dispo?.slice(0, 4).map((nom) => (
-            <span
-              key={nom}
-              className="font-mono-label px-2 py-0.5"
-              style={{ background: "#C7BEAC", color: "#16140F", fontSize: "10px", letterSpacing: "0.1em" }}
-            >
-              {nom}
+        {/* ── Où regarder : la question telle qu'on la tape, puis la réponse ── */}
+        <section aria-labelledby="ou-regarder" className="space-y-3">
+          <h2 id="ou-regarder" className="text-xl font-extrabold tracking-[-0.02em]">
+            Où regarder {contenu.titre} en streaming&nbsp;?
+          </h2>
+          <div className="flex items-baseline gap-3 flex-wrap">
+            <span className="font-mono-label text-ink-4">
+              {contenu.dispo && contenu.dispo.length > 0 ? "Disponible sur" : "Hors abonnement streaming FR"}
             </span>
-          ))}
-          {/* Lien requis par TMDB pour les données de disponibilité (source JustWatch) */}
-          <LienGA
-            href={`https://www.themoviedb.org/${isSerie ? "tv" : "movie"}/${contenu.id}/watch?locale=FR`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-mono-label text-ink-3 underline hover:text-foreground transition-colors"
-            evenement="clic_plateforme"
-            params={{
-              titre: contenu.titre,
-              type: contenu.type,
-              plateformes: contenu.dispo?.join(", ") || "aucune",
-            }}
-          >
-            Toutes les options →
-          </LienGA>
-        </div>
+            {contenu.dispo?.slice(0, 4).map((nom) => (
+              <span
+                key={nom}
+                className="font-mono-label px-2 py-0.5"
+                style={{ background: "#C7BEAC", color: "#16140F", fontSize: "10px", letterSpacing: "0.1em" }}
+              >
+                {nom}
+              </span>
+            ))}
+            {/* Lien requis par TMDB pour les données de disponibilité (source JustWatch) */}
+            <LienGA
+              href={`https://www.themoviedb.org/${isSerie ? "tv" : "movie"}/${contenu.id}/watch?locale=FR`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono-label text-ink-3 underline hover:text-foreground transition-colors"
+              evenement="clic_plateforme"
+              params={{
+                titre: contenu.titre,
+                type: contenu.type,
+                plateformes: contenu.dispo?.join(", ") || "aucune",
+              }}
+            >
+              Toutes les options →
+            </LienGA>
+          </div>
 
-        <p
-          className="text-[15px] leading-relaxed text-[#9A9282]"
-          style={{ fontFamily: "var(--font-newsreader), serif" }}
-        >
-          {phraseDispo}
-        </p>
+          <p
+            className="text-[15px] leading-relaxed text-[#9A9282]"
+            style={{ fontFamily: "var(--font-newsreader), serif" }}
+          >
+            {phraseDispo}
+          </p>
+        </section>
 
         {/* Genres — cliquables quand une page genre existe */}
         {contenu.genres.length > 0 && (

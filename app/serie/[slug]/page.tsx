@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { OG_BASE, titreAffiche, titreMeta } from "@/lib/meta";
+import { OG_BASE, titreAffiche, titreFiche, titreMeta } from "@/lib/meta";
 import { getDetailSerie } from "@/lib/tmdb";
 import { idDepuisSlug } from "@/lib/utils";
 import { descriptionFiche, fichePauvre, jsonLdFiche } from "@/lib/seo";
@@ -40,8 +40,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!serie) return { title: "Série introuvable" };
 
   const description = descriptionFiche(serie);
+  const titre = titreFiche(serie.titre, "serie");
   return {
-    title: titreMeta(serie.titre),
+    title: titreMeta(titre),
     description,
     alternates: { canonical: `/serie/${serie.slug}` },
     ...(fichePauvre(serie) ? { robots: { index: false, follow: true } } : {}),
@@ -49,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ...OG_BASE,
       type: "video.tv_show",
       url: `/serie/${serie.slug}`,
-      title: titreAffiche(serie.titre),
+      title: titreAffiche(titre),
       description,
       images: serie.backdrop ? [{ url: serie.backdrop }] : ["/og-default.png"],
     },
