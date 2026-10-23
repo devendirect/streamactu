@@ -1,7 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Serie, Film } from "@/types";
-import { formatDuree, formatDateFR } from "@/lib/utils";
+import { formatDuree, formatDateFR, formatJourSemaineFR, toISO } from "@/lib/utils";
+import { calendrierSerie, libelleEpisodes, phraseCalendrier } from "@/lib/episodes";
+import { PLATEFORME_PAR_ID, plateformesDepuisFournisseurs } from "@/lib/plateformes";
 import { slugPourGenreId } from "@/lib/genres";
 import ConvaincsMoi from "@/components/ConvaincsMoi";
 import BoutonMaListe from "@/components/BoutonMaListe";
@@ -50,6 +52,16 @@ export default function FicheDetail({ contenu, suggestions }: FicheDetailProps) 
   const phraseDispo = plateformesFR
     ? `« ${contenu.titre} », ${sortie}, est disponible en streaming sur ${plateformesFR} en France.`
     : `« ${contenu.titre} », ${sortie}, n'est actuellement disponible sur aucune plateforme de streaming par abonnement en France.`;
+
+  // Calendrier de la saison en cours (dates françaises si le décalage est connu)
+  const calendrier = serie
+    ? calendrierSerie(
+        serie.episodesSaison,
+        serie.reseaux ?? [],
+        plateformesDepuisFournisseurs(contenu.dispo ?? []).map((p) => p.id),
+        toISO(new Date())
+      )
+    : null;
 
   return (
     <article>
@@ -155,6 +167,42 @@ export default function FicheDetail({ contenu, suggestions }: FicheDetailProps) 
             {phraseDispo}
           </p>
         </section>
+
+        {/* ── Calendrier des épisodes de la saison en cours ── */}
+        {serie && calendrier && (
+          <section aria-labelledby="episodes" className="space-y-3">
+            <h2 id="episodes" className="text-xl font-extrabold tracking-[-0.02em]">
+              Quand sortent les épisodes de {contenu.titre}&nbsp;?
+            </h2>
+            <p
+              className="text-[15px] leading-relaxed text-[#9A9282]"
+              style={{ fontFamily: "var(--font-newsreader), serif" }}
+            >
+              {phraseCalendrier(calendrier, calendrier.plateforme ? PLATEFORME_PAR_ID[calendrier.plateforme].nom : null)}
+            </p>
+            {calendrier.sorties.length > 1 && (
+              <details>
+                <summary className="font-mono-label text-ink-3 cursor-pointer hover:text-foreground transition-colors">
+                  Saison {calendrier.saison} : tous les épisodes
+                  {calendrier.datesFrance ? "" : " (dates d'origine)"}
+                </summary>
+                <div className="mt-2">
+                  {calendrier.sorties.map((s) => (
+                    <div
+                      key={s.date}
+                      className="flex items-baseline justify-between gap-4 py-2 border-t border-border/50"
+                    >
+                      <span className="text-sm font-semibold">{libelleEpisodes(s.numeros)}</span>
+                      <span className="font-mono text-sm text-[#9A9282] whitespace-nowrap shrink-0">
+                        {formatJourSemaineFR(s.date)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            )}
+          </section>
+        )}
 
         {/* Genres — cliquables quand une page genre existe */}
         {contenu.genres.length > 0 && (

@@ -11,6 +11,8 @@ import type {
   ReponseTMDB,
   TMDBSerie,
   TMDBSerieDetail,
+  TMDBSaisonDetail,
+  SaisonEpisodes,
   TMDBFilm,
   TMDBReleaseDates,
   TMDBFilmDetail,
@@ -21,6 +23,7 @@ import type {
 } from "@/types";
 import { PLATEFORMES, PLATEFORME_PAR_ID, filtreFournisseurs } from "@/lib/plateformes";
 import { RESEAUX_PAR_PLATEFORME, plateformeDepuisNote, serieAnnonceeCredible } from "@/lib/calendrier";
+import { saisonADetailler } from "@/lib/episodes";
 import {
   slugify,
   bornesMois,
@@ -614,6 +617,7 @@ export const getDetailSerie = unstable_cache(
     const genres = detail.genres.map((g) => ({ id: g.id, nom: g.name }));
 
     const derniereS = detail.seasons.at(-1);
+    const episodesSaison = await getEpisodesSaison(detail);
 
     return {
       id: detail.id,
@@ -640,11 +644,38 @@ export const getDetailSerie = unstable_cache(
       casting,
       trailer,
       dispo,
+      reseaux: (detail.networks ?? []).map((n) => n.id),
+      ...(episodesSaison ? { episodesSaison } : {}),
     };
   },
   ["detail-serie"],
   { revalidate: 3600 }
 );
+
+/**
+ * Épisodes datés de la saison en cours de diffusion (un appel de plus,
+ * seulement pour les séries diffusées autour d'aujourd'hui). Une erreur ne
+ * doit pas empêcher la fiche : pas de calendrier, c'est tout.
+ */
+async function getEpisodesSaison(detail: TMDBSerieDetail): Promise<SaisonEpisodes | null> {
+  const n = saisonADetailler(detail.next_episode_to_air, detail.last_episode_to_air, toISO(new Date()));
+  if (n === null) return null;
+  try {
+    const s = await tmdbGet<TMDBSaisonDetail>(`/tv/${detail.id}/season/${n}`);
+    return {
+      saison: n,
+      ...(s.name ? { nom: s.name } : {}),
+      episodes: (s.episodes ?? []).map((e) => ({
+        numero: e.episode_number,
+        date: e.air_date || null,
+        duree: e.runtime || null,
+      })),
+    };
+  } catch (err) {
+    console.error(`[tmdb] saison ${n} de la série ${detail.id} :`, err);
+    return null;
+  }
+}
 
 // ──────────────────────────────────────────────
 // Détail film

@@ -228,6 +228,22 @@ describe("fiches", () => {
     const d = descriptionFiche(film);
     expect(d.startsWith("Dune : film de 2026.")).toBe(true);
   });
+  it("annonce le prochain épisode quand la date française est connue", () => {
+    const episodesSaison = {
+      saison: 1,
+      episodes: [
+        { numero: 4, date: "2026-10-20", duree: null },
+        { numero: 5, date: "2026-10-27", duree: null },
+      ],
+    };
+    const enCours = fiche("Une maison hantée.", { dispo: ["Disney Plus"], reseaux: [2739], episodesSaison });
+    const d = descriptionFiche(enCours, "2026-10-23");
+    expect(d, d).toMatch(/^À voir sur Disney Plus\. Épisode 5 de la saison 1 le mercredi 28 octobre 2026 sur Disney\+ en France\. Une maison/);
+    expect(d.length, d).toBeLessThanOrEqual(DESCRIPTION_MAX);
+    // Date d'origine seulement (décalage inconnu) : rien dans la description
+    const origine = descriptionFiche({ ...enCours, reseaux: [1063] }, "2026-10-23");
+    expect(origine).not.toContain("Épisode");
+  });
 });
 
 describe("titre des fiches (« où regarder X »)", () => {

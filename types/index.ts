@@ -70,6 +70,26 @@ export interface Serie extends Contenu {
   saisons: SaisonResume[];
   casting: PersonneCasting[];
   trailer: Video | null;
+  /** Réseaux d'origine TMDB (décalage des dates en France) */
+  reseaux?: number[];
+  /** Épisodes datés de la saison en cours, si elle est diffusée en ce moment */
+  episodesSaison?: SaisonEpisodes;
+}
+
+/** Épisode daté (date d'origine TMDB) */
+export interface EpisodeDate {
+  numero: number;
+  /** YYYY-MM-DD */
+  date: string | null;
+  /** minutes */
+  duree: number | null;
+}
+
+export interface SaisonEpisodes {
+  saison: number;
+  /** Nom TMDB en français (« Saison 4 », « Partie 4 ») */
+  nom?: string;
+  episodes: EpisodeDate[];
 }
 
 /** Fiche complète d'un film */
@@ -174,6 +194,22 @@ export interface TMDBSerieDetail {
     episode_count: number;
     air_date: string | null;
   }[];
+  networks?: { id: number; name: string }[];
+  status?: string;
+  next_episode_to_air?: TMDBEpisodeRepere | null;
+  last_episode_to_air?: TMDBEpisodeRepere | null;
+}
+
+export interface TMDBEpisodeRepere {
+  season_number: number;
+  episode_number: number;
+  air_date: string | null;
+}
+
+export interface TMDBSaisonDetail {
+  season_number: number;
+  name?: string;
+  episodes: { episode_number: number; air_date: string | null; runtime: number | null }[];
 }
 
 export interface TMDBFilm {

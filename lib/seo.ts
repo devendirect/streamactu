@@ -1,5 +1,8 @@
 import type { Contenu, Serie, Film } from "@/types";
 import { composerDescription } from "./meta";
+import { calendrierSerie, phraseCalendrier } from "./episodes";
+import { PLATEFORME_PAR_ID, plateformesDepuisFournisseurs } from "./plateformes";
+import { toISO } from "./utils";
 
 const SITE_URL = process.env.SITE_URL ?? "https://streamactu.fr";
 
@@ -21,9 +24,9 @@ function plateformesDistinctes(noms: string[]): string[] {
  * (fréquent pour les stand-up et documentaires). Ces détails rendent aussi
  * uniques deux fiches sans résumé partageant la même dispo.
  */
-export function descriptionFiche(contenu: Serie | Film): string {
+export function descriptionFiche(contenu: Serie | Film, aujourdhui: string = toISO(new Date())): string {
   const dispo = plateformesDistinctes(contenu.dispo ?? []).slice(0, 2);
-  const prefixe = dispo.length ? `À voir sur ${dispo.join(" et ")}. ` : "";
+  const prefixe = (dispo.length ? `À voir sur ${dispo.join(" et ")}. ` : "") + annonceEpisodes(contenu, aujourdhui);
   const estSerie = contenu.type === "serie";
   const genres = contenu.genres.slice(0, 2).map((g) => g.nom).join(", ");
   const saisons =
@@ -43,6 +46,23 @@ export function descriptionFiche(contenu: Serie | Film): string {
     return composerDescription(prefixe + synopsis, [details], repli);
   }
   return composerDescription(`${prefixe}${contenu.titre} : ${details.charAt(0).toLowerCase()}${details.slice(1)}`, repli);
+}
+
+/**
+ * Prochaine sortie d'épisode, en tête de description, quand la date
+ * française est connue (« Épisodes 5 et 6 de la saison 1 le mercredi
+ * 28 octobre 2026 sur Disney+ en France. ») : c'est la recherche du moment.
+ */
+function annonceEpisodes(contenu: Serie | Film, aujourdhui: string): string {
+  if (contenu.type !== "serie") return "";
+  const cal = calendrierSerie(
+    contenu.episodesSaison,
+    contenu.reseaux ?? [],
+    plateformesDepuisFournisseurs(contenu.dispo ?? []).map((p) => p.id),
+    aujourdhui
+  );
+  if (!cal?.prochaine || !cal.datesFrance || cal.plateforme === null) return "";
+  return phraseCalendrier(cal, PLATEFORME_PAR_ID[cal.plateforme].nom).split(". ")[0].replace(/\.?$/, ". ");
 }
 
 /**
