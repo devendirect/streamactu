@@ -607,7 +607,7 @@ export async function getProvidersFR(
 export const getDetailSerie = unstable_cache(
   async (id: number): Promise<Serie> => {
     const [detail, credits, videos, dispo] = await Promise.all([
-      tmdbGet<TMDBSerieDetail>(`/tv/${id}`, { append_to_response: "content_ratings" }),
+      tmdbGet<TMDBSerieDetail>(`/tv/${id}`, { append_to_response: "content_ratings,external_ids" }),
       tmdbGet<TMDBCredits>(`/tv/${id}/credits`),
       tmdbGet<TMDBVideos>(`/tv/${id}/videos`),
       getProvidersFR("tv", id),
@@ -651,6 +651,8 @@ export const getDetailSerie = unstable_cache(
           detail.content_ratings?.results.find((r) => r.iso_3166_1 === "FR")?.rating
         ),
         statut: statutSerie(detail.status),
+        wikidataId: detail.external_ids?.wikidata_id || null,
+        imdbId: detail.external_ids?.imdb_id || null,
         derniereDiffusion: detail.last_air_date || null,
       }),
       ...(episodesSaison ? { episodesSaison } : {}),
@@ -697,7 +699,7 @@ async function getEpisodesSaison(detail: TMDBSerieDetail): Promise<SaisonEpisode
 export const getDetailFilm = unstable_cache(
   async (id: number): Promise<Film> => {
     const [detail, credits, videos, dispo] = await Promise.all([
-      tmdbGet<TMDBFilmDetail>(`/movie/${id}`, { append_to_response: "release_dates" }),
+      tmdbGet<TMDBFilmDetail>(`/movie/${id}`, { append_to_response: "release_dates,external_ids" }),
       tmdbGet<TMDBCredits>(`/movie/${id}/credits`),
       tmdbGet<TMDBVideos>(`/movie/${id}/videos`),
       getProvidersFR("movie", id),
@@ -731,6 +733,8 @@ export const getDetailFilm = unstable_cache(
         classification: classificationFilm(
           detail.release_dates?.results.find((r) => r.iso_3166_1 === "FR")?.release_dates ?? []
         ),
+        wikidataId: detail.external_ids?.wikidata_id || null,
+        imdbId: detail.external_ids?.imdb_id || null,
       }),
     };
   },

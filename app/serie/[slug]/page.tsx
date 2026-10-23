@@ -6,6 +6,7 @@ import { idDepuisSlug } from "@/lib/utils";
 import { descriptionFiche, fichePauvre, jsonLdFiche } from "@/lib/seo";
 import { suggestionsFiche } from "@/lib/suggestions";
 import FicheDetail from "@/components/FicheDetail";
+import { getFaitsWikidata } from "@/lib/wikidata";
 
 export const revalidate = 3600;
 
@@ -62,7 +63,10 @@ export default async function SeriePage({ params }: Props) {
   const serie = await getSerie(slug);
 
   if (!serie) notFound();
-  const suggestions = await suggestionsFiche(serie);
+  const [suggestions, faits] = await Promise.all([
+    suggestionsFiche(serie),
+    getFaitsWikidata(serie.wikidataId, "serie"),
+  ]);
 
   return (
     <div className="sa-container py-6 max-w-2xl">
@@ -70,7 +74,7 @@ export default async function SeriePage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdFiche(serie) }}
       />
-      <FicheDetail contenu={serie} suggestions={suggestions} />
+      <FicheDetail contenu={serie} suggestions={suggestions} faits={faits} />
     </div>
   );
 }

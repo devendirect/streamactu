@@ -5,6 +5,7 @@ import { formatDuree, formatDateFR, formatJourSemaineFR, toISO } from "@/lib/uti
 import { calendrierSerie, libelleEpisodes, phraseCalendrier } from "@/lib/episodes";
 import { citationsOeuvre } from "@/lib/citations";
 import { dureeSaison, formatDureeLongue, libelleClassification } from "@/lib/faits";
+import type { FaitsWikidata } from "@/lib/wikidata";
 import { PLATEFORME_PAR_ID, plateformesDepuisFournisseurs } from "@/lib/plateformes";
 import { slugPourGenreId } from "@/lib/genres";
 import ConvaincsMoi from "@/components/ConvaincsMoi";
@@ -20,9 +21,11 @@ interface FicheDetailProps {
   contenu: Serie | Film;
   /** Titres du même genre sur la même plateforme (bas de fiche), si disponibles */
   suggestions?: SuggestionsFiche | null;
+  /** Récompenses, adaptation, tournage, liens externes (Wikidata), si disponibles */
+  faits?: FaitsWikidata | null;
 }
 
-export default function FicheDetail({ contenu, suggestions }: FicheDetailProps) {
+export default function FicheDetail({ contenu, suggestions, faits }: FicheDetailProps) {
   const isSerie = contenu.type === "serie";
   const serie = isSerie ? (contenu as Serie) : null;
   const film = !isSerie ? (contenu as Film) : null;
@@ -85,6 +88,14 @@ export default function FicheDetail({ contenu, suggestions }: FicheDetailProps) 
         ...citations.guides.map((c) => ({ ...c, prefixe: c.role === "choix" ? "Dans le guide" : "Cité dans le guide" })),
       ]
     : [];
+
+  // Liens vers d'autres sites : IMDb (identifiant TMDB), AlloCiné et SensCritique (Wikidata).
+  // Un lien seulement : les notes IMDb ne sont pas reprises (licence, voir plan-fiches-enrichies.md, lot 5).
+  const liensExternes = [
+    contenu.imdbId && /^tt\d+$/.test(contenu.imdbId) ? { nom: "IMDb", url: `https://www.imdb.com/title/${contenu.imdbId}/` } : null,
+    faits?.allocine ? { nom: "AlloCiné", url: faits.allocine } : null,
+    faits?.senscritique ? { nom: "SensCritique", url: faits.senscritique } : null,
+  ].filter((l): l is { nom: string; url: string } => l !== null);
 
   // Durée totale de la saison en cours, si toutes les durées d'épisode sont connues
   const dureeTotale = calendrier && serie?.episodesSaison ? dureeSaison(serie.episodesSaison.episodes) : null;
@@ -335,6 +346,69 @@ export default function FicheDetail({ contenu, suggestions }: FicheDetailProps) 
               ))}
             </div>
           </div>
+        )}
+
+        {/* ── Repères : prix, adaptation, tournage (Wikidata), autres sites ── */}
+        {(faits || liensExternes.length > 0) && (
+          <section aria-labelledby="reperes">
+            <h2 id="reperes" className="font-mono-label text-ink-3 mb-3">
+              Repères
+            </h2>
+            <dl className="text-sm">
+              {faits && faits.prix.length > 0 && (
+                <div className="py-2.5 border-t border-border/50">
+                  <dt className="text-[#9A9282] mb-1">Récompenses</dt>
+                  <dd>
+                    <ul className="space-y-1">
+                      {faits.prix.map((p) => (
+                        <li key={p.libelle}>
+                          {p.libelle}
+                          {p.annee && <span className="font-mono text-[#9A9282]"> · {p.annee}</span>}
+                        </li>
+                      ))}
+                      {faits.autresPrix > 0 && (
+                        <li className="text-[#9A9282]">
+                          et {faits.autresPrix} autre{faits.autresPrix > 1 ? "s" : ""} prix majeur{faits.autresPrix > 1 ? "s" : ""}
+                        </li>
+                      )}
+                    </ul>
+                  </dd>
+                </div>
+              )}
+              {faits && faits.adapteDe.length > 0 && (
+                <div className="py-2.5 border-t border-border/50">
+                  <dt className="text-[#9A9282] mb-1">D&apos;après</dt>
+                  <dd>{faits.adapteDe.join(", ")}</dd>
+                </div>
+              )}
+              {faits && faits.tournage.length > 0 && (
+                <div className="py-2.5 border-t border-border/50">
+                  <dt className="text-[#9A9282] mb-1">Tournage</dt>
+                  <dd>{faits.tournage.join(", ")}</dd>
+                </div>
+              )}
+              {liensExternes.length > 0 && (
+                <div className="py-2.5 border-t border-border/50">
+                  <dt className="text-[#9A9282] mb-1">Ailleurs</dt>
+                  <dd className="flex gap-4">
+                    {liensExternes.map((l) => (
+                      <a key={l.nom} href={l.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">
+                        {l.nom}
+                      </a>
+                    ))}
+                  </dd>
+                </div>
+              )}
+            </dl>
+            {faits && (
+              <p className="font-mono-label text-ink-4 mt-2">
+                Source :{" "}
+                <a href="https://www.wikidata.org/" target="_blank" rel="noopener noreferrer" className="underline">
+                  Wikidata
+                </a>
+              </p>
+            )}
+          </section>
         )}
 
         {/* ── Saisons ── */}

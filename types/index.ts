@@ -61,6 +61,9 @@ export interface Contenu {
   dateSortie?: string; // YYYY-MM-DD — renseigné sur les sorties à venir (groupement par jour)
   /** Classification française (« TP », « 12 »…), renseignée sur les fiches détail quand TMDB la connaît */
   classification?: "TP" | "10" | "12" | "16" | "18";
+  /** Identifiants externes (TMDB external_ids), renseignés sur les fiches détail */
+  wikidataId?: string;
+  imdbId?: string;
 }
 
 /** Fiche complète d'une série */
@@ -204,6 +207,7 @@ export interface TMDBSerieDetail {
   status?: string;
   last_air_date?: string | null;
   content_ratings?: { results: { iso_3166_1: string; rating: string }[] };
+  external_ids?: TMDBExternalIds;
   next_episode_to_air?: TMDBEpisodeRepere | null;
   last_episode_to_air?: TMDBEpisodeRepere | null;
 }
@@ -253,6 +257,12 @@ export interface TMDBFilmDetail {
   runtime: number;
   genres: { id: number; name: string }[];
   release_dates?: TMDBReleaseDates;
+  external_ids?: TMDBExternalIds;
+}
+
+export interface TMDBExternalIds {
+  imdb_id?: string | null;
+  wikidata_id?: string | null;
 }
 
 export interface TMDBCredits {
