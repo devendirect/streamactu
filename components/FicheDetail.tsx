@@ -3,6 +3,8 @@ import Link from "next/link";
 import type { Serie, Film } from "@/types";
 import { formatDuree, formatDateFR, formatJourSemaineFR, toISO } from "@/lib/utils";
 import { calendrierSerie, libelleEpisodes, phraseCalendrier } from "@/lib/episodes";
+import { citationsOeuvre } from "@/lib/citations";
+import { dureeSaison, formatDureeLongue, libelleClassification } from "@/lib/faits";
 import { PLATEFORME_PAR_ID, plateformesDepuisFournisseurs } from "@/lib/plateformes";
 import { slugPourGenreId } from "@/lib/genres";
 import ConvaincsMoi from "@/components/ConvaincsMoi";
@@ -10,6 +12,9 @@ import BoutonMaListe from "@/components/BoutonMaListe";
 import LienGA from "@/components/LienGA";
 import SuggestionsGenre from "@/components/SuggestionsGenre";
 import type { SuggestionsFiche } from "@/lib/suggestions";
+
+/** Au-delà, les articles les plus anciens ne sont pas listés (les guides le sont tous) */
+const MAX_ARTICLES_CITES = 5;
 
 interface FicheDetailProps {
   contenu: Serie | Film;
@@ -40,10 +45,16 @@ export default function FicheDetail({ contenu, suggestions }: FicheDetailProps) 
     : film && film.realisateurs.length > 0
       ? ` réalisé par ${film.realisateurs.slice(0, 2).join(" et ")}`
       : "";
+  // Série terminée ou arrêtée (statut TMDB) : bornes de diffusion
+  const anneeFin = serie?.statut && serie.derniereDiffusion ? Number(serie.derniereDiffusion.slice(0, 4)) : null;
   const sortie = isSerie
-    ? contenu.annee
-      ? `série diffusée depuis ${contenu.annee}${details}`
-      : `série${details}`
+    ? contenu.annee && anneeFin
+      ? anneeFin > contenu.annee
+        ? `série diffusée de ${contenu.annee} à ${anneeFin}${details}`
+        : `série diffusée en ${contenu.annee}${details}`
+      : contenu.annee
+        ? `série diffusée depuis ${contenu.annee}${details}`
+        : `série${details}`
     : contenu.dateSortie
       ? `film sorti le ${formatDateFR(contenu.dateSortie)}${details ? ` et${details}` : ""}`
       : contenu.annee
@@ -62,6 +73,21 @@ export default function FicheDetail({ contenu, suggestions }: FicheDetailProps) 
         toISO(new Date())
       )
     : null;
+
+  // Articles et guides du site qui parlent de ce titre
+  const citations = citationsOeuvre(contenu.type, contenu.id);
+  const liensSite = citations
+    ? [
+        ...citations.articles.slice(0, MAX_ARTICLES_CITES).map((c) => ({
+          ...c,
+          prefixe: c.role === "choix" ? "Choisi dans" : "Cité dans",
+        })),
+        ...citations.guides.map((c) => ({ ...c, prefixe: c.role === "choix" ? "Dans le guide" : "Cité dans le guide" })),
+      ]
+    : [];
+
+  // Durée totale de la saison en cours, si toutes les durées d'épisode sont connues
+  const dureeTotale = calendrier && serie?.episodesSaison ? dureeSaison(serie.episodesSaison.episodes) : null;
 
   return (
     <article>
@@ -117,10 +143,26 @@ export default function FicheDetail({ contenu, suggestions }: FicheDetailProps) 
               </span>
             </>
           )}
+          {serie?.statut && (
+            <>
+              <span className="text-border/60">·</span>
+              <span className="font-mono text-[#9A9282]">
+                {serie.statut === "terminee" ? "Série terminée" : "Série arrêtée"}
+              </span>
+            </>
+          )}
           {film?.duree && (
             <>
               <span className="text-border/60">·</span>
               <span className="font-mono text-[#9A9282]">{formatDuree(film.duree)}</span>
+            </>
+          )}
+          {contenu.classification && (
+            <>
+              <span className="text-border/60">·</span>
+              <span className="font-mono text-[#9A9282]" title="Classification française (source TMDB)">
+                {libelleClassification(contenu.classification)}
+              </span>
             </>
           )}
         </div>
@@ -179,6 +221,8 @@ export default function FicheDetail({ contenu, suggestions }: FicheDetailProps) 
               style={{ fontFamily: "var(--font-newsreader), serif" }}
             >
               {phraseCalendrier(calendrier, calendrier.plateforme ? PLATEFORME_PAR_ID[calendrier.plateforme].nom : null)}
+              {dureeTotale &&
+                ` La ${calendrier.libelleSaison} dure ${formatDureeLongue(dureeTotale)} au total (${calendrier.nbEpisodes} épisodes).`}
             </p>
             {calendrier.sorties.length > 1 && (
               <details>
@@ -236,6 +280,25 @@ export default function FicheDetail({ contenu, suggestions }: FicheDetailProps) 
         >
           {contenu.synopsis || "Synopsis non disponible."}
         </p>
+
+        {/* ── Sur StreamActu : articles et guides qui en parlent ── */}
+        {liensSite.length > 0 && (
+          <section aria-labelledby="sur-streamactu">
+            <h2 id="sur-streamactu" className="font-mono-label text-ink-3 mb-3">
+              Sur StreamActu
+            </h2>
+            <ul>
+              {liensSite.map((l) => (
+                <li key={l.chemin} className="py-2.5 border-t border-border/50 text-sm">
+                  <span className="text-[#9A9282]">{l.prefixe} </span>
+                  <Link href={l.chemin} className="font-semibold text-foreground hover:text-primary transition-colors">
+                    {l.titre}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {/* ── Convaincs-moi ── */}
         <ConvaincsMoi contenu={contenu} />

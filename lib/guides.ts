@@ -154,7 +154,12 @@ export function trouverGuide(slug: string): Guide | undefined {
 
 /** Tous les textes d'un guide, pour le temps de lecture et les tests */
 export function textesGuide(g: Guide): string[] {
-  const blocs = g.sections.flatMap((s) => [
+  return [g.titre, g.chapo, ...textesSections(g.sections), ...g.faq.flatMap((f) => [f.q, f.r])];
+}
+
+/** Textes des sections (guides et articles Actu), liens [libellé](/chemin) compris */
+export function textesSections(sections: SectionGuide[]): string[] {
+  return sections.flatMap((s) => [
     s.titre,
     ...s.blocs.flatMap((b) =>
       "p" in b
@@ -168,7 +173,6 @@ export function textesGuide(g: Guide): string[] {
               : [...b.table.entetes, ...b.table.lignes.flat()]
     ),
   ]);
-  return [g.titre, g.chapo, ...blocs, ...g.faq.flatMap((f) => [f.q, f.r])];
 }
 
 /** Adresse de la fiche, tirée du titre en français (même slug que lib/tmdb.ts) */

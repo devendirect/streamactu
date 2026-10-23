@@ -59,6 +59,8 @@ export interface Contenu {
   premiereDiffusion?: string; // first_air_date YYYY-MM-DD — pour détecter les nouvelles séries
   dispo?: string[]; // plateformes FR (flatrate TMDB) — renseigné sur les fiches détail
   dateSortie?: string; // YYYY-MM-DD — renseigné sur les sorties à venir (groupement par jour)
+  /** Classification française (« TP », « 12 »…), renseignée sur les fiches détail quand TMDB la connaît */
+  classification?: "TP" | "10" | "12" | "16" | "18";
 }
 
 /** Fiche complète d'une série */
@@ -72,6 +74,10 @@ export interface Serie extends Contenu {
   trailer: Video | null;
   /** Réseaux d'origine TMDB (décalage des dates en France) */
   reseaux?: number[];
+  /** « terminee » (Ended) ou « arretee » (Canceled) ; absent sinon */
+  statut?: "terminee" | "arretee";
+  /** YYYY-MM-DD, dernier épisode diffusé */
+  derniereDiffusion?: string;
   /** Épisodes datés de la saison en cours, si elle est diffusée en ce moment */
   episodesSaison?: SaisonEpisodes;
 }
@@ -196,6 +202,8 @@ export interface TMDBSerieDetail {
   }[];
   networks?: { id: number; name: string }[];
   status?: string;
+  last_air_date?: string | null;
+  content_ratings?: { results: { iso_3166_1: string; rating: string }[] };
   next_episode_to_air?: TMDBEpisodeRepere | null;
   last_episode_to_air?: TMDBEpisodeRepere | null;
 }
@@ -229,7 +237,7 @@ export interface TMDBFilm {
 export interface TMDBReleaseDates {
   results: {
     iso_3166_1: string;
-    release_dates: { type: number; release_date: string; note?: string }[];
+    release_dates: { type: number; release_date: string; note?: string; certification?: string }[];
   }[];
 }
 
@@ -244,6 +252,7 @@ export interface TMDBFilmDetail {
   release_date: string;
   runtime: number;
   genres: { id: number; name: string }[];
+  release_dates?: TMDBReleaseDates;
 }
 
 export interface TMDBCredits {

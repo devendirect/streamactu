@@ -24,6 +24,7 @@ import type {
 import { PLATEFORMES, PLATEFORME_PAR_ID, filtreFournisseurs } from "@/lib/plateformes";
 import { RESEAUX_PAR_PLATEFORME, plateformeDepuisNote, serieAnnonceeCredible } from "@/lib/calendrier";
 import { saisonADetailler } from "@/lib/episodes";
+import { classificationFilm, normaliserClassification, statutSerie } from "@/lib/faits";
 import {
   slugify,
   bornesMois,
@@ -606,7 +607,7 @@ export async function getProvidersFR(
 export const getDetailSerie = unstable_cache(
   async (id: number): Promise<Serie> => {
     const [detail, credits, videos, dispo] = await Promise.all([
-      tmdbGet<TMDBSerieDetail>(`/tv/${id}`),
+      tmdbGet<TMDBSerieDetail>(`/tv/${id}`, { append_to_response: "content_ratings" }),
       tmdbGet<TMDBCredits>(`/tv/${id}/credits`),
       tmdbGet<TMDBVideos>(`/tv/${id}/videos`),
       getProvidersFR("tv", id),
@@ -645,12 +646,24 @@ export const getDetailSerie = unstable_cache(
       trailer,
       dispo,
       reseaux: (detail.networks ?? []).map((n) => n.id),
+      ...optionnels({
+        classification: normaliserClassification(
+          detail.content_ratings?.results.find((r) => r.iso_3166_1 === "FR")?.rating
+        ),
+        statut: statutSerie(detail.status),
+        derniereDiffusion: detail.last_air_date || null,
+      }),
       ...(episodesSaison ? { episodesSaison } : {}),
     };
   },
   ["detail-serie"],
   { revalidate: 3600 }
 );
+
+/** Garde les champs renseignés : une fiche sans donnée n'a pas la clé (cache JSON plus léger) */
+function optionnels<T extends Record<string, unknown>>(champs: T): { [K in keyof T]?: NonNullable<T[K]> } {
+  return Object.fromEntries(Object.entries(champs).filter(([, v]) => v != null)) as { [K in keyof T]?: NonNullable<T[K]> };
+}
 
 /**
  * Épisodes datés de la saison en cours de diffusion (un appel de plus,
@@ -684,7 +697,7 @@ async function getEpisodesSaison(detail: TMDBSerieDetail): Promise<SaisonEpisode
 export const getDetailFilm = unstable_cache(
   async (id: number): Promise<Film> => {
     const [detail, credits, videos, dispo] = await Promise.all([
-      tmdbGet<TMDBFilmDetail>(`/movie/${id}`),
+      tmdbGet<TMDBFilmDetail>(`/movie/${id}`, { append_to_response: "release_dates" }),
       tmdbGet<TMDBCredits>(`/movie/${id}/credits`),
       tmdbGet<TMDBVideos>(`/movie/${id}/videos`),
       getProvidersFR("movie", id),
@@ -714,6 +727,11 @@ export const getDetailFilm = unstable_cache(
         .map((c) => c.name),
       trailer,
       dispo,
+      ...optionnels({
+        classification: classificationFilm(
+          detail.release_dates?.results.find((r) => r.iso_3166_1 === "FR")?.release_dates ?? []
+        ),
+      }),
     };
   },
   ["detail-film"],

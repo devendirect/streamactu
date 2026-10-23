@@ -147,6 +147,27 @@ async function urlsDesGuides() {
   }
 }
 
+/**
+ * Fiches citées par les nouveaux articles Actu : leur bloc « Sur StreamActu »
+ * vient de changer. Lues dans le HTML de l'article (liens /film/… et
+ * /serie/…), soumises une seule fois, avec l'article. Un article illisible
+ * n'empêche pas le reste de l'envoi.
+ */
+async function fichesCitees(articles) {
+  const urls = new Set();
+  for (const url of articles) {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const html = await res.text();
+      for (const m of html.matchAll(/href="(\/(?:film|serie)\/[^"?#]+-\d+)"/g)) urls.add(`${SITE}${m[1]}`);
+    } catch (err) {
+      console.warn(`[indexnow] fiches de ${url} illisibles :`, err instanceof Error ? err.message : err);
+    }
+  }
+  return [...urls];
+}
+
 const fiches = [
   ...new Set([
     ...(await urlsDuFlux("/flux.xml", true)),
@@ -166,7 +187,8 @@ const ADRESSES_FIXES = [
 const fixes = ADRESSES_FIXES.filter(([prefixe]) => nouvelles.some((u) => u.startsWith(`${SITE}/actu/${prefixe}`))).map(
   ([, slug]) => `${SITE}/actu/${slug}`
 );
-const chaudes = await pagesIndexables([...pagesChaudes(), ...fixes]);
+const citees = await fichesCitees(nouvelles.filter((u) => u.startsWith(`${SITE}/actu/`)));
+const chaudes = await pagesIndexables([...pagesChaudes(), ...fixes, ...citees]);
 const urlList = [...new Set([...chaudes, ...nouvelles])];
 
 console.log(
