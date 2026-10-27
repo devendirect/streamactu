@@ -20,6 +20,7 @@ import type {
   TMDBVideos,
   TMDBGenreList,
   Genre,
+  MediaType,
 } from "@/types";
 import { PLATEFORMES, PLATEFORME_PAR_ID, filtreFournisseurs } from "@/lib/plateformes";
 import { RESEAUX_PAR_PLATEFORME, plateformeDepuisNote, serieAnnonceeCredible } from "@/lib/calendrier";
@@ -156,7 +157,7 @@ function attendre(ms: number): Promise<void> {
 // Images
 // ──────────────────────────────────────────────
 
-export type PosterSize = "w185" | "w342" | "w500" | "w780" | "original";
+export type PosterSize = "w185" | "w342" | "w500" | "w780" | "w1280" | "original";
 
 export function posterUrl(
   path: string | null,
@@ -599,6 +600,40 @@ export async function getProvidersFR(
     return [];
   }
 }
+
+// ──────────────────────────────────────────────
+// Images de mise en avant (une de l'accueil, cache 7 jours) : logo du titre
+// (français, sinon anglais) et grande image de fond sans texte
+// ──────────────────────────────────────────────
+
+interface TMDBImage {
+  file_path: string;
+  iso_639_1: string | null;
+  vote_average: number;
+}
+
+export const getImagesUne = unstable_cache(
+  async (type: MediaType, id: number): Promise<{ logo: string | null; fond: string | null }> => {
+    try {
+      const data = await tmdbGet<{ logos: TMDBImage[]; backdrops: TMDBImage[] }>(
+        `/${type === "serie" ? "tv" : "movie"}/${id}/images`,
+        { include_image_language: "fr,en,null" },
+        604800
+      );
+      const logo = data.logos.find((l) => l.iso_639_1 === "fr") ?? data.logos.find((l) => l.iso_639_1 === "en");
+      // Fond sans texte d'abord (langue nulle), le mieux noté
+      const fond = [...data.backdrops].sort(
+        (a, b) => Number(a.iso_639_1 !== null) - Number(b.iso_639_1 !== null) || b.vote_average - a.vote_average
+      )[0];
+      return { logo: posterUrl(logo?.file_path ?? null, "w500"), fond: posterUrl(fond?.file_path ?? null, "w1280") };
+    } catch (err) {
+      console.error(`[tmdb] images indisponibles pour ${type}/${id} :`, err instanceof Error ? err.message : err);
+      return { logo: null, fond: null };
+    }
+  },
+  ["images-une"],
+  { revalidate: 604800 }
+);
 
 // ──────────────────────────────────────────────
 // Détail série

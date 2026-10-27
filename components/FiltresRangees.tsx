@@ -30,14 +30,15 @@ export default function FiltresRangees({ cible = "[data-rangees]" }: { cible?: s
   useEffect(() => {
     const zone = document.querySelector(cible);
     if (!zone) return;
-    zone.querySelectorAll<HTMLElement>("[data-carte]").forEach((c) => {
+    // Le Top 10 garde son classement entier : il n'est jamais filtré
+    zone.querySelectorAll<HTMLElement>("[data-carte]:not(.top10 *)").forEach((c) => {
       const pfsCarte = (c.dataset.pfs ?? "").split(" ").filter(Boolean).map(Number);
       c.hidden =
         (type !== "tout" && c.dataset.type !== type) ||
         (pfs.length > 0 && pfsCarte.length > 0 && !pfsCarte.some((p) => pfs.includes(p)));
     });
     // Une rangée sans carte visible disparaît, avec son bandeau s'il en a un
-    zone.querySelectorAll<HTMLElement>("[data-rangee]").forEach((r) => {
+    zone.querySelectorAll<HTMLElement>("[data-rangee]:not(.top10)").forEach((r) => {
       const vide = r.querySelector("[data-carte]:not([hidden])") === null && r.querySelector("[data-carte]") !== null;
       (r.closest<HTMLElement>("[data-rangee-bloc]") ?? r).hidden = vide;
     });

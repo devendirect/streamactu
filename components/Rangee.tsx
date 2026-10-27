@@ -13,6 +13,8 @@ interface Props {
   paysage?: boolean;
   /** Titre en capitales de salle (rangée posée sur le velours) */
   salle?: boolean;
+  /** Niveau du titre : 1 pour la rangée qui porte le h1 de la page */
+  niveau?: 1 | 2;
   className?: string;
   /** Cartes rendues par le serveur */
   children: ReactNode;
@@ -23,7 +25,8 @@ interface Props {
  * desktop (visibles au survol ou au focus de la rangée), titre lien.
  * Les cartes restent dans le HTML : la rangée se lit sans JavaScript.
  */
-export default function Rangee({ titre, href, sous, paysage = false, salle = false, className = "", children }: Props) {
+export default function Rangee({ titre, href, sous, paysage = false, salle = false, niveau = 2, className = "", children }: Props) {
+  const Titre = niveau === 1 ? "h1" : "h2";
   const piste = useRef<HTMLDivElement>(null);
 
   const defiler = (sens: 1 | -1) => {
@@ -40,7 +43,7 @@ export default function Rangee({ titre, href, sous, paysage = false, salle = fal
   return (
     <section data-rangee aria-label={titre} className={`rangee mb-rangee ${className}`}>
       <div className="mb-3 flex items-baseline gap-3.5 px-gouttiere max-[760px]:flex-wrap max-[760px]:gap-y-0.5">
-        <h2 className={`leading-[1.2] ${classeTitre}`}>
+        <Titre className={`leading-[1.2] ${classeTitre}`}>
           {href ? (
             <Link href={href} className="lien-fleche font-[inherit]">
               {titre}
@@ -49,7 +52,7 @@ export default function Rangee({ titre, href, sous, paysage = false, salle = fal
           ) : (
             titre
           )}
-        </h2>
+        </Titre>
         {sous && <p className="text-sm text-texte-2 max-[760px]:basis-full">{sous}</p>}
         <div className="rangee__fleches ml-auto flex gap-1.5 max-[760px]:hidden">
           {([-1, 1] as const).map((sens) => (
