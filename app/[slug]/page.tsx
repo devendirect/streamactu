@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Link from "next/link";
 import {
   getNouveautesJour,
   getNouveautesMois,
@@ -35,6 +34,8 @@ import SectionPlateforme from "@/components/SectionPlateforme";
 import MaillagePlateformes from "@/components/MaillagePlateformes";
 import ArchivesMoisPlateforme from "@/components/ArchivesMoisPlateforme";
 import FaqPlateforme from "@/components/FaqPlateforme";
+import SegmentsPlateforme from "@/components/SegmentsPlateforme";
+import { parScore } from "@/lib/accueil";
 import TexteEditorial from "@/components/TexteEditorial";
 import { CONTENU_PLATEFORME } from "@/lib/plateformes-contenu";
 import { syntheseJour } from "@/lib/syntheses";
@@ -218,6 +219,8 @@ export default async function SlugPage({ params }: Props) {
           })
         : { series: 0, films: 0 };
     const intro = introComptes(totaux, nbAffiches, "sorti", `${periodeIntro} sur ${pf.nom} en France`);
+    // Scène : la mieux notée de la période (DESIGN.md, page plateforme)
+    const vedette = parScore([...(data?.series ?? []), ...(data?.films ?? [])]).find((c) => c.backdrop);
 
     return (
       <>
@@ -226,28 +229,12 @@ export default async function SlugPage({ params }: Props) {
           intro={
             intro || `Aucune sortie recensée récemment sur ${pf.nom} : les archives des mois précédents sont ci-dessous.`
           }
-        />
-        <div className="sa-container py-4 space-y-10">
-          <nav aria-label={`Nouveautés ${pf.nom} par type`} className="flex items-center gap-4 flex-wrap">
-            <Link
-              href={`/${pf.slug}/series`}
-              className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
-            >
-              Nouvelles séries {pf.nom} →
-            </Link>
-            <Link
-              href={`/${pf.slug}/films`}
-              className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
-            >
-              Nouveaux films {pf.nom} →
-            </Link>
-            <Link
-              href={`/${pf.slug}/prochaines-sorties`}
-              className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
-            >
-              Prochaines sorties {pf.nom} →
-            </Link>
-          </nav>
+          fond={vedette?.backdrop}
+          marque={pf}
+        >
+          <SegmentsPlateforme pf={pf} actif="nouveautes" />
+        </EnTeteNouveautes>
+        <div className="space-y-section px-gouttiere pt-8 pb-10">
 
           {data && (
             <SectionPlateforme data={data} priorite lienTitre={false} totalReel={totaux.series + totaux.films} />
@@ -303,7 +290,7 @@ export default async function SlugPage({ params }: Props) {
           plateformes={nouveautes}
           contexte={{ mode: "jour", dateISO: iso }}
         />
-        <div className="sa-container pb-10">
+        <div className="px-gouttiere pb-10">
           <TexteEditorial
             titre="Ce jour-là"
             paragraphes={[

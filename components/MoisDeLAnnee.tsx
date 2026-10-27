@@ -17,8 +17,8 @@ export default function MoisDeLAnnee({ plateforme, mois }: Props) {
   if (mois.length === 0) return null;
 
   return (
-    <nav aria-label={`Archives ${plateforme.nom} mois par mois`} className="border-t border-border pt-5">
-      <p className="font-mono-label text-ink-4 mb-3">Mois par mois</p>
+    <nav aria-label={`Archives ${plateforme.nom} mois par mois`} >
+      <h2 className="font-mono-label mb-3 text-texte-2">Mois par mois</h2>
       <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {mois.map((m) => {
           const total = m.nbSeries + m.nbFilms;
@@ -26,10 +26,10 @@ export default function MoisDeLAnnee({ plateforme, mois }: Props) {
             <li key={`${m.annee}-${m.mois}`}>
               <Link
                 href={`/${plateforme.slug}/${formatMoisURL(m.mois, m.annee)}`}
-                className="flex items-baseline justify-between gap-3 px-3 py-2 border border-border/50 font-mono-label text-[#9A9282] hover:text-foreground hover:border-border transition-colors"
+                className="flex items-baseline justify-between gap-3 rounded-xl bg-surface px-4 py-3 font-semibold transition-[background-color,translate] duration-200 ease-salle hover:-translate-y-0.5 hover:bg-surface-2"
               >
                 <span>{formatMoisFR(m.mois, m.annee)}</span>
-                <span aria-label={`${total} nouveauté${total > 1 ? "s" : ""}`}>{total}</span>
+                <span className="tabular text-sm font-normal text-texte-2" aria-label={`${total} nouveauté${total > 1 ? "s" : ""}`}>{total}</span>
               </Link>
             </li>
           );

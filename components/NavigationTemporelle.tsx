@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Icone from "@/components/Icone";
 import type { ContexteTemporel } from "@/types";
 import {
   toISO,
@@ -57,15 +58,15 @@ export default function NavigationTemporelle({ contexte }: Props) {
     prevHref = toISO(prev) === todayISO ? "/" : `/${formatDateURL(prev)}`;
     nextHref = toISO(next) === todayISO ? "/" : `/${formatDateURL(next)}`;
     canGoBack = prev.getUTCFullYear() >= ANNEE_PLANCHER;
-    prevLabel = `← Hier`;
-    nextLabel = `Demain →`;
+    prevLabel = "Hier";
+    nextLabel = "Demain";
     // Navigable dans le futur jusqu'à l'horizon (diffusions programmées)
     canGoForward = contexte.dateISO < horizonISO;
     // Affiner avec les noms courts sauf pour hier/demain adjacents
     const diffPrev = (now.getTime() - prev.getTime()) / 86400000;
     const diffNext = (next.getTime() - now.getTime()) / 86400000;
-    if (diffPrev > 1) prevLabel = `← ${formatDateFR(prev).split(" ").slice(0, 2).join(" ")}`;
-    if (diffNext > 1) nextLabel = `${formatDateFR(next).split(" ").slice(0, 2).join(" ")} →`;
+    if (diffPrev > 1) prevLabel = formatDateFR(prev).split(" ").slice(0, 2).join(" ");
+    if (diffNext > 1) nextLabel = formatDateFR(next).split(" ").slice(0, 2).join(" ");
   } else if (contexte.mode === "semaine") {
     const { semaine, annee } = contexte;
     navLabel = `Semaine du ${formatSemaineFR(semaine, annee)}`;
@@ -75,8 +76,8 @@ export default function NavigationTemporelle({ contexte }: Props) {
     prevHref = `/${formatSemaineURL(prev.semaine, prev.annee)}`;
     nextHref = `/${formatSemaineURL(next.semaine, next.annee)}`;
     canGoBack = prev.annee >= ANNEE_PLANCHER;
-    prevLabel = "← Semaine préc.";
-    nextLabel = "Semaine suiv. →";
+    prevLabel = "Semaine préc.";
+    nextLabel = "Semaine suiv.";
     // Navigable tant que la semaine suivante commence dans l'horizon
     canGoForward = bornesSemaine(next.semaine, next.annee).debut <= horizonISO;
   } else {
@@ -90,8 +91,8 @@ export default function NavigationTemporelle({ contexte }: Props) {
     prevHref = `/${formatMoisURL(mP, aP)}`;
     nextHref = `/${formatMoisURL(mS, aS)}`;
     canGoBack = aP >= ANNEE_PLANCHER;
-    prevLabel = `← ${MOIS_COURTS[mP]}`;
-    nextLabel = `${MOIS_COURTS[mS]} →`;
+    prevLabel = MOIS_COURTS[mP];
+    nextLabel = MOIS_COURTS[mS];
     canGoForward =
       annee < anneeAujourdMois ||
       (annee === anneeAujourdMois && mois < moisAujourd);
@@ -100,26 +101,18 @@ export default function NavigationTemporelle({ contexte }: Props) {
   const isAujourd = contexte.mode === "jour" && contexte.dateISO === todayISO;
   const isSemaine = contexte.mode === "semaine";
   const isMois = contexte.mode === "mois";
+  const fleche = "inline-flex items-center gap-1 text-sm font-semibold whitespace-nowrap";
 
   return (
-    <div className="flex items-center justify-between flex-wrap gap-3">
-      {/* Onglets temporels */}
-      <div className="flex gap-1">
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      {/* Onglets temporels : chaque période reste une page */}
+      <div className="segments">
         {[
           { label: "Aujourd'hui", active: isAujourd, href: "/" },
           { label: "Cette semaine", active: isSemaine, href: semaineCouranteURL },
           { label: "Ce mois", active: isMois, href: moisCourantURL },
         ].map((tab) => (
-          <Link
-            key={tab.label}
-            href={tab.href}
-            aria-current={tab.active ? "page" : undefined}
-            className="px-4 py-2.5 text-sm font-semibold transition-colors"
-            style={{
-              background: tab.active ? "#ECE6D8" : "transparent",
-              color: tab.active ? "#16140F" : "#9A9282",
-            }}
-          >
+          <Link key={tab.label} href={tab.href} aria-current={tab.active ? "page" : undefined}>
             {tab.label}
           </Link>
         ))}
@@ -128,37 +121,29 @@ export default function NavigationTemporelle({ contexte }: Props) {
       {/* Navigation contextuelle */}
       <div className="flex items-center gap-5">
         {canGoBack ? (
-          <Link
-            href={prevHref}
-            className="font-mono text-sm text-[#9A9282] hover:text-foreground transition-colors whitespace-nowrap"
-          >
+          <Link href={prevHref} className={`${fleche} text-texte-doux transition-colors duration-200 hover:text-white`}>
+            <Icone nom="gauche" taille={16} />
             {prevLabel}
           </Link>
         ) : (
-          <span
-            aria-disabled="true"
-            className="font-mono text-sm text-[#9A9282] opacity-20 cursor-not-allowed whitespace-nowrap"
-          >
+          <span aria-disabled="true" className={`${fleche} cursor-not-allowed text-texte-2 opacity-40`}>
+            <Icone nom="gauche" taille={16} />
             {prevLabel}
           </span>
         )}
-        <div className="text-center min-w-0">
-          <div className="font-bold leading-tight text-base">{navLabel}</div>
-          <div className="font-mono text-[10px] text-ink-4 mt-0.5">{navSub}</div>
+        <div className="min-w-0 text-center">
+          <div className="text-base leading-tight font-bold">{navLabel}</div>
+          <div className="mt-0.5 text-xs text-texte-2">{navSub}</div>
         </div>
         {canGoForward ? (
-          <Link
-            href={nextHref}
-            className="font-mono text-sm text-[#9A9282] hover:text-foreground transition-colors whitespace-nowrap"
-          >
+          <Link href={nextHref} className={`${fleche} text-texte-doux transition-colors duration-200 hover:text-white`}>
             {nextLabel}
+            <Icone nom="droite" taille={16} />
           </Link>
         ) : (
-          <span
-            aria-disabled="true"
-            className="font-mono text-sm text-[#9A9282] opacity-20 cursor-not-allowed whitespace-nowrap"
-          >
+          <span aria-disabled="true" className={`${fleche} cursor-not-allowed text-texte-2 opacity-40`}>
             {nextLabel}
+            <Icone nom="droite" taille={16} />
           </span>
         )}
       </div>

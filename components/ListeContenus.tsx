@@ -1,6 +1,6 @@
 import type { Contenu } from "@/types";
-import CarteContenu from "@/components/CarteContenu";
 import EnTeteSection from "@/components/EnTeteSection";
+import GrilleAffiches from "@/components/GrilleAffiches";
 import { slugify } from "@/lib/utils";
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
   priorite?: boolean;
 }
 
-/** Section titrée de cartes en mode liste (pages genre, tops, etc.) */
+/** Section titrée de cartes en grille d'affiches (pages genre) */
 export default function ListeContenus({ titre, contenus, priorite = false }: Props) {
   if (contenus.length === 0) return null;
   const id = `liste-${slugify(titre)}`;
@@ -17,9 +17,7 @@ export default function ListeContenus({ titre, contenus, priorite = false }: Pro
   return (
     <section aria-labelledby={id}>
       <EnTeteSection id={id} titre={titre} compte={contenus.length} />
-      {contenus.map((c, i) => (
-        <CarteContenu key={c.id} contenu={c} priorite={priorite && i === 0} />
-      ))}
+      <GrilleAffiches contenus={contenus} priorite={priorite} />
     </section>
   );
 }

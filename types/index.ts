@@ -132,7 +132,6 @@ export interface NouveautesAnnee {
   totalFilms: number;
 }
 
-export type ModeAffichage = "liste" | "rails" | "grille";
 
 export type ContexteTemporel =
   | { mode: "jour"; dateISO: string }

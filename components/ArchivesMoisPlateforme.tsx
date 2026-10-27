@@ -33,23 +33,23 @@ export default function ArchivesMoisPlateforme({
   const anneeLien = annee ?? now.getUTCFullYear();
 
   return (
-    <nav aria-label={`Archives ${plateforme.nom}`} className="border-t border-border pt-5">
-      <p className="font-mono-label text-ink-4 mb-3">Mois précédents</p>
+    <nav aria-label={`Archives ${plateforme.nom}`}>
+      <h2 className="font-mono-label mb-3 text-texte-2">Mois précédents</h2>
       <div className="flex flex-wrap gap-2">
         {liens.map((l) => (
           <Link
             key={l.slug}
             href={`/${plateforme.slug}/${l.slug}`}
-            className="px-3 py-1.5 border border-border/50 font-mono-label text-[#9A9282] hover:text-foreground hover:border-border transition-colors"
+            className="puce"
           >
             {l.label}
           </Link>
         ))}
         <Link
           href={`/${plateforme.slug}/${anneeLien}`}
-          className="px-3 py-1.5 border border-border/50 font-mono-label text-foreground hover:text-primary hover:border-border transition-colors"
+          className="puce text-white"
         >
-          Toute l&apos;année {anneeLien} →
+          Toute l&apos;année {anneeLien}
         </Link>
       </div>
     </nav>

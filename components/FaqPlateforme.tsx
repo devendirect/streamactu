@@ -3,6 +3,7 @@ import type { Contenu, Plateforme } from "@/types";
 import { libelleComptes, scoreBayesien } from "@/lib/utils";
 import { jsonLdFaq } from "@/lib/seo";
 import { accord } from "@/lib/meta";
+import Icone from "@/components/Icone";
 
 interface Props {
   plateforme: Plateforme;
@@ -82,38 +83,43 @@ export default function FaqPlateforme({ plateforme, series, films, periodeIntro,
   });
 
   return (
-    <section aria-labelledby="faq-plateforme" className="border-t border-border pt-5">
+    <section aria-labelledby="faq-plateforme">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: jsonLdFaq(entrees.map(({ question, reponse }) => ({ question, reponse }))),
         }}
       />
-      <h2 id="faq-plateforme" className="font-mono-label text-ink-4 mb-4">
+      <h2 id="faq-plateforme" className="mb-3.5 text-[clamp(20px,1.7vw,24px)] font-extrabold tracking-[-0.015em]">
         Questions fréquentes
       </h2>
-      <div className="space-y-5">
+      {/* Accordéon : les réponses restent dans le HTML (moteurs, lecture sans JavaScript) */}
+      <div className="max-w-[820px]">
         {entrees.map((e) => (
-          <div key={e.question}>
-            <h3 className="text-[17px] font-bold mb-1">{e.question}</h3>
-            <p
-              className="text-[15px] leading-relaxed text-[#9A9282]"
-              style={{ fontFamily: "var(--font-onest), sans-serif" }}
-            >
+          <details key={e.question} className="group border-t border-trait last:border-b">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-[18px] text-[17px] font-bold [&::-webkit-details-marker]:hidden">
+              <h3>{e.question}</h3>
+              <Icone
+                nom="bas"
+                taille={20}
+                className="flex-none text-texte-2 transition-transform duration-300 ease-salle group-open:rotate-180"
+              />
+            </summary>
+            <p className="max-w-[68ch] pb-5 leading-[1.6] text-texte-doux">
               {e.reponse}
               {e.lien && (
                 <>
                   {" "}
                   <Link
                     href={e.lien.href}
-                    className="underline underline-offset-2 hover:text-foreground transition-colors"
+                    className="text-white underline decoration-ambre/60 underline-offset-4 transition-[text-decoration-color] duration-200 hover:decoration-ambre"
                   >
-                    {e.lien.label} →
+                    {e.lien.label}
                   </Link>
                 </>
               )}
             </p>
-          </div>
+          </details>
         ))}
       </div>
     </section>

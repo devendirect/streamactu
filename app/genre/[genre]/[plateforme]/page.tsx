@@ -45,20 +45,22 @@ export default async function GenrePlateformePage({ params }: Props) {
       <EnTeteNouveautes
         titre={`${g.nom} sur ${pf.nom}`}
         intro={`${g.intro} ${libelleComptes(series.length, films.length)} parmi les plus populaires du catalogue ${pf.nom} en France.`}
+        fond={series.find((c) => c.backdrop)?.backdrop ?? films.find((c) => c.backdrop)?.backdrop}
+        marque={pf}
       />
-      <div className="sa-container py-4 space-y-10">
+      <div className="space-y-section px-gouttiere pt-8 pb-10">
         <nav aria-label="Navigation" className="flex items-center gap-4 flex-wrap">
           <Link
             href={`/genre/${g.slug}`}
-            className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
+            className="puce"
           >
-            ← {g.nom} toutes plateformes
+            {g.nom} toutes plateformes
           </Link>
           <Link
             href={`/${pf.slug}`}
-            className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
+            className="puce"
           >
-            Nouveautés {pf.nom} →
+            Nouveautés {pf.nom}
           </Link>
         </nav>
 

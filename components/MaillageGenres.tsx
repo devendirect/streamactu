@@ -11,17 +11,11 @@ export default function MaillageGenres({ actuel }: Props) {
   const liens = GENRES_SEO.filter((g) => g.slug !== actuel);
 
   return (
-    <nav aria-label="Genres" className="border-t border-border pt-5">
-      <p className="font-mono-label text-ink-4 mb-3">
-        {actuel ? "Autres genres" : "Par genre"}
-      </p>
+    <nav aria-label="Genres">
+      <h2 className="font-mono-label mb-3 text-texte-2">{actuel ? "Autres genres" : "Par genre"}</h2>
       <div className="flex flex-wrap gap-2">
         {liens.map((g) => (
-          <Link
-            key={g.slug}
-            href={`/genre/${g.slug}`}
-            className="px-3 py-1.5 border border-border/50 font-mono-label text-[#9A9282] hover:text-foreground hover:border-border transition-colors"
-          >
+          <Link key={g.slug} href={`/genre/${g.slug}`} className="puce">
             {g.nom}
           </Link>
         ))}

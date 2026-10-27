@@ -1,11 +1,9 @@
-import type { NouveautesParPlateforme, ModeAffichage } from "@/types";
-import CarteContenu from "@/components/CarteContenu";
-import CarteContenuPoster from "@/components/CarteContenuPoster";
+import type { NouveautesParPlateforme } from "@/types";
 import EnTeteSection from "@/components/EnTeteSection";
+import GrilleAffiches from "@/components/GrilleAffiches";
 
 interface Props {
   data: NouveautesParPlateforme;
-  mode?: ModeAffichage;
   priorite?: boolean;
   /** Titre cliquable vers /{slug-plateforme} — désactivé sur la page plateforme elle-même */
   lienTitre?: boolean;
@@ -13,15 +11,10 @@ interface Props {
   totalReel?: number;
 }
 
-export default function SectionPlateforme({
-  data,
-  mode = "liste",
-  priorite = false,
-  lienTitre = true,
-  totalReel,
-}: Props) {
+/** Sorties d'une plateforme : en-tête à pastille, puis grille d'affiches triées par note */
+export default function SectionPlateforme({ data, priorite = false, lienTitre = true, totalReel }: Props) {
   const { plateforme, series, films } = data;
-  const contenus = [...series, ...films].sort((a, b) => b.note - a.note);
+  const contenus = [...series, ...films].sort((a, b) => b.note - a.note).map((c) => ({ ...c, plateforme }));
   const total = contenus.length;
   if (total === 0) return null;
 
@@ -34,42 +27,10 @@ export default function SectionPlateforme({
         compteTotal={totalReel}
         compteLabel="sortie"
         couleur={plateforme.couleur}
-        grand
         lienHref={lienTitre ? `/${plateforme.slug}` : undefined}
         lienTitle={`Toutes les nouveautés ${plateforme.nom}`}
       />
-
-      {/* ─── LISTE ─── */}
-      {mode === "liste" && (
-        <div>
-          {contenus.map((c, i) => (
-            <CarteContenu key={c.id} contenu={c} priorite={priorite && i === 0} />
-          ))}
-        </div>
-      )}
-
-      {/* ─── GRILLE ─── */}
-      {mode === "grille" && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          {contenus.map((c, i) => (
-            <CarteContenuPoster key={c.id} contenu={c} priorite={priorite && i === 0} />
-          ))}
-        </div>
-      )}
-
-      {/* ─── RAILS (scroll horizontal) ─── */}
-      {mode === "rails" && (
-        <div
-          className="flex gap-3 overflow-x-auto pb-2"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {contenus.map((c, i) => (
-            <div key={c.id} className="shrink-0 w-[140px] sm:w-[160px]">
-              <CarteContenuPoster contenu={c} priorite={priorite && i === 0} />
-            </div>
-          ))}
-        </div>
-      )}
+      <GrilleAffiches contenus={contenus} priorite={priorite} />
     </section>
   );
 }

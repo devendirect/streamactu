@@ -5,6 +5,7 @@ import type { Contenu, MediaType } from "@/types";
 import { getTopAnnee, getTopMois } from "@/lib/tmdb";
 import {
   ANNEE_PLANCHER,
+  altAffiche,
   bornesMois,
   formatMoisFR,
   formatMoisURL,
@@ -14,7 +15,9 @@ import {
 import { jsonLdClassement } from "@/lib/seo";
 import { metadonnees, metaTop } from "@/lib/meta";
 import EnTeteNouveautes from "@/components/EnTeteNouveautes";
+import Image from "next/image";
 import CarteContenu from "@/components/CarteContenu";
+import Icone from "@/components/Icone";
 import MaillagePlateformes from "@/components/MaillagePlateformes";
 
 export const revalidate = 86400;
@@ -150,7 +153,7 @@ export default async function TopPage({ params }: Props) {
         titre={titre}
         intro={`${description} Classement établi d'après la note des spectateurs sur TMDB, pondérée par le nombre de votes.${anneeEnCours ? " Classement de l'année en cours, mis à jour chaque jour." : ""}`}
       />
-      <div className="sa-container py-4 space-y-10">
+      <div className="space-y-section px-gouttiere pt-8 pb-10">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -161,44 +164,79 @@ export default async function TopPage({ params }: Props) {
         <nav aria-label="Autres classements" className="flex items-center gap-4 flex-wrap">
           <Link
             href={`/top/${slugOppose}`}
-            className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
+            className="puce"
           >
-            {estSeries ? "Top films" : "Top séries"} de la même période →
+            {estSeries ? "Top films" : "Top séries"} de la même période
           </Link>
           {top.portee === "mois" && (
             <Link
               href={`/top/${estSeries ? "series" : "films"}-${top.annee}`}
-              className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
+              className="puce"
             >
-              Top {estSeries ? "séries" : "films"} {top.annee} →
+              Top {estSeries ? "séries" : "films"} {top.annee}
             </Link>
           )}
           <Link
             href="/guides/classement-tops"
-            className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
+            className="puce"
           >
-            Comment ce classement est fait →
+            Comment ce classement est fait
           </Link>
         </nav>
 
-        {/* Classement numéroté */}
-        <ol className="list-none m-0 p-0">
-          {contenus.map((c, i) => (
-            <li key={c.id} className="flex items-center gap-4">
-              <span
-                aria-hidden="true"
-                className="font-mono text-primary shrink-0 w-9 text-right"
-                style={{ fontSize: i < 3 ? "22px" : "15px", fontWeight: 600 }}
-              >
-                {i + 1}
-              </span>
-              <span className="sr-only">Numéro {i + 1} :</span>
-              <div className="flex-1 min-w-0">
-                <CarteContenu contenu={c} priorite={i === 0} />
-              </div>
+        {/* Podium sur le velours : les trois premiers, chiffres détourés de lumière */}
+        <ol className="podium velours -mx-gouttiere grid grid-cols-3 gap-[clamp(12px,2vw,28px)] px-gouttiere py-[34px] max-[640px]:grid-cols-1">
+          {contenus.slice(0, 3).map((c, i) => (
+            <li key={c.id} className="top10__carte">
+              <Link href={`/${c.type}/${c.slug}`} className="grid grid-cols-[42%_58%] items-end">
+                <span
+                  aria-hidden="true"
+                  className={`font-salle text-right text-[clamp(96px,11vw,200px)] leading-[0.78] font-black tracking-[-0.04em] text-velours tabular -mr-3 ${
+                    i === 0 ? "[-webkit-text-stroke:2px_var(--sa-lumiere)]" : "[-webkit-text-stroke:2px_rgba(255,241,210,0.55)]"
+                  }`}
+                >
+                  {i + 1}
+                </span>
+                <span className="top10__affiche relative block aspect-[2/3] overflow-hidden rounded-lg bg-surface shadow-[0_14px_24px_-12px_rgba(0,0,0,0.9)]">
+                  {c.poster && (
+                    <Image src={c.poster} alt={altAffiche(c.titre, c.type)} fill sizes="(max-width: 640px) 50vw, 20vw" priority={i === 0} className="object-cover" />
+                  )}
+                </span>
+                <span className="col-span-2 block pt-3">
+                  <span className="block truncate text-[17px] font-bold">
+                    <span className="sr-only">Numéro {i + 1} : </span>
+                    {c.titre}
+                  </span>
+                  <span className="mt-0.5 inline-flex items-center gap-1 text-sm text-velours-texte">
+                    <Icone nom="etoile" taille={13} className="fill-current text-ambre" />
+                    {c.note.toFixed(1).replace(".", ",")}
+                    {c.annee ? ` · ${c.annee}` : ""}
+                  </span>
+                </span>
+              </Link>
             </li>
           ))}
         </ol>
+
+        {/* Suite du classement, en lignes numérotées */}
+        {contenus.length > 3 && (
+          <ol start={4} className="m-0 list-none p-0">
+            {contenus.slice(3).map((c, i) => (
+              <li key={c.id} className="flex items-center gap-4">
+                <span
+                  aria-hidden="true"
+                  className="font-salle tabular w-14 shrink-0 text-right text-[56px] leading-none font-black text-transparent [-webkit-text-stroke:1.5px_rgba(255,241,210,0.5)]"
+                >
+                  {i + 4}
+                </span>
+                <span className="sr-only">Numéro {i + 4} :</span>
+                <div className="min-w-0 flex-1">
+                  <CarteContenu contenu={c} />
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
 
         <MaillagePlateformes />
       </div>

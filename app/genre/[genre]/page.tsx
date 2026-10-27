@@ -7,6 +7,7 @@ import { PLATEFORMES } from "@/lib/plateformes";
 import { libelleComptes } from "@/lib/utils";
 import { metadonnees, metaGenre } from "@/lib/meta";
 import EnTeteNouveautes from "@/components/EnTeteNouveautes";
+import PastillePlateforme from "@/components/PastillePlateforme";
 import ListeContenus from "@/components/ListeContenus";
 import MaillageGenres from "@/components/MaillageGenres";
 
@@ -44,18 +45,14 @@ export default async function GenrePage({ params }: Props) {
       <EnTeteNouveautes
         titre={`${g.nom} en streaming`}
         intro={`${g.intro} ${libelleComptes(series.length, films.length)} parmi les plus populaires du moment, disponibles en streaming en France.`}
+        fond={series.find((c) => c.backdrop)?.backdrop ?? films.find((c) => c.backdrop)?.backdrop}
       />
-      <div className="sa-container py-4 space-y-10">
+      <div className="space-y-section px-gouttiere pt-8 pb-10">
         {/* Déclinaisons par plateforme */}
-        <nav aria-label={`${g.nom} par plateforme`} className="flex items-center gap-x-4 gap-y-2 flex-wrap">
-          <span className="font-mono-label text-ink-4">Par plateforme :</span>
+        <nav aria-label={`${g.nom} par plateforme`} className="flex flex-wrap gap-2">
           {PLATEFORMES.map((pf) => (
-            <Link
-              key={pf.id}
-              href={`/genre/${g.slug}/${pf.slug}`}
-              className="font-mono-label text-[#9A9282] hover:text-foreground transition-colors"
-            >
-              {pf.nom}
+            <Link key={pf.id} href={`/genre/${g.slug}/${pf.slug}`} className="puce">
+              <PastillePlateforme pf={pf} />
             </Link>
           ))}
         </nav>

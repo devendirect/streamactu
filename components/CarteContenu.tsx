@@ -1,41 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Contenu } from "@/types";
-import { TYPE_ICONS, TYPE_LABELS, altAffiche, isNouvelleSerieCheck } from "@/lib/utils";
+import { altAffiche } from "@/lib/utils";
+import { metaContenu } from "@/components/CarteAffiche";
+import Icone from "@/components/Icone";
 
 interface Props {
   contenu: Contenu;
   priorite?: boolean;
 }
 
+/** Carte en ligne (lignes de classement) : petite affiche, titre, méta et genres, note */
 export default function CarteContenu({ contenu, priorite = false }: Props) {
-  const { type, titre, slug, poster, note, genres, saisonActuelle, premiereDiffusion, plateforme } = contenu;
-  const href = `/${type}/${slug}`;
-
-  // Animation détectée via les genres
-  const isAnim = genres.some((g) => g.nom.toLowerCase().includes("animat"));
-  const typeIcon = isAnim ? "✦" : TYPE_ICONS[type];
-  const typeLabel = isAnim ? "Animation" : TYPE_LABELS[type];
-
-  // Label saison
-  let saisonLabel: React.ReactNode = null;
-  if (type === "serie") {
-    if (isNouvelleSerieCheck(saisonActuelle, premiereDiffusion)) {
-      saisonLabel = (
-        <span
-          className="italic"
-          style={{ color: "#E3A53A", fontFamily: "var(--font-onest), sans-serif" }}
-        >
-          Nouvelle série
-        </span>
-      );
-    } else if (saisonActuelle) {
-      saisonLabel = (
-        <span className="text-primary">Saison {saisonActuelle}</span>
-      );
-    }
-  }
-
+  const { type, titre, slug, poster, note, genres, plateforme } = contenu;
   const genresLabel = genres
     .slice(0, 3)
     .map((g) => g.nom)
@@ -43,57 +20,38 @@ export default function CarteContenu({ contenu, priorite = false }: Props) {
 
   return (
     <Link
-      href={href}
-      className="flex items-center gap-4 py-3.5 border-t border-border hover:bg-white/[0.025] transition-colors group"
+      href={`/${type}/${slug}`}
+      className="group flex items-center gap-4 border-t border-trait py-3.5 transition-colors duration-200 hover:bg-white/[0.025]"
     >
-      {/* Poster */}
-      <div className="relative w-[54px] h-[80px] shrink-0 border border-border overflow-hidden bg-white/5">
-        {poster ? (
-          <Image
-            src={poster}
-            alt={altAffiche(titre, type)}
-            fill
-            sizes="54px"
-            className="object-cover"
-            priority={priorite}
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
-        )}
-      </div>
+      <span className="relative h-[80px] w-[54px] shrink-0 overflow-hidden rounded-md bg-surface">
+        {poster && <Image src={poster} alt={altAffiche(titre, type)} fill sizes="54px" className="object-cover" priority={priorite} />}
+      </span>
 
-      {/* Infos */}
-      <div className="flex-1 min-w-0">
-        {/* Badge type + saison */}
-        <div className="flex items-baseline gap-1.5 font-mono-label text-[#9A9282] mb-1">
-          <span aria-hidden="true" className="text-[11px] text-foreground/60">{typeIcon}</span>
-          <span className="uppercase tracking-[0.12em] text-[10px]">{typeLabel}</span>
-          {saisonLabel && <>&nbsp;&nbsp;{saisonLabel}</>}
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[17px] leading-tight font-semibold tracking-[-0.01em] transition-colors duration-200 group-hover:text-white">
+          {titre}
+        </span>
+        <span className="mt-1 flex items-center gap-1.5 text-[13px] text-texte-2">
           {plateforme && (
             <span
-              className="uppercase tracking-[0.12em] text-[10px]"
-              style={{ color: plateforme.couleur }}
-            >
-              &nbsp;{plateforme.nom}
-            </span>
+              aria-hidden="true"
+              className="size-2 flex-none rounded-full shadow-[0_0_0_1px_rgba(245,245,247,0.22)]"
+              style={{ background: plateforme.couleur }}
+            />
           )}
-        </div>
+          <span className="truncate">
+            {plateforme ? `${plateforme.nom} · ` : ""}
+            {metaContenu(contenu)}
+            {genresLabel ? ` · ${genresLabel}` : ""}
+          </span>
+        </span>
+      </span>
 
-        {/* Titre */}
-        <div className="text-[18px] font-semibold tracking-[-0.01em] leading-tight truncate group-hover:text-primary transition-colors">
-          {titre}
-        </div>
-
-        {/* Genres */}
-        {genresLabel && (
-          <div className="font-mono-label text-ink-3 mt-0.5">{genresLabel}</div>
-        )}
-      </div>
-
-      {/* Note */}
       {note > 0 && (
-        <span className="shrink-0 font-mono text-sm text-primary whitespace-nowrap">
-          ★ {note.toFixed(1)}
+        <span className="tabular inline-flex shrink-0 items-center gap-1 text-sm font-bold whitespace-nowrap">
+          <Icone nom="etoile" taille={14} className="fill-current text-ambre" />
+          {note.toFixed(1).replace(".", ",")}
+          <span className="sr-only">sur 10</span>
         </span>
       )}
     </Link>

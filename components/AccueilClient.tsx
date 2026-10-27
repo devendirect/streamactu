@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
-import type { NouveautesParPlateforme, ContexteTemporel, ModeAffichage } from "@/types";
+import { useMemo, useState } from "react";
+import type { NouveautesParPlateforme, ContexteTemporel } from "@/types";
 import SectionPlateforme from "@/components/SectionPlateforme";
 import NavigationTemporelle from "@/components/NavigationTemporelle";
+import PastillePlateforme from "@/components/PastillePlateforme";
 
 type TypeFiltre = "tous" | "serie" | "film";
 type GenreFiltre = "tout" | "documentaire" | "animation";
@@ -20,46 +21,34 @@ interface Props {
   contexte: ContexteTemporel;
 }
 
-const GENRES_FILTRES: { val: GenreFiltre; icone: string | null; label: string }[] = [
-  { val: "tout", icone: null, label: "Tout" },
-  { val: "documentaire", icone: "▣", label: "Documentaires" },
-  { val: "animation", icone: "✦", label: "Animation" },
+const TYPES: { val: TypeFiltre; label: string }[] = [
+  { val: "tous", label: "Tout" },
+  { val: "serie", label: "Séries" },
+  { val: "film", label: "Films" },
 ];
 
-const MODES_AFFICHAGE: { val: ModeAffichage; icon: string; title: string }[] = [
-  { val: "liste", icon: "≡", title: "Liste" },
-  { val: "rails", icon: "⊟", title: "Rails" },
-  { val: "grille", icon: "⊞", title: "Grille" },
+const GENRES_FILTRES: { val: GenreFiltre; label: string }[] = [
+  { val: "tout", label: "Tous les genres" },
+  { val: "documentaire", label: "Documentaires" },
+  { val: "animation", label: "Animation" },
 ];
 
+/**
+ * Vues jour, semaine et mois : barre collante (type, genre, période,
+ * plateforme), puis une grille d'affiches par plateforme.
+ */
 export default function AccueilClient({ plateformes, contexte }: Props) {
   const [typeFiltre, setTypeFiltre] = useState<TypeFiltre>("serie");
   const [genreFiltre, setGenreFiltre] = useState<GenreFiltre>("tout");
   const [pfFiltre, setPfFiltre] = useState<number | null>(null);
-  const [mode, setMode] = useState<ModeAffichage>("liste");
-  const [isSticky, setIsSticky] = useState(false);
-  const sentinelRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsSticky(!entry.isIntersecting),
-      { threshold: 0, rootMargin: "-1px 0px 0px 0px" }
-    );
-    if (sentinelRef.current) observer.observe(sentinelRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   // Plateformes qui ont du contenu pour le type et genre actifs
   const pfsDispo = useMemo(
     () =>
       plateformes
         .filter((p) => {
-          const hasSeries =
-            typeFiltre !== "film" &&
-            p.series.some((s) => matchGenre(s.genres, genreFiltre));
-          const hasFilms =
-            typeFiltre !== "serie" &&
-            p.films.some((f) => matchGenre(f.genres, genreFiltre));
+          const hasSeries = typeFiltre !== "film" && p.series.some((s) => matchGenre(s.genres, genreFiltre));
+          const hasFilms = typeFiltre !== "serie" && p.films.some((f) => matchGenre(f.genres, genreFiltre));
           return hasSeries || hasFilms;
         })
         .map((p) => p.plateforme),
@@ -68,8 +57,7 @@ export default function AccueilClient({ plateformes, contexte }: Props) {
 
   // Filtre plateforme effectif : ignoré si la plateforme choisie n'a plus
   // de contenu pour le type/genre actifs (dérivé au rendu, pas d'effet)
-  const pfFiltreEffectif =
-    pfFiltre !== null && pfsDispo.some((p) => p.id === pfFiltre) ? pfFiltre : null;
+  const pfFiltreEffectif = pfFiltre !== null && pfsDispo.some((p) => p.id === pfFiltre) ? pfFiltre : null;
 
   // Filtrage des données
   const filtrees = useMemo(() => {
@@ -92,167 +80,63 @@ export default function AccueilClient({ plateformes, contexte }: Props) {
       .filter((pf) => pf.series.length + pf.films.length > 0);
   }, [plateformes, typeFiltre, genreFiltre, pfFiltreEffectif]);
 
-  function toggleType(t: "serie" | "film") {
-    setTypeFiltre((prev) => (prev === t ? "tous" : t));
-  }
-
   return (
-    <div className="sa-container py-4">
-      {/* Sentinel pour la détection sticky */}
-      <div ref={sentinelRef} className="h-px -mt-px" />
-
-      {/* ─── BARRE DE FILTRES STICKY ─── */}
-      <div
-        className="sticky top-0 z-20 sa-sticky-bleed transition-all duration-150"
-        style={{
-          background: isSticky ? "rgba(22,20,15,0.96)" : "transparent",
-          backdropFilter: isSticky ? "blur(14px)" : "none",
-          borderBottom: isSticky ? "1px solid rgba(236,230,216,0.08)" : "none",
-        }}
-      >
-        {/* Ligne 1 : onglets Séries/Films + filtre genre */}
-        <div className="flex items-center justify-between flex-wrap gap-3 py-3 border-b border-border/20">
-          {/* Tabs type */}
-          <div className="flex items-baseline gap-5">
-            <button
-              onClick={() => toggleType("serie")}
-              aria-pressed={typeFiltre === "serie"}
-              className="text-[22px] font-extrabold tracking-[-0.02em] pb-0.5 border-b-2 transition-colors"
-              style={{
-                color: typeFiltre === "serie" ? "#ECE6D8" : "var(--ink-4)",
-                borderColor: typeFiltre === "serie" ? "#E3A53A" : "transparent",
-              }}
-            >
-              Séries
-            </button>
-            <button
-              onClick={() => toggleType("film")}
-              aria-pressed={typeFiltre === "film"}
-              className="text-[22px] font-extrabold tracking-[-0.02em] pb-0.5 border-b-2 transition-colors"
-              style={{
-                color: typeFiltre === "film" ? "#ECE6D8" : "var(--ink-4)",
-                borderColor: typeFiltre === "film" ? "#E3A53A" : "transparent",
-              }}
-            >
-              Films
-            </button>
+    <div className="px-gouttiere pb-4">
+      {/* ─── Barre de filtres collante, sous l'en-tête ─── */}
+      <div className="sticky top-entete z-30 -mx-gouttiere space-y-3 border-b border-trait bg-[rgba(10,10,11,0.86)] px-gouttiere py-3 backdrop-blur-[16px]">
+        <div className="flex flex-wrap items-center gap-3">
+          <div role="group" aria-label="Type" className="segments">
+            {TYPES.map(({ val, label }) => (
+              <button key={val} type="button" aria-pressed={typeFiltre === val} onClick={() => setTypeFiltre(val)}>
+                {label}
+              </button>
+            ))}
           </div>
-
-          {/* Filtres genre */}
-          <div className="flex items-center gap-2 font-mono-label flex-wrap">
-            <span className="text-ink-4">Filtrer :</span>
-            {GENRES_FILTRES.map(({ val, icone, label }) => (
+          <div role="group" aria-label="Genre" className="flex flex-wrap gap-2">
+            {GENRES_FILTRES.map(({ val, label }) => (
               <button
                 key={val}
-                onClick={() => setGenreFiltre((prev) => (prev === val ? "tout" : val))}
+                type="button"
                 aria-pressed={genreFiltre === val}
-                className="px-3 py-1.5 border transition-colors"
-                style={{
-                  borderColor: genreFiltre === val ? "#E3A53A" : "rgba(236,230,216,0.15)",
-                  color: genreFiltre === val ? "#E3A53A" : "#9A9282",
-                  background: genreFiltre === val ? "rgba(227,165,58,0.06)" : "transparent",
-                }}
+                onClick={() => setGenreFiltre(val)}
+                className="puce"
               >
-                {icone && (
-                  <span aria-hidden="true" className="mr-1.5">
-                    {icone}
-                  </span>
-                )}
                 {label}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Ligne 2 : navigation temporelle */}
-        <div className="py-3 border-b border-border/20">
-          <NavigationTemporelle contexte={contexte} />
-        </div>
+        <NavigationTemporelle contexte={contexte} />
 
-        {/* Ligne 3 : plateformes + mode d'affichage */}
-        <div className="flex items-center justify-between py-2.5 flex-wrap gap-2">
-          {/* Chips plateforme */}
-          <div className="flex items-center gap-2 flex-wrap font-mono-label">
-            <span className="text-ink-4">Plateforme :</span>
+        <div
+          role="group"
+          aria-label="Plateforme"
+          className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          <button type="button" aria-pressed={pfFiltreEffectif === null} onClick={() => setPfFiltre(null)} className="puce">
+            Toutes les plateformes
+          </button>
+          {pfsDispo.map((pf) => (
             <button
-              onClick={() => setPfFiltre(null)}
-              aria-pressed={pfFiltreEffectif === null}
-              className="px-3 py-1.5 border transition-colors"
-              style={{
-                borderColor: pfFiltreEffectif === null ? "rgba(236,230,216,0.6)" : "rgba(236,230,216,0.15)",
-                color: pfFiltreEffectif === null ? "#ECE6D8" : "#9A9282",
-              }}
+              key={pf.id}
+              type="button"
+              aria-pressed={pf.id === pfFiltreEffectif}
+              onClick={() => setPfFiltre(pf.id === pfFiltreEffectif ? null : pf.id)}
+              className="puce"
             >
-              Toutes
+              <PastillePlateforme pf={pf} />
             </button>
-            {pfsDispo.map((pf) => (
-              <button
-                key={pf.id}
-                onClick={() => setPfFiltre(pf.id === pfFiltreEffectif ? null : pf.id)}
-                aria-pressed={pf.id === pfFiltreEffectif}
-                className="flex items-center gap-1.5 px-3 py-1.5 border transition-colors font-mono-label"
-                style={{
-                  borderColor: pf.id === pfFiltreEffectif ? pf.couleur : "rgba(236,230,216,0.15)",
-                  color: pf.id === pfFiltreEffectif ? pf.couleur : "#9A9282",
-                }}
-              >
-                <span
-                  style={{
-                    display: "inline-block",
-                    width: "10px",
-                    height: "3px",
-                    background: pf.couleur,
-                    flexShrink: 0,
-                  }}
-                />
-                {pf.nom.toUpperCase()}
-              </button>
-            ))}
-          </div>
-
-          {/* Icônes mode d'affichage */}
-          <div className="flex border border-border/30">
-            {MODES_AFFICHAGE.map(({ val, icon, title }, i) => (
-              <button
-                key={val}
-                onClick={() => setMode(val)}
-                title={title}
-                aria-label={`Affichage ${title.toLowerCase()}`}
-                aria-pressed={mode === val}
-                className="w-9 h-9 flex items-center justify-center text-lg transition-colors"
-                style={{
-                  borderLeft: i > 0 ? "1px solid rgba(236,230,216,0.12)" : "none",
-                  background: mode === val ? "rgba(236,230,216,0.08)" : "transparent",
-                  color: mode === val ? "#ECE6D8" : "var(--ink-4)",
-                }}
-              >
-                {icon}
-              </button>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* ─── CONTENU FILTRÉ ─── */}
-      <div className="mt-6 space-y-10">
+      {/* ─── Contenu filtré ─── */}
+      <div className="mt-8 space-y-section">
         {filtrees.length === 0 ? (
-          <div className="py-20 text-center">
-            <p
-              className="text-xl text-[#9A9282] italic"
-              style={{ fontFamily: "var(--font-onest), sans-serif" }}
-            >
-              Aucun contenu ne correspond à ces filtres.
-            </p>
-          </div>
+          <p className="py-20 text-center text-xl text-texte-2">Aucun contenu ne correspond à ces filtres.</p>
         ) : (
-          filtrees.map((data, i) => (
-            <SectionPlateforme
-              key={data.plateforme.id}
-              data={data}
-              mode={mode}
-              priorite={i === 0}
-            />
-          ))
+          filtrees.map((data, i) => <SectionPlateforme key={data.plateforme.id} data={data} priorite={i === 0} />)
         )}
       </div>
     </div>

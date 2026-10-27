@@ -32,6 +32,7 @@ import {
   metaSeriesOuFilms,
 } from "@/lib/meta";
 import EnTeteNouveautes from "@/components/EnTeteNouveautes";
+import SegmentsPlateforme from "@/components/SegmentsPlateforme";
 import SectionPlateforme from "@/components/SectionPlateforme";
 import MaillagePlateformes from "@/components/MaillagePlateformes";
 import ArchivesMoisPlateforme from "@/components/ArchivesMoisPlateforme";
@@ -193,23 +194,11 @@ export default async function SousPlateformePage({ params }: Props) {
                 }`
               : `Aucune sortie ${estSeries ? "série" : "film"} recensée sur ${pf.nom} ces quatre dernières semaines.`
           }
-        />
-        <div className="sa-container py-4 space-y-10">
-          <nav aria-label={`Navigation ${pf.nom}`} className="flex items-center gap-4 flex-wrap">
-            <Link
-              href={`/${pf.slug}`}
-              className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
-            >
-              ← Toutes les nouveautés {pf.nom}
-            </Link>
-            <Link
-              href={`/${pf.slug}/${estSeries ? "films" : "series"}`}
-              className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
-            >
-              {estSeries ? `Nouveaux films ${pf.nom}` : `Nouvelles séries ${pf.nom}`} →
-            </Link>
-          </nav>
-
+          marque={pf}
+        >
+          <SegmentsPlateforme pf={pf} actif={estSeries ? "series" : "films"} />
+        </EnTeteNouveautes>
+        <div className="space-y-section px-gouttiere pt-8 pb-10">
           {contenus.length > 0 && (
             <SectionPlateforme
               data={{
@@ -260,23 +249,11 @@ export default async function SousPlateformePage({ params }: Props) {
               ? `${total} sortie${total > 1 ? "s" : ""} annoncée${total > 1 ? "s" : ""} sur ${pf.nom} dans les quatre prochaines semaines. Les dates peuvent bouger : la page est actualisée plusieurs fois par jour.`
               : `Aucune sortie annoncée sur ${pf.nom} dans les quatre prochaines semaines pour l'instant.`
           }
-        />
-        <div className="sa-container py-4 space-y-10">
-          <nav aria-label={`Navigation ${pf.nom}`} className="flex items-center gap-4 flex-wrap">
-            <Link
-              href={`/${pf.slug}`}
-              className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
-            >
-              ← Nouveautés {pf.nom} de la semaine
-            </Link>
-            <Link
-              href="/prochaines-sorties"
-              className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
-            >
-              Toutes les prochaines sorties →
-            </Link>
-          </nav>
-
+          marque={pf}
+        >
+          <SegmentsPlateforme pf={pf} actif="prochaines-sorties" />
+        </EnTeteNouveautes>
+        <div className="space-y-section px-gouttiere pt-8 pb-10">
           <ListeSortiesParJour jours={jours} />
 
           <TexteEditorial
@@ -286,7 +263,10 @@ export default async function SousPlateformePage({ params }: Props) {
               syntheseCalendrier(jours),
               methodeCalendrier(pf.nom),
             ]}
-            liens={[{ href: `/${pf.slug}/series`, label: `Nouvelles séries ${pf.nom}` }]}
+            liens={[
+              { href: `/${pf.slug}/series`, label: `Nouvelles séries ${pf.nom}` },
+              { href: "/prochaines-sorties", label: "Toutes les prochaines sorties" },
+            ]}
           />
 
           <MaillagePlateformes actuelle={pf.id} />
@@ -319,14 +299,15 @@ export default async function SousPlateformePage({ params }: Props) {
         <EnTeteNouveautes
           titre={`Nouveautés ${pf.nom} ${deMois(mois.mois, mois.annee)}`}
           intro={introComptes(totaux, total, "sorti", `sur ${pf.nom} en ${label.toLowerCase()}`)}
+          marque={pf}
         />
-        <div className="sa-container py-4 space-y-10">
+        <div className="space-y-section px-gouttiere pt-8 pb-10">
           <nav aria-label={`Navigation ${pf.nom}`}>
             <Link
               href={`/${pf.slug}`}
-              className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
+              className="puce"
             >
-              ← Nouveautés {pf.nom} de la semaine
+              Nouveautés {pf.nom} de la semaine
             </Link>
           </nav>
 
@@ -368,14 +349,15 @@ export default async function SousPlateformePage({ params }: Props) {
         <EnTeteNouveautes
           titre={`Nouveautés ${pf.nom} ${annee}`}
           intro={`${libelleComptes(data.totalSeries, data.totalFilms)} sorti${accord(data.totalSeries, data.totalFilms)} sur ${pf.nom} en ${annee}. Les mieux noté${accord(data.totalSeries, data.totalFilms)} d'abord, puis le détail mois par mois.`}
+          marque={pf}
         />
-        <div className="sa-container py-4 space-y-10">
+        <div className="space-y-section px-gouttiere pt-8 pb-10">
           <nav aria-label={`Navigation ${pf.nom}`}>
             <Link
               href={`/${pf.slug}`}
-              className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
+              className="puce"
             >
-              ← Nouveautés {pf.nom} de la semaine
+              Nouveautés {pf.nom} de la semaine
             </Link>
           </nav>
 

@@ -471,11 +471,14 @@
     transition: transform 0.35s var(--ease-salle), box-shadow 0.35s, filter 0.35s;
   }
   @media (hover: hover) {
-    .top10 .rangee__piste:hover .top10__affiche {
+    .top10 .rangee__piste:hover .top10__affiche,
+    .podium:hover .top10__affiche {
       filter: brightness(0.42) saturate(0.7);
     }
     .top10 .rangee__piste .top10__carte:hover .top10__affiche,
-    .top10 .rangee__piste .top10__carte:focus-within .top10__affiche {
+    .top10 .rangee__piste .top10__carte:focus-within .top10__affiche,
+    .podium .top10__carte:hover .top10__affiche,
+    .podium .top10__carte:focus-within .top10__affiche {
       filter: none;
       transform: translateY(-6px);
       box-shadow: 0 -12px 40px -10px rgba(255, 236, 196, 0.35), 0 18px 30px -12px rgba(0, 0, 0, 0.8);

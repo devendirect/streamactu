@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getSortiesAVenir } from "@/lib/tmdb";
 import { PLATEFORMES } from "@/lib/plateformes";
 import EnTeteNouveautes from "@/components/EnTeteNouveautes";
+import PastillePlateforme from "@/components/PastillePlateforme";
 import ListeSortiesParJour, { agregerSortiesParJour } from "@/components/ListeSortiesParJour";
 import MaillagePlateformes from "@/components/MaillagePlateformes";
 import TexteEditorial from "@/components/TexteEditorial";
@@ -45,17 +46,12 @@ export default async function ProchainesSortiesPage() {
             : "Aucune sortie annoncée sur les quatre prochaines semaines pour l'instant. Revenez bientôt : la page est actualisée plusieurs fois par jour."
         }
       />
-      <div className="sa-container py-4 space-y-10">
+      <div className="space-y-section px-gouttiere pt-8 pb-10">
         {/* Déclinaisons par plateforme */}
-        <nav aria-label="Prochaines sorties par plateforme" className="flex items-center gap-x-4 gap-y-2 flex-wrap">
-          <span className="font-mono-label text-ink-4">Par plateforme :</span>
+        <nav aria-label="Prochaines sorties par plateforme" className="flex flex-wrap gap-2">
           {PLATEFORMES.map((pf) => (
-            <Link
-              key={pf.id}
-              href={`/${pf.slug}/prochaines-sorties`}
-              className="font-mono-label text-[#9A9282] hover:text-foreground transition-colors"
-            >
-              {pf.nom}
+            <Link key={pf.id} href={`/${pf.slug}/prochaines-sorties`} className="puce">
+              <PastillePlateforme pf={pf} />
             </Link>
           ))}
         </nav>
