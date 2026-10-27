@@ -111,65 +111,21 @@ export default function WordleJour({ contenu, dateISO }: WordleJourProps) {
     inputRef.current?.focus();
   }
 
+  const nbIndices = Math.min(indicesVisibles + 1, MAX_ESSAIS);
+  const termine = etat.etat !== "en-cours";
+
   return (
     <div className="space-y-5">
-      {/* Barre de progression */}
-      <div>
-        <div className="flex items-baseline justify-between mb-2">
-          <span className="font-mono-label text-ink-3">Le titre du jour</span>
-          <span className="font-mono-label text-ink-3">
-            {nbEssais}/{MAX_ESSAIS} essai{nbEssais !== 1 ? "s" : ""}
-          </span>
-        </div>
-        <div className="flex gap-1.5">
-          {Array.from({ length: MAX_ESSAIS }).map((_, i) => (
-            <div
-              key={i}
-              className="flex-1 h-2"
-              style={{
-                background:
-                  i < etat.resultats.length
-                    ? etat.resultats[i]
-                      ? "#E3A53A"
-                      : "#C2624E"
-                    : "rgba(236,230,216,0.12)",
-              }}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Indices révélés */}
-      <div className="border-t border-border/50">
-        {Array.from({ length: Math.min(indicesVisibles + 1, MAX_ESSAIS) }).map((_, i) => (
-          <div
-            key={i}
-            className="flex items-baseline justify-between py-3 border-b border-border/40"
-          >
-            <span className="font-mono-label text-ink-3">
-              Indice {i + 1} · {INDICES_LABELS[i]}
-            </span>
-            <span className="text-base font-semibold">
-              {getIndice(contenu, i)}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* Fin de partie */}
-      {etat.etat !== "en-cours" ? (
-        <>
-          <div
-            className="p-4 border text-sm font-mono"
-            style={{
-              borderColor: etat.etat === "gagne" ? "#E3A53A" : "rgba(194,98,78,0.5)",
-              color: etat.etat === "gagne" ? "#E3A53A" : "#C2624E",
-            }}
+      {/* Saisie en tête, ou le résultat une fois la partie finie */}
+      {termine ? (
+        <div className="space-y-3">
+          <p
+            role="status"
+            className={`rounded-[10px] px-4 py-3 font-semibold ${etat.etat === "gagne" ? "bg-ambre/15 text-ambre" : "bg-black/25 text-lumiere"}`}
           >
             {/* feedback vide après rechargement de la page → texte reconstruit */}
-            {feedback ||
-              (etat.etat === "gagne" ? "🎉 Bravo !" : `La réponse était : ${contenu.titre}`)}
-          </div>
+            {(feedback || (etat.etat === "gagne" ? "Bravo !" : `La réponse était : ${contenu.titre}`)).replace("🎉 ", "")}
+          </p>
           <PartagerResultat
             texte={[
               `Le titre du jour · ${formatDateFR(dateISO)} · StreamActu.fr`,
@@ -179,33 +135,73 @@ export default function WordleJour({ contenu, dateISO }: WordleJourProps) {
               "streamactu.fr/jeux",
             ].join("\n")}
           />
-        </>
+        </div>
       ) : (
-        /* Input */
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <div className="flex gap-2">
+            <label htmlFor="reponse-titre" className="sr-only">
+              Votre réponse
+            </label>
             <input
+              id="reponse-titre"
               ref={inputRef}
               type="text"
               value={valeur}
               onChange={(e) => setValeur(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && tenter()}
               placeholder="Votre réponse…"
-              className="flex-1 border border-border/40 bg-white/[0.03] px-4 py-3 font-mono text-sm text-ink-3 placeholder-ink-4 focus:outline-none focus:border-primary transition-colors"
+              autoComplete="off"
+              className="h-[50px] min-w-0 flex-1 rounded-[10px] border border-white/20 bg-black/35 px-4 text-base text-texte caret-ambre transition-colors duration-200 placeholder:text-velours-texte/70 focus:border-lumiere focus:outline-none focus-visible:outline-none"
             />
-            <button
-              onClick={tenter}
-              className="bg-foreground text-background font-mono-label font-semibold px-5 py-3 hover:bg-primary hover:text-background transition-colors"
-            >
+            <button type="button" onClick={tenter} className="btn-blanc">
               Tenter
             </button>
           </div>
-
           {feedback && (
-            <p className="font-mono text-sm text-[#C2624E]">{feedback}</p>
+            <p role="status" className="text-sm text-velours-texte">
+              {feedback}
+            </p>
           )}
         </div>
       )}
+
+      {/* Essais : barres de 6 px, ambre gagné, sombre raté */}
+      <div>
+        <p className="tabular mb-2 text-sm text-velours-texte">
+          {nbEssais}/{MAX_ESSAIS} essai{nbEssais !== 1 ? "s" : ""}
+        </p>
+        <div className="flex gap-1.5" aria-hidden="true">
+          {Array.from({ length: MAX_ESSAIS }).map((_, i) => (
+            <span
+              key={i}
+              className={`h-1.5 flex-1 rounded-full ${
+                i < etat.resultats.length ? (etat.resultats[i] ? "bg-ambre" : "bg-[#C2624E]") : "bg-white/15"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Six indices sur deux colonnes : les suivants restent fermés */}
+      <ol className="grid grid-cols-2 gap-2.5 max-[560px]:grid-cols-1">
+        {INDICES_LABELS.map((label, i) => {
+          const ouvert = i < nbIndices;
+          return (
+            <li key={label} className={`relative min-h-[84px] rounded-xl p-3.5 pr-12 ${ouvert ? "bg-black/25" : "bg-black/10"}`}>
+              <span
+                aria-hidden="true"
+                className="font-salle tabular absolute top-2.5 right-3 text-[26px] leading-none font-black text-transparent [-webkit-text-stroke:1.5px_rgba(255,241,210,0.5)]"
+              >
+                {i + 1}
+              </span>
+              <span className="block text-xs font-bold tracking-[0.06em] text-velours-texte uppercase">{label}</span>
+              <span className={`mt-1 block text-[15px] font-semibold ${ouvert ? "text-white" : "text-velours-texte/60"}`}>
+                {ouvert ? getIndice(contenu, i) : "Après un essai raté"}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }

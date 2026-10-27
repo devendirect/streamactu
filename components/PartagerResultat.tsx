@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Icone from "@/components/Icone";
 
 interface Props {
   texte: string;
@@ -30,11 +31,9 @@ export default function PartagerResultat({ texte }: Props) {
   }
 
   return (
-    <button
-      onClick={partager}
-      className="w-full border border-border/40 py-2.5 font-mono-label text-[#9A9282] hover:border-primary hover:text-primary transition-colors"
-    >
-      {copie ? "✓ Copié dans le presse-papiers" : "Partager le résultat"}
+    <button type="button" onClick={partager} className="btn-blanc w-full justify-center">
+      <Icone nom={copie ? "coche" : "externe"} taille={20} />
+      {copie ? "Copié dans le presse-papiers" : "Partager le résultat"}
     </button>
   );
 }

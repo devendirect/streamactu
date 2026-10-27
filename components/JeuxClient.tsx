@@ -15,45 +15,43 @@ interface JeuxClientProps {
   dateISO: string;
 }
 
+const ONGLETS: { val: Onglet; label: string }[] = [
+  { val: "titre", label: "Titre du jour" },
+  { val: "pochette", label: "Pochette mystère" },
+];
+
+/** Plateau de jeu sur le velours (rendez-vous quotidien), deux jeux en segments */
 export default function JeuxClient({ contenuTitre, contenuPochette, dateISO }: JeuxClientProps) {
   const [onglet, setOnglet] = useState<Onglet>("titre");
 
   return (
-    <div className="space-y-6">
-      {/* Toggle onglets */}
-      <div className="flex border border-border/50">
-        <button
-          onClick={() => setOnglet("titre")}
-          aria-pressed={onglet === "titre"}
-          className="flex-1 py-3 text-sm font-medium transition-colors border-r border-border/50"
-          style={{
-            background: onglet === "titre" ? "#ECE6D8" : "transparent",
-            color: onglet === "titre" ? "#16140F" : "#9A9282",
-            fontWeight: onglet === "titre" ? 600 : 400,
-          }}
-        >
-          Titre du jour
-        </button>
-        <button
-          onClick={() => setOnglet("pochette")}
-          aria-pressed={onglet === "pochette"}
-          className="flex-1 py-3 text-sm font-medium transition-colors"
-          style={{
-            background: onglet === "pochette" ? "#ECE6D8" : "transparent",
-            color: onglet === "pochette" ? "#16140F" : "#9A9282",
-            fontWeight: onglet === "pochette" ? 600 : 400,
-          }}
-        >
-          Pochette mystère
-        </button>
+    <div className="velours rounded-[18px] p-[clamp(18px,3vw,32px)]">
+      <div role="tablist" aria-label="Jeux" className="segments mb-6">
+        {ONGLETS.map((o) => (
+          <button
+            key={o.val}
+            type="button"
+            role="tab"
+            id={`onglet-${o.val}`}
+            aria-selected={onglet === o.val}
+            aria-controls="plateau-jeu"
+            onClick={() => setOnglet(o.val)}
+          >
+            {o.label}
+          </button>
+        ))}
       </div>
 
-      {/* Contenu de l'onglet */}
-      {onglet === "titre" ? (
-        <WordleJour contenu={contenuTitre} dateISO={dateISO} />
-      ) : (
-        <PochetteMystere contenu={contenuPochette} dateISO={dateISO} />
-      )}
+      <div id="plateau-jeu" role="tabpanel" aria-labelledby={`onglet-${onglet}`}>
+        <h2 className="font-salle mb-5 text-[clamp(30px,3.4vw,42px)] leading-[0.95] font-black text-lumiere">
+          {onglet === "titre" ? "Le titre du jour" : "La pochette mystère"}
+        </h2>
+        {onglet === "titre" ? (
+          <WordleJour contenu={contenuTitre} dateISO={dateISO} />
+        ) : (
+          <PochetteMystere contenu={contenuPochette} dateISO={dateISO} />
+        )}
+      </div>
     </div>
   );
 }

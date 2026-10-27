@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import MaListeClient from "@/components/MaListeClient";
+import EnTeteNouveautes from "@/components/EnTeteNouveautes";
+import { getNouveautesSemaine } from "@/lib/tmdb";
+import { aplatir } from "@/lib/accueil";
+import { getISOWeek } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Ma liste",
@@ -7,12 +11,22 @@ export const metadata: Metadata = {
   robots: { index: false }, // contenu personnel, rien à indexer
 };
 
-export default function MaListePage() {
+// Séries de la semaine (même cache que l'accueil) : croisées avec Ma liste dans le navigateur
+export const revalidate = 3600;
+
+export default async function MaListePage() {
+  const { semaine, annee } = getISOWeek(new Date());
+  let seriesSemaine: Awaited<ReturnType<typeof aplatir>> = [];
+  try {
+    seriesSemaine = aplatir(await getNouveautesSemaine(semaine, annee), "series");
+  } catch {
+    // La rangée des nouveaux épisodes est un bonus : la liste s'affiche sans
+  }
+
   return (
-    <div className="sa-container py-8">
-      <p className="font-mono-label text-ink-3 mb-3">À voir plus tard</p>
-      <h1 className="text-4xl font-extrabold tracking-[-0.025em] mb-6">Ma liste</h1>
-      <MaListeClient />
-    </div>
+    <>
+      <EnTeteNouveautes titre="Ma liste" intro="Vos séries et films à voir, enregistrés dans ce navigateur, sans compte." />
+      <MaListeClient seriesSemaine={seriesSemaine} />
+    </>
   );
 }

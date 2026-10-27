@@ -781,6 +781,18 @@
   }
 }
 
+/* À la surprise : la carte se retourne à chaque tirage, sortie exponentielle sans rebond */
+.surprise__carte {
+  animation: sa-retourne 0.7s var(--ease-salle) both;
+  transform-style: preserve-3d;
+}
+@keyframes sa-retourne {
+  from {
+    transform: rotateY(-100deg);
+    opacity: 0.2;
+  }
+}
+
 @keyframes sa-allumage {
   from {
     opacity: 0;

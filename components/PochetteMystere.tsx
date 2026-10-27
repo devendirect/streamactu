@@ -81,112 +81,99 @@ export default function PochetteMystere({ contenu, dateISO }: PochetteMysterePro
     }
   }
 
+  const termine = partie.etat !== "en-cours";
+
   return (
     <div className="space-y-5">
-      {/* Progression */}
-      <div className="flex gap-1.5">
-        {Array.from({ length: MAX_ESSAIS }).map((_, i) => (
-          <div
-            key={i}
-            className="flex-1 h-2"
-            style={{
-              background:
-                i < partie.nbEssais
-                  ? partie.etat === "gagne" && i === partie.nbEssais - 1
-                    ? "#E3A53A"
-                    : "rgba(194,98,78,0.5)"
-                  : "rgba(236,230,216,0.12)",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Pochette floutée */}
-      <div className="relative mx-auto w-[184px] h-[276px] border border-border overflow-hidden bg-card">
-        {contenu.poster ? (
-          <Image
-            src={contenu.poster}
-            alt="Pochette mystère"
-            fill
-            className="object-cover transition-all duration-700"
-            style={{ filter: `blur(${blur}px)`, transform: `scale(1.${blur > 0 ? "1" : "0"})` }}
-            sizes="184px"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
-        )}
-
-        {partie.etat === "gagne" && (
-          <div className="absolute inset-0 bg-primary/10 flex items-center justify-center">
-            <span aria-hidden="true" className="text-3xl">✦</span>
-          </div>
-        )}
-      </div>
-
-      {/* Indice titre visible si trouvé ou perdu */}
-      {partie.etat !== "en-cours" && (
-        <p className="text-center font-extrabold text-xl tracking-tight">{contenu.titre}</p>
-      )}
-
-      {/* État fin de partie */}
-      {partie.etat !== "en-cours" ? (
-        <>
-          <div
-            className="p-4 border font-mono text-sm text-center"
-            style={{
-              borderColor: partie.etat === "gagne" ? "#E3A53A" : "rgba(194,98,78,0.5)",
-              color: partie.etat === "gagne" ? "#E3A53A" : "#C2624E",
-            }}
+      {/* Saisie en tête, ou le résultat une fois la partie finie */}
+      {termine ? (
+        <div className="space-y-3">
+          <p
+            role="status"
+            className={`rounded-[10px] px-4 py-3 font-semibold ${partie.etat === "gagne" ? "bg-ambre/15 text-ambre" : "bg-black/25 text-lumiere"}`}
           >
             {/* feedback vide après rechargement de la page → texte reconstruit */}
-            {feedback ||
-              (partie.etat === "gagne"
-                ? "🎉 Bravo, pochette trouvée !"
-                : `C'était : ${contenu.titre}`)}
-          </div>
+            {(feedback || (partie.etat === "gagne" ? "Bravo, pochette trouvée !" : `C'était : ${contenu.titre}`)).replace("🎉 ", "")}
+          </p>
           <PartagerResultat
             texte={[
               `Pochette mystère · ${formatDateFR(dateISO)} · StreamActu.fr`,
               `${Array.from({ length: partie.nbEssais }, (_, i) =>
                 partie.etat === "gagne" && i === partie.nbEssais - 1 ? "🟨" : "⬛"
-              ).join("")} ${
-                partie.etat === "gagne" ? `${partie.nbEssais}/${MAX_ESSAIS}` : `✗/${MAX_ESSAIS}`
-              }`,
+              ).join("")} ${partie.etat === "gagne" ? `${partie.nbEssais}/${MAX_ESSAIS}` : `✗/${MAX_ESSAIS}`}`,
               "streamactu.fr/jeux",
             ].join("\n")}
           />
-        </>
+        </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <div className="flex gap-2">
+            <label htmlFor="reponse-pochette" className="sr-only">
+              Votre réponse
+            </label>
             <input
+              id="reponse-pochette"
               type="text"
               value={valeur}
               onChange={(e) => setValeur(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && tenter()}
               placeholder="Votre réponse…"
-              className="flex-1 border border-border/40 bg-white/[0.03] px-4 py-3 font-mono text-sm text-ink-3 placeholder-ink-4 focus:outline-none focus:border-primary transition-colors"
+              autoComplete="off"
+              className="h-[50px] min-w-0 flex-1 rounded-[10px] border border-white/20 bg-black/35 px-4 text-base text-texte caret-ambre transition-colors duration-200 placeholder:text-velours-texte/70 focus:border-lumiere focus:outline-none focus-visible:outline-none"
             />
-            <button
-              onClick={tenter}
-              className="bg-foreground text-background font-mono-label font-semibold px-5 py-3 hover:bg-primary hover:text-background transition-colors"
-            >
+            <button type="button" onClick={tenter} className="btn-blanc">
               Tenter
             </button>
           </div>
-
-          <button
-            onClick={revelerIndice}
-            disabled={partie.nbEssais >= MAX_ESSAIS - 1}
-            className="w-full border border-border/40 py-2.5 font-mono-label text-[#9A9282] hover:border-primary hover:text-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            Révéler un indice (−1 essai)
-          </button>
-
           {feedback && (
-            <p className="font-mono text-sm text-[#C2624E]">{feedback}</p>
+            <p role="status" className="text-sm text-velours-texte">
+              {feedback}
+            </p>
           )}
         </div>
+      )}
+
+      {/* Essais : barres de 6 px */}
+      <div className="flex gap-1.5" aria-hidden="true">
+        {Array.from({ length: MAX_ESSAIS }).map((_, i) => (
+          <span
+            key={i}
+            className={`h-1.5 flex-1 rounded-full ${
+              i < partie.nbEssais
+                ? partie.etat === "gagne" && i === partie.nbEssais - 1
+                  ? "bg-ambre"
+                  : "bg-[#C2624E]"
+                : "bg-white/15"
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* Pochette floutée, de plus en plus nette à chaque erreur */}
+      <div className="relative mx-auto h-[276px] w-[184px] overflow-hidden rounded-[10px] bg-black/30 shadow-[0_14px_24px_-12px_rgba(0,0,0,0.9)]">
+        {contenu.poster && (
+          <Image
+            src={contenu.poster}
+            alt="Pochette mystère"
+            fill
+            className="object-cover transition-[filter,transform] duration-700 ease-salle"
+            style={{ filter: `blur(${blur}px)`, transform: `scale(1.${blur > 0 ? "1" : "0"})` }}
+            sizes="184px"
+          />
+        )}
+      </div>
+
+      {termine && <p className="text-center text-xl font-extrabold tracking-[-0.02em]">{contenu.titre}</p>}
+
+      {!termine && (
+        <button
+          type="button"
+          onClick={revelerIndice}
+          disabled={partie.nbEssais >= MAX_ESSAIS - 1}
+          className="mx-auto flex h-11 items-center gap-2 rounded-full border border-lumiere/30 px-5 text-sm font-semibold text-lumiere transition-colors duration-200 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Révéler un indice (un essai en moins)
+        </button>
       )}
     </div>
   );

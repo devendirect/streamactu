@@ -37,7 +37,7 @@ export default function RetrouveurPage() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdFaq(FAQ) }} />
       <RetrouveurClient />
-      <div className="sa-container pb-16 space-y-8">
+      <div className="space-y-section px-gouttiere pb-16">
         <TexteEditorial
           titre="Comment ça marche"
           paragraphes={[

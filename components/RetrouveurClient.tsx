@@ -6,6 +6,10 @@ import Link from "next/link";
 import type { RetrouveurResultat } from "@/types";
 import { evenementGA } from "@/lib/ga";
 import { altAffiche } from "@/lib/utils";
+import { plateformesDepuisFournisseurs } from "@/lib/plateformes";
+import Faisceau from "@/components/Faisceau";
+import Icone from "@/components/Icone";
+import PastillePlateforme from "@/components/PastillePlateforme";
 
 const EXEMPLES = [
   "un thriller dont la fin retourne complètement le cerveau",
@@ -23,7 +27,6 @@ interface State {
   erreur: string;
 }
 
-const TYPE_MARK: Record<string, string> = { serie: "▣", film: "◈" };
 const TYPE_LABEL: Record<string, string> = { serie: "Série", film: "Film" };
 
 export default function RetrouveurClient() {
@@ -124,261 +127,193 @@ export default function RetrouveurClient() {
   const masques = state.resultats.length - resultatsAffiches.length;
 
   return (
-    <div className="sa-container py-8 pb-20">
-      {/* ── Intro ── */}
-      <div className="font-mono-label text-ink-3 mb-4">Retrouver un film, une série</div>
-      <h1 className="font-extrabold tracking-[-0.028em] leading-[1.02] mb-2 text-[clamp(30px,5vw,44px)] max-w-[18ch]">
-        Décrivez-le.{" "}
-        <span className="font-serif italic font-medium text-primary">On le retrouve.</span>
-      </h1>
-      <p className="mb-7 font-serif text-[17px] leading-[1.5] text-ink-3 max-w-[54ch]">
-        Un bout d&apos;intrigue, une ambiance, l&apos;acteur dont vous avez oublié le nom : racontez
-        sans mots-clés. Claude lit, comprend, et explique pourquoi chaque titre colle.
-      </p>
+    <div className="pb-16">
+      {/* ── Intro sous le faisceau ── */}
+      <div className="scene -mt-entete px-gouttiere pt-[clamp(130px,18vh,190px)] pb-8">
+        <Faisceau doux />
+        <h1 className="max-w-[18ch] text-[clamp(34px,4.6vw,64px)] leading-none font-black tracking-[-0.03em]">
+          Décrivez-le. <span className="text-lumiere">On le retrouve.</span>
+        </h1>
+        <p className="mt-3 max-w-[58ch] text-[clamp(16px,1.2vw,18px)] text-texte-doux">
+          Un bout d&apos;intrigue, une ambiance, l&apos;acteur dont vous avez oublié le nom : racontez sans mots-clés.
+          Claude lit, comprend, et explique pourquoi chaque titre colle.
+        </p>
+      </div>
 
-      {/* ── Prompt box ── */}
-      <div
-        className="border bg-gradient-to-b from-[rgba(236,230,216,0.035)] to-[rgba(236,230,216,0.012)] transition-colors duration-200"
-        style={{ borderColor: isActive ? "rgba(227,165,58,0.5)" : "rgba(236,230,216,0.18)" }}
-      >
-        <textarea
-          ref={textareaRef}
-          rows={3}
-          maxLength={600}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-              e.preventDefault();
-              submit();
-            }
-          }}
-          placeholder="Un film avec un astronaute bloqué seul sur une planète, qui doit survivre avec les moyens du bord…"
-          className="w-full resize-none bg-transparent border-none text-foreground text-2xl font-medium leading-[1.32] tracking-[-0.015em] pt-[22px] px-[22px] pb-1.5 outline-none"
-        />
-        <div className="flex items-center justify-between gap-3.5 flex-wrap pt-2.5 pr-4 pb-3.5 pl-[22px]">
-          {/* Toggle FR only */}
-          <button
-            onClick={() => setFrOnly((v) => !v)}
-            aria-pressed={frOnly}
-            className={`inline-flex items-center gap-2.5 bg-transparent border-none cursor-pointer py-1.5 font-mono text-[11px] tracking-[0.05em] ${frOnly ? "text-foreground" : "text-[#9A9282]"}`}
-          >
-            {/* Toggle pill */}
-            <span
-              className={`relative w-[30px] h-[17px] rounded-[9px] shrink-0 transition-colors duration-150 ${frOnly ? "bg-primary" : "bg-[rgba(236,230,216,0.16)]"}`}
+      <div className="px-gouttiere">
+        {/* ── Grand champ ── */}
+        <div className="max-w-[960px] rounded-2xl border border-trait bg-surface transition-colors duration-200 focus-within:border-lumiere/70">
+          <label htmlFor="champ-retrouver" className="sr-only">
+            Décrivez le film ou la série
+          </label>
+          <textarea
+            id="champ-retrouver"
+            ref={textareaRef}
+            rows={3}
+            maxLength={600}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                submit();
+              }
+            }}
+            placeholder="Un film avec un astronaute bloqué seul sur une planète, qui doit survivre avec les moyens du bord…"
+            className="w-full resize-none border-none bg-transparent px-[22px] pt-[22px] pb-1.5 text-[clamp(20px,2.2vw,26px)] leading-[1.32] font-semibold tracking-[-0.015em] text-texte caret-ambre placeholder:text-texte-2/60 focus:outline-none focus-visible:outline-none"
+          />
+          <div className="flex flex-wrap items-center justify-between gap-3.5 pt-2.5 pr-4 pb-4 pl-[22px]">
+            {/* Interrupteur : titres disponibles en France seulement */}
+            <button
+              type="button"
+              role="switch"
+              aria-checked={frOnly}
+              onClick={() => setFrOnly((v) => !v)}
+              className={`inline-flex items-center gap-2.5 py-1.5 text-sm font-semibold ${frOnly ? "text-white" : "text-texte-2"}`}
             >
-              <span
-                className={`absolute top-[2px] left-[2px] w-[13px] h-[13px] rounded-full transition-transform duration-150 ${frOnly ? "translate-x-[13px] bg-background" : "translate-x-0 bg-foreground"}`}
-              />
-            </span>
-            Dispo en streaming FR uniquement
-          </button>
-
-          {/* Bouton soumettre */}
-          <button
-            onClick={submit}
-            disabled={isActive}
-            className={`inline-flex items-center gap-2.5 border-none text-background font-mono-label font-semibold px-5 py-3 transition-colors ${isActive ? "bg-primary/40 cursor-not-allowed" : "bg-primary cursor-pointer"}`}
-          >
-            {isActive ? "Recherche…" : "Retrouver"}&nbsp;
-            <span aria-hidden="true" className="text-sm">→</span>
-          </button>
-        </div>
-      </div>
-
-      {/* ── Exemples ── */}
-      <div className="flex flex-wrap items-center gap-2 mt-3.5">
-        <span className="font-mono-label text-ink-4 mr-1">Essayez</span>
-        {EXEMPLES.map((ex) => (
-          <button
-            key={ex}
-            onClick={() => setExemple(ex)}
-            className="bg-transparent border border-[rgba(236,230,216,0.16)] text-[#B6AD9B] cursor-pointer font-serif italic text-sm px-[13px] py-[7px] rounded-full"
-          >
-            {ex}
-          </button>
-        ))}
-      </div>
-
-      {/* ── Workspace ── */}
-      {state.phase !== "idle" && (
-        <div className="mt-10">
-          {/* Thinking indicator */}
-          {state.phase === "thinking" && (
-            <div className="font-mono-label text-[#9A9282] flex items-center gap-2.5">
               <span
                 aria-hidden="true"
-                className="w-5 h-5 inline-flex items-center justify-center text-[13px] text-background bg-primary rounded-full"
-                style={{ animation: "spin 1.5s linear infinite" }}
+                className={`relative h-[22px] w-[38px] shrink-0 rounded-full transition-colors duration-200 ${frOnly ? "bg-ambre" : "bg-white/20"}`}
               >
-                ✦
-              </span>
-              Claude analyse votre description…
-            </div>
-          )}
-
-          {/* Critères */}
-          {state.criteres.length > 0 && (
-            <div className="border-t border-[rgba(236,230,216,0.1)] pt-6">
-              <div className="flex items-center gap-2.5 mb-3.5">
                 <span
-                  aria-hidden="true"
-                  className="w-5 h-5 inline-flex items-center justify-center text-[13px] text-background bg-primary rounded-full"
-                >
-                  ✦
-                </span>
-                <span className="font-mono-label text-[#9A9282]">Ce que Claude a compris</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {state.criteres.map(([label, valeur], i) => (
-                  <div
-                    key={i}
-                    className="inline-flex items-baseline gap-2 border border-[rgba(227,165,58,0.32)] bg-[rgba(227,165,58,0.07)] px-[13px] py-2 opacity-0"
-                    style={{ animation: "scu-rise 360ms ease forwards", animationDelay: `${i * 80}ms` }}
-                  >
-                    <span
-                      className="font-mono-label text-[#C08A2E]"
-                      style={{ fontSize: "9px", letterSpacing: "0.16em" }}
-                    >
-                      {label}
-                    </span>
-                    <span className="text-sm font-medium text-foreground">{valeur}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Raisonnement */}
-          {state.raisonnement && (
-            <p
-              className="mt-[22px] mb-0 font-serif italic text-[19px] leading-[1.5] text-[#C7BEAC] max-w-[62ch]"
-              style={{ animation: "scu-rise 400ms ease forwards" }}
-            >
-              {state.raisonnement}
-            </p>
-          )}
-
-          {/* Header résultats */}
-          {resultatsAffiches.length > 0 && (
-            <div className="flex items-baseline justify-between gap-3.5 flex-wrap mt-[34px] mb-1 pt-[22px] border-t border-[rgba(236,230,216,0.1)]">
-              <span className="font-mono-label text-[#9A9282]">
-                {resultatsAffiches.length} titre{resultatsAffiches.length > 1 ? "s" : ""} trouvé{resultatsAffiches.length > 1 ? "s" : ""}
+                  className={`absolute top-[3px] left-[3px] size-4 rounded-full transition-transform duration-200 ease-salle ${
+                    frOnly ? "translate-x-4 bg-sur-ambre" : "translate-x-0 bg-white"
+                  }`}
+                />
               </span>
-              <span className="font-mono-label text-ink-3">
-                {frOnly && masques > 0
-                  ? `${masques} masqué${masques > 1 ? "s" : ""} · hors streaming FR`
-                  : "classé par pertinence"}
-              </span>
-            </div>
-          )}
+              Disponibles en streaming en France seulement
+            </button>
 
-          {/* Résultats */}
-          <div>
-            {resultatsAffiches.map((r, idx) => (
-              <ResultatCard key={r.slug} resultat={r} idx={idx} />
-            ))}
+            <button type="button" onClick={submit} disabled={isActive} className="btn-blanc disabled:cursor-not-allowed disabled:opacity-60">
+              <Icone nom="loupeIA" taille={20} />
+              {isActive ? "Recherche…" : "Retrouver"}
+            </button>
           </div>
-
-          {/* Erreur */}
-          {state.phase === "error" && (
-            <p className="font-mono-label text-[#C2624E] mt-6">{state.erreur}</p>
-          )}
         </div>
-      )}
 
-      {/* Animations globales */}
-      <style>{`
-        @keyframes scu-rise {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
+        {/* ── Exemples ── */}
+        <div className="mt-3.5 flex flex-wrap items-center gap-2">
+          <span className="font-mono-label mr-1 text-texte-2">Essayez</span>
+          {EXEMPLES.map((ex) => (
+            <button key={ex} type="button" onClick={() => setExemple(ex)} className="puce">
+              {ex}
+            </button>
+          ))}
+        </div>
+
+        {/* ── Réponse ── */}
+        {state.phase !== "idle" && (
+          <div className="mt-10 max-w-[960px]" aria-live="polite">
+            {state.phase === "thinking" && (
+              <p role="status" className="flex items-center gap-2.5 text-texte-2">
+                <Icone nom="loupeIA" taille={18} className="animate-pulse text-ambre" />
+                Claude analyse votre description…
+              </p>
+            )}
+
+            {/* Critères compris */}
+            {state.criteres.length > 0 && (
+              <div className="border-t border-trait pt-6">
+                <h2 className="font-mono-label mb-3.5 text-texte-2">Ce que Claude a compris</h2>
+                <div className="flex flex-wrap gap-2">
+                  {state.criteres.map(([label, valeur], i) => (
+                    <div
+                      key={i}
+                      className="inline-flex items-baseline gap-2 rounded-full bg-surface px-3.5 py-2 opacity-0"
+                      style={{ animation: "sa-monte 0.5s var(--ease-salle) forwards", animationDelay: `${i * 80}ms` }}
+                    >
+                      <span className="text-xs font-bold tracking-[0.06em] text-texte-2 uppercase">{label}</span>
+                      <span className="text-sm font-semibold">{valeur}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Raisonnement */}
+            {state.raisonnement && (
+              <p className="mt-[22px] max-w-[62ch] text-[18px] leading-[1.55] text-texte-doux">{state.raisonnement}</p>
+            )}
+
+            {/* En-tête des résultats */}
+            {resultatsAffiches.length > 0 && (
+              <div className="mt-[34px] mb-4 flex flex-wrap items-baseline justify-between gap-3.5 border-t border-trait pt-[22px]">
+                <span className="text-[clamp(19px,1.6vw,23px)] font-bold">
+                  {resultatsAffiches.length} titre{resultatsAffiches.length > 1 ? "s" : ""} trouvé
+                  {resultatsAffiches.length > 1 ? "s" : ""}
+                </span>
+                <span className="text-sm text-texte-2">
+                  {frOnly && masques > 0 ? `${masques} masqué${masques > 1 ? "s" : ""}, hors streaming en France` : "Classés par pertinence"}
+                </span>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              {resultatsAffiches.map((r, idx) => (
+                <ResultatCard key={r.slug} resultat={r} idx={idx} />
+              ))}
+            </div>
+
+            {state.phase === "error" && <p className="mt-6 font-semibold text-destructive">{state.erreur}</p>}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
+/** Réponse en carte velours : affiche, titre, et pourquoi ça colle */
 function ResultatCard({ resultat: r, idx }: { resultat: RetrouveurResultat; idx: number }) {
+  const plateformes = plateformesDepuisFournisseurs(r.dispo);
   return (
-    <div
-      className={`flex gap-[22px] py-6 opacity-0 ${idx === 0 ? "" : "border-t border-[rgba(236,230,216,0.1)]"}`}
-      style={{ animation: "scu-rise 420ms ease forwards", animationDelay: `${idx * 100}ms` }}
+    <article
+      className="flex gap-[22px] rounded-[14px] bg-linear-135 from-velours to-velours-sombre p-5 opacity-0"
+      style={{ animation: "sa-monte 0.6s var(--ease-salle) forwards", animationDelay: `${idx * 100}ms` }}
     >
-      {/* Poster */}
       <Link href={`/${r.type}/${r.slug}`} className="shrink-0">
-        <div className="relative w-[84px] h-[126px] shrink-0 overflow-hidden border border-[rgba(236,230,216,0.14)] bg-gradient-to-br from-[#2A2620] to-[#120F0B]">
+        <span className="relative block h-[126px] w-[84px] overflow-hidden rounded-lg bg-velours-sombre shadow-[0_14px_24px_-12px_rgba(0,0,0,0.9)]">
           {r.poster ? (
             <Image src={r.poster} alt={altAffiche(r.titre, r.type)} fill sizes="84px" className="object-cover" />
           ) : (
-            <>
-              {/* Placeholder stylisé comme la maquette */}
-              <div className="absolute inset-0 opacity-40 bg-[repeating-linear-gradient(0deg,rgba(0,0,0,0.1)_0_2px,transparent_2px_4px)]" />
-              <div className="absolute left-[9px] right-[9px] bottom-2.5 font-extrabold text-xs leading-[0.96] tracking-[-0.01em] uppercase text-[#F3ECDD] [text-shadow:0_2px_12px_rgba(0,0,0,0.6)]">
-                {r.titre}
-              </div>
-              <div aria-hidden="true" className="absolute top-[7px] left-2 font-mono text-[11px] text-[rgba(243,236,221,0.85)]">
-                {TYPE_MARK[r.type]}
-              </div>
-            </>
-          )}
-        </div>
-      </Link>
-
-      {/* Infos */}
-      <div className="flex-1 min-w-0">
-        {/* Meta ligne */}
-        <div className="font-mono-label flex items-baseline gap-3 mb-[5px] flex-wrap">
-          <span className="text-[#9A9282]">{TYPE_LABEL[r.type]}</span>
-          {r.annee > 0 && <span className="text-ink-3">{r.annee}</span>}
-          {r.note > 0 && <span className="text-primary">★ {r.note.toFixed(1)}</span>}
-        </div>
-
-        {/* Titre */}
-        <Link href={`/${r.type}/${r.slug}`}>
-          <h3 className="m-0 mb-[7px] text-[25px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1] hover:text-primary transition-colors">
-            {r.titre}
-          </h3>
-        </Link>
-
-        {/* Genres */}
-        {r.genres.length > 0 && (
-          <div className="font-mono-label text-ink-3 mb-[13px]">
-            {r.genres.slice(0, 3).join(" · ")}
-          </div>
-        )}
-
-        {/* Explication "Ça colle parce que" */}
-        <div className="flex gap-3">
-          <span aria-hidden="true" className="shrink-0 w-[2px] bg-primary self-stretch" />
-          <p className="m-0 font-serif text-base leading-[1.5] text-[#B6AD9B]">
-            <span className="italic text-primary">Ça colle parce que </span>
-            {r.pourquoi}
-          </p>
-        </div>
-
-        {/* Dispo */}
-        <div className="mt-[13px] flex gap-2 flex-wrap">
-          {r.dispo.length > 0 ? (
-            r.dispo.slice(0, 3).map((p) => (
-              <span
-                key={p}
-                className="font-mono-label text-background bg-[#C7BEAC] px-2 py-[3px]"
-                style={{ fontSize: "10px", letterSpacing: "0.1em" }}
-              >
-                {p}
-              </span>
-            ))
-          ) : (
-            <span
-              className="font-mono-label text-ink-3 border border-[rgba(236,230,216,0.18)] px-2 py-[3px]"
-              style={{ fontSize: "10px" }}
-            >
-              Hors streaming
+            <span className="absolute right-2 bottom-2.5 left-2 text-xs leading-[0.96] font-extrabold text-lumiere uppercase">
+              {r.titre}
             </span>
           )}
-        </div>
+        </span>
+      </Link>
+
+      <div className="min-w-0 flex-1">
+        <p className="mb-1 flex flex-wrap items-center gap-x-2.5 text-[13.5px] text-velours-texte">
+          {TYPE_LABEL[r.type]}
+          {r.annee > 0 && <span>{r.annee}</span>}
+          {r.note > 0 && (
+            <span className="inline-flex items-center gap-1 font-bold text-white">
+              <Icone nom="etoile" taille={13} className="fill-current text-ambre" />
+              {r.note.toFixed(1).replace(".", ",")}
+            </span>
+          )}
+          {r.genres.length > 0 && <span>{r.genres.slice(0, 3).join(" · ")}</span>}
+        </p>
+
+        <h3 className="mb-2.5 text-[clamp(20px,1.7vw,24px)] leading-[1.15] font-extrabold tracking-[-0.015em]">
+          <Link href={`/${r.type}/${r.slug}`} className="transition-colors duration-200 hover:text-lumiere">
+            {r.titre}
+          </Link>
+        </h3>
+
+        <p className="leading-[1.55] text-[#EAD9D2]">
+          <span className="font-bold text-lumiere">Ça colle parce que </span>
+          {r.pourquoi}
+        </p>
+
+        <p className="mt-3 flex flex-wrap gap-x-3.5 gap-y-1.5 text-[13.5px] font-semibold">
+          {plateformes.length > 0 ? (
+            plateformes.map((pf) => <PastillePlateforme key={pf.id} pf={pf} />)
+          ) : r.dispo.length > 0 ? (
+            <span className="text-velours-texte">{r.dispo.slice(0, 3).join(", ")}</span>
+          ) : (
+            <span className="text-velours-texte">Hors streaming en France</span>
+          )}
+        </p>
       </div>
-    </div>
+    </article>
   );
 }

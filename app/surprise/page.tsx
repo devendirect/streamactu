@@ -14,8 +14,6 @@ export default async function SurprisePage() {
   const contenu = await getContenuAleatoire("tous");
 
   return (
-    <div className="sa-container py-10">
-      <SurpriseClient initialContenu={contenu} />
-    </div>
+    <SurpriseClient initialContenu={contenu} />
   );
 }

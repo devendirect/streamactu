@@ -4,19 +4,27 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Contenu } from "@/types";
+import Faisceau from "@/components/Faisceau";
+import Icone from "@/components/Icone";
+import BoutonMaListe from "@/components/BoutonMaListe";
+import { metaContenu } from "@/components/CarteAffiche";
 
 type FiltreType = "tous" | "serie" | "film";
 
 const FILTRES: { label: string; value: FiltreType }[] = [
-  { label: "Série", value: "serie" },
-  { label: "Film", value: "film" },
-  { label: "Peu importe", value: "tous" },
+  { label: "Tout", value: "tous" },
+  { label: "Séries", value: "serie" },
+  { label: "Films", value: "film" },
 ];
 
 interface SurpriseClientProps {
   initialContenu: Contenu;
 }
 
+/**
+ * À la surprise : un titre tiré au hasard, sur une carte qui se retourne
+ * en 3D à chaque nouveau tirage (sans rebond ; instantané sous reduced-motion).
+ */
 export default function SurpriseClient({ initialContenu }: SurpriseClientProps) {
   const [contenu, setContenu] = useState<Contenu>(initialContenu);
   const [filtre, setFiltre] = useState<FiltreType>("tous");
@@ -36,95 +44,72 @@ export default function SurpriseClient({ initialContenu }: SurpriseClientProps) 
   }
 
   const href = `/${contenu.type}/${contenu.slug}`;
-  const labelType = contenu.type === "serie" ? "Série" : "Film";
 
   return (
-    <div className="flex flex-col items-center text-center space-y-6 max-w-sm mx-auto">
-      {/* Label */}
-      <p className="font-mono-label text-ink-3">Le tirage du soir</p>
+    <div className="scene -mt-entete flex min-h-[calc(100dvh-1px)] flex-col items-center px-gouttiere pt-[clamp(110px,15vh,160px)] pb-12 text-center">
+      <Faisceau doux />
+      <h1 className="text-[clamp(34px,4.6vw,64px)] leading-none font-black tracking-[-0.03em]">À la surprise</h1>
+      <p className="mt-3 max-w-[46ch] text-texte-doux">Un titre tiré au hasard parmi les plateformes suivies. Pas convaincu ? Relancez le tirage.</p>
 
-      {/* Toggle filtre */}
-      <div className="flex border border-border/50">
+      <div role="group" aria-label="Type de titre" className="segments mt-6">
         {FILTRES.map((f) => (
-          <button
-            key={f.value}
-            onClick={() => setFiltre(f.value)}
-            aria-pressed={filtre === f.value}
-            className="px-4 py-2 text-sm font-medium transition-colors border-l border-border/50 first:border-l-0"
-            style={{
-              background: filtre === f.value ? "#ECE6D8" : "transparent",
-              color: filtre === f.value ? "#16140F" : "#9A9282",
-              fontWeight: filtre === f.value ? 600 : 400,
-            }}
-          >
+          <button key={f.value} type="button" onClick={() => setFiltre(f.value)} aria-pressed={filtre === f.value}>
             {f.label}
           </button>
         ))}
       </div>
 
-      {/* Pochette */}
-      <Link href={href} className="group">
-        <div className="relative w-[184px] h-[276px] border border-border overflow-hidden bg-card">
-          {contenu.poster ? (
+      {/* La carte se retourne à chaque tirage (clé = titre tiré) */}
+      <div className="mt-8 [perspective:1200px]">
+        <Link
+          key={`${contenu.type}-${contenu.id}`}
+          href={href}
+          className="surprise__carte group relative block h-[330px] w-[220px] overflow-hidden rounded-[14px] bg-surface shadow-[0_24px_60px_rgba(0,0,0,0.7)]"
+        >
+          {contenu.poster && (
             <Image
               src={contenu.poster}
               alt={contenu.titre}
               fill
-              className={`object-cover transition-opacity duration-300 group-hover:opacity-80 ${loading ? "opacity-30" : "opacity-100"}`}
-              sizes="184px"
+              sizes="220px"
               priority
+              className={`object-cover transition-[opacity,transform] duration-300 ease-salle group-hover:scale-[1.03] ${loading ? "opacity-40" : ""}`}
             />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
           )}
-          {loading && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="font-mono-label text-[#9A9282] animate-pulse">…</span>
-            </div>
-          )}
-          {/* Titre en bas */}
-          <div className="absolute left-3 right-3 bottom-4">
-            <p className="font-extrabold text-lg leading-tight uppercase text-[#F3ECDD] drop-shadow-lg">
-              {contenu.titre}
-            </p>
-          </div>
-        </div>
-      </Link>
-
-      {/* Méta */}
-      <div className="space-y-1">
-        <div className="flex items-baseline justify-center gap-2 font-mono-label text-[#9A9282]">
-          <span className="text-[11px] text-foreground">{contenu.type === "serie" ? "▣" : "◈"}</span>
-          {labelType}
-          {contenu.annee > 0 && <span>· {contenu.annee}</span>}
-          {contenu.note > 0 && <span className="text-primary">· ★ {contenu.note.toFixed(1)}</span>}
-        </div>
-
-        <Link href={href}>
-          <h1 className="text-2xl font-extrabold tracking-tight hover:text-primary transition-colors">
-            {contenu.titre}
-          </h1>
         </Link>
+      </div>
 
+      <div className="mt-6 max-w-[46ch]" aria-live="polite">
+        <h2 className="text-[clamp(22px,2.2vw,30px)] font-extrabold tracking-[-0.02em]">
+          <Link href={href} className="transition-colors duration-200 hover:text-white">
+            {contenu.titre}
+          </Link>
+        </h2>
+        <p className="mt-1 flex flex-wrap items-center justify-center gap-x-2.5 text-sm text-texte-2">
+          {metaContenu(contenu)}
+          {contenu.note > 0 && (
+            <span className="inline-flex items-center gap-1 font-bold text-white">
+              <Icone nom="etoile" taille={13} className="fill-current text-ambre" />
+              {contenu.note.toFixed(1).replace(".", ",")}
+            </span>
+          )}
+        </p>
         {contenu.synopsis && (
-          <p
-            className="text-sm leading-relaxed text-[#B6AD9B] max-w-[32ch] mx-auto"
-            style={{ fontFamily: "var(--font-onest), sans-serif" }}
-          >
-            {contenu.synopsis.slice(0, 120)}
-            {contenu.synopsis.length > 120 ? "…" : ""}
-          </p>
+          <p className="mt-3 line-clamp-3 text-[15px] leading-[1.55] text-texte-doux">{contenu.synopsis}</p>
         )}
       </div>
 
-      {/* Bouton autre suggestion */}
-      <button
-        onClick={autreSuggestion}
-        disabled={loading}
-        className="w-full border border-border/50 py-3.5 font-mono-label text-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-40"
-      >
-        ⟳ Autre suggestion
-      </button>
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+        <Link href={`${href}#ou-regarder`} className="btn-blanc">
+          <Icone nom="externe" taille={20} />
+          Où regarder
+        </Link>
+        <button type="button" onClick={autreSuggestion} disabled={loading} className="btn-verre disabled:opacity-60">
+          <Icone nom="de" taille={20} />
+          {loading ? "Tirage…" : "Autre tirage"}
+        </button>
+        <BoutonMaListe contenu={contenu} variante="rond" />
+      </div>
     </div>
   );
 }

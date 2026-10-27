@@ -24,12 +24,10 @@ export default async function RecherchePage({ searchParams }: Props) {
   ]);
 
   return (
-    <div className="sa-container py-8">
-      <RechercheClient
-        queryInitiale={query}
-        resultatsInitiaux={resultatsInitiaux}
-        tendances={tendances}
-      />
-    </div>
+    <RechercheClient
+      queryInitiale={query}
+      resultatsInitiaux={resultatsInitiaux}
+      tendances={tendances}
+    />
   );
 }

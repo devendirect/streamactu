@@ -4,6 +4,7 @@ import { getContenusJeuDuJour, getDetailFilm, getDetailSerie } from "@/lib/tmdb"
 import { toISO } from "@/lib/utils";
 import JeuxClient from "@/components/JeuxClient";
 import TexteEditorial from "@/components/TexteEditorial";
+import EnTeteNouveautes from "@/components/EnTeteNouveautes";
 import { metadonnees } from "@/lib/meta";
 
 // 1h : la rotation des jeux à minuit UTC ne doit pas traîner derrière l'ISR
@@ -64,13 +65,15 @@ export default async function JeuxPage() {
   }
 
   return (
-    <div className="sa-container py-8 max-w-xl">
-      <p className="font-mono-label text-ink-3 mb-3">Jeux quotidiens</p>
-      <h1 className="text-4xl font-extrabold tracking-[-0.025em] mb-6">
-        Titre du jour &amp; Pochette mystère
-      </h1>
-      <JeuxClient contenuTitre={contenuTitre} contenuPochette={pochette} dateISO={dateISO} />
-      <div className="mt-12 space-y-8">
+    <>
+      <EnTeteNouveautes
+        titre="Titre du jour & Pochette mystère"
+        intro="Deux jeux quotidiens autour des séries et films en streaming. Ils changent chaque nuit, votre partie reste dans ce navigateur."
+      />
+      <div className="space-y-section px-gouttiere pt-8 pb-10">
+        <div className="max-w-[760px]">
+          <JeuxClient contenuTitre={contenuTitre} contenuPochette={pochette} dateISO={dateISO} />
+        </div>
         <TexteEditorial
           titre="Titre du jour : les règles"
           paragraphes={[
@@ -92,6 +95,6 @@ export default async function JeuxPage() {
           liens={[{ href: "/prochaines-sorties", label: "Prochaines sorties streaming" }]}
         />
       </div>
-    </div>
+    </>
   );
 }
