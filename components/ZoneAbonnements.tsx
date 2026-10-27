@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { EVENEMENT_ABONNEMENTS, ecrireAbonnements, lireAbonnements } from "@/lib/abonnements";
 
 /**
  * Zone des listes d'un guide d'ordre, avec la barre « Mes abonnements »
@@ -13,8 +14,9 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
  * sans JavaScript). Le choix est commun à tous les guides.
  */
 
-const CLE = "sa-subs";
-const EVENEMENT = "sa-subs-change";
+const EVENEMENT = EVENEMENT_ABONNEMENTS;
+const lire = lireAbonnements;
+const ecrire = ecrireAbonnements;
 
 export interface ChoixPlateforme {
   id: number;
@@ -33,24 +35,6 @@ interface Props {
   /** Plateformes de chaque étape des ordres de l'histoire */
   etapes: number[][];
   children: ReactNode;
-}
-
-function lire(): number[] {
-  try {
-    const data = JSON.parse(localStorage.getItem(CLE) ?? "[]");
-    return Array.isArray(data) ? data.filter((x): x is number => typeof x === "number") : [];
-  } catch {
-    return [];
-  }
-}
-
-function ecrire(ids: number[]): void {
-  try {
-    localStorage.setItem(CLE, JSON.stringify(ids));
-  } catch {
-    // stockage indisponible : le choix vaut pour cette page seulement
-  }
-  window.dispatchEvent(new Event(EVENEMENT));
 }
 
 export default function ZoneAbonnements({ plateformes, titres, unite, etapes, children }: Props) {

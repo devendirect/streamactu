@@ -1,39 +1,60 @@
 "use client";
 
 import type { Contenu } from "@/types";
+import type { ElementListe } from "@/lib/use-ma-liste";
 import { useMaListe } from "@/lib/use-ma-liste";
+import Icone from "@/components/Icone";
+import { annoncer } from "@/components/Annonce";
+
+type Titre = Pick<Contenu, "id" | "type" | "titre" | "slug" | "poster" | "note" | "annee">;
 
 interface Props {
-  contenu: Contenu;
+  contenu: Titre;
+  /**
+   * - « pilule » : icône et texte (fiche) ;
+   * - « rond » : icône seule, 44 px ;
+   * - « verre » : rond de 50 px posé sur une image (la une).
+   */
+  variante?: "pilule" | "rond" | "verre";
+  className?: string;
 }
 
-/** Ajout/retrait de la liste personnelle — utilisé sur les fiches */
-export default function BoutonMaListe({ contenu }: Props) {
+/** Ajout/retrait de Ma liste ; une fois gardé, filet et icône en ambre */
+export default function BoutonMaListe({ contenu, variante = "pilule", className = "" }: Props) {
   const { contient, basculer } = useMaListe();
   const dans = contient(contenu.id, contenu.type);
+  const texte = dans ? "Dans Ma liste" : "Ma liste";
+
+  const surClic = () => {
+    const element: Omit<ElementListe, "ajouteLe"> = {
+      id: contenu.id,
+      type: contenu.type,
+      titre: contenu.titre,
+      slug: contenu.slug,
+      poster: contenu.poster,
+      note: contenu.note,
+      annee: contenu.annee,
+    };
+    basculer(element);
+    annoncer(dans ? `${contenu.titre} retiré de Ma liste` : `${contenu.titre} ajouté à Ma liste`);
+  };
+
+  const classes = {
+    pilule: "btn-liste btn-liste--grand",
+    rond: "btn-liste",
+    verre: "btn-liste btn-liste--verre",
+  }[variante];
 
   return (
     <button
-      onClick={() =>
-        basculer({
-          id: contenu.id,
-          type: contenu.type,
-          titre: contenu.titre,
-          slug: contenu.slug,
-          poster: contenu.poster,
-          note: contenu.note,
-          annee: contenu.annee,
-        })
-      }
+      type="button"
+      onClick={surClic}
       aria-pressed={dans}
-      className="flex items-center gap-2 font-mono-label px-5 py-3 border transition-colors"
-      style={{
-        borderColor: dans ? "#E3A53A" : "rgba(236,230,216,0.3)",
-        color: dans ? "#E3A53A" : "#ECE6D8",
-        background: dans ? "rgba(227,165,58,0.06)" : "transparent",
-      }}
+      aria-label={variante === "pilule" ? undefined : dans ? `Retirer ${contenu.titre} de Ma liste` : `Ajouter ${contenu.titre} à Ma liste`}
+      className={`${classes} ${className}`}
     >
-      {dans ? "✓ Dans ma liste" : "+ Ma liste"}
+      <Icone nom={dans ? "coche" : "plus"} taille={20} />
+      {variante === "pilule" && <span>{texte}</span>}
     </button>
   );
 }

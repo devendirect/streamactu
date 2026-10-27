@@ -3,6 +3,8 @@ import { Big_Shoulders, Onest } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BarreMobile from "@/components/BarreMobile";
+import ApercuSurvol from "@/components/ApercuSurvol";
+import Annonce from "@/components/Annonce";
 import { ACTU_PUBLIEE } from "@/lib/actu";
 import SplashScreenLoader from "@/components/SplashScreenLoader";
 import ConsentAnalytics from "@/components/ConsentAnalytics";
@@ -144,6 +146,8 @@ export default function RootLayout({
             { href: "/retrouver", label: "Retrouver un titre", icone: "loupeIA" },
           ]}
         />
+        <ApercuSurvol />
+        <Annonce />
         {/* GA4 derrière consentement CNIL — inerte si NEXT_PUBLIC_GA_ID absent */}
         {process.env.NEXT_PUBLIC_GA_ID && (
           <ConsentAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
