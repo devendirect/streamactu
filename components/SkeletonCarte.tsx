@@ -1,17 +1,10 @@
+/** Affiche en attente : même format que CarteAffiche (2:3, titre, méta) */
 export default function SkeletonCarte() {
   return (
-    <div className="flex items-center gap-3 py-3 border-t border-border animate-pulse">
-      {/* poster placeholder */}
-      <div className="w-[46px] h-[68px] shrink-0 bg-white/5" />
-
-      {/* texte */}
-      <div className="flex-1 min-w-0 space-y-2">
-        <div className="h-2.5 w-20 bg-white/5 rounded-sm" />
-        <div className="h-4 w-36 bg-white/8 rounded-sm" />
-      </div>
-
-      {/* note */}
-      <div className="h-3 w-10 bg-white/5 rounded-sm" />
+    <div aria-hidden="true" className="min-w-0">
+      <div className="aspect-[2/3] animate-pulse rounded-lg bg-surface" />
+      <div className="mt-2 h-3.5 w-4/5 animate-pulse rounded-full bg-surface" />
+      <div className="mt-1.5 h-3 w-1/2 animate-pulse rounded-full bg-surface" />
     </div>
   );
 }

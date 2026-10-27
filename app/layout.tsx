@@ -6,7 +6,6 @@ import BarreMobile from "@/components/BarreMobile";
 import ApercuSurvol from "@/components/ApercuSurvol";
 import Annonce from "@/components/Annonce";
 import { ACTU_PUBLIEE } from "@/lib/actu";
-import SplashScreenLoader from "@/components/SplashScreenLoader";
 import ConsentAnalytics from "@/components/ConsentAnalytics";
 import { CONTACT_EMAIL, ORG_ID, REPO_URL, SITE_URL } from "@/lib/site";
 import "./globals.css";
@@ -127,7 +126,6 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <SplashScreenLoader />
         <Header />
         {/* En-tête fixe : le contenu commence dessous. Les pages qui ouvrent
             sur une scène éclairée (une, fiches) remontent sous l'en-tête. */}

@@ -67,14 +67,14 @@ export default function ConsentAnalytics({ gaId }: { gaId: string }) {
         <div
           role="dialog"
           aria-label="Consentement à la mesure d'audience"
-          className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-background"
+          className="fixed inset-x-gouttiere bottom-4 z-[100] mx-auto max-w-[760px] rounded-2xl border border-trait bg-surface-2 shadow-[0_30px_80px_rgba(0,0,0,0.5)] max-[760px]:bottom-[calc(84px+env(safe-area-inset-bottom))]"
         >
-          <div className="sa-container py-4 flex items-center justify-between gap-x-6 gap-y-3 flex-wrap">
-            <p className="text-sm text-[#C4BBA9] leading-relaxed flex-1 min-w-[30ch]">
+          <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 p-[18px]">
+            <p className="min-w-[30ch] flex-1 text-sm leading-relaxed text-texte-doux">
               StreamActu.fr souhaite mesurer son audience avec Google Analytics.
               Rien n&apos;est collecté sans votre accord, et refuser ne change rien
               à votre navigation.{" "}
-              <Link href="/mentions-legales#rgpd" className="underline hover:text-foreground transition-colors">
+              <Link href="/mentions-legales#rgpd" className="text-white underline decoration-ambre/60 underline-offset-4 hover:decoration-ambre">
                 En savoir plus
               </Link>
             </p>
@@ -82,14 +82,14 @@ export default function ConsentAnalytics({ gaId }: { gaId: string }) {
               <button
                 type="button"
                 onClick={() => decider("denied")}
-                className="font-mono-label px-5 py-2.5 border border-border text-foreground hover:border-primary transition-colors"
+                className="inline-flex h-11 items-center rounded-lg bg-white/10 px-5 font-bold transition-colors duration-200 hover:bg-white/20"
               >
                 Refuser
               </button>
               <button
                 type="button"
                 onClick={() => decider("granted")}
-                className="font-mono-label px-5 py-2.5 border border-border text-foreground hover:border-primary transition-colors"
+                className="inline-flex h-11 items-center rounded-lg bg-white/10 px-5 font-bold transition-colors duration-200 hover:bg-white/20"
               >
                 Accepter
               </button>
@@ -107,7 +107,7 @@ export function BoutonGererCookies({ className }: { className?: string }) {
     <button
       type="button"
       onClick={() => enregistrer(null)}
-      className={className ?? "font-mono-label text-ink-3 hover:text-foreground transition-colors"}
+      className={className ?? "text-sm text-texte-2 transition-colors duration-200 hover:text-texte"}
     >
       Gérer les cookies
     </button>
