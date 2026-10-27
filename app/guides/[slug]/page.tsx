@@ -20,6 +20,9 @@ import { ORG_ID, SITE_URL } from "@/lib/site";
 import { formatDateFR } from "@/lib/utils";
 import CorpsGuide from "@/components/CorpsGuide";
 import CompteVues from "@/components/CompteVues";
+import TeteLecture from "@/components/lecture/TeteLecture";
+import SommaireLecture from "@/components/lecture/SommaireLecture";
+import Icone from "@/components/Icone";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -122,8 +125,15 @@ export default async function GuidePage({ params }: Props) {
     ],
   };
 
+  // Sommaire collant : les sections, puis la FAQ et les sources
+  const liensSommaire = [
+    ...guide.sections.map((s) => ({ id: ancreSection(s), label: s.titre })),
+    ...(guide.faq.length > 0 ? [{ id: "faq", label: "Questions fréquentes" }] : []),
+    ...(guide.sources && guide.sources.length > 0 ? [{ id: "sources", label: "Sources" }] : []),
+  ];
+
   return (
-    <div className="sa-container py-10 max-w-2xl space-y-12">
+    <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(article) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(filAriane) }} />
       {listes.map((l) => (
@@ -136,122 +146,126 @@ export default async function GuidePage({ params }: Props) {
         />
       )}
 
-      <nav aria-label="Fil d'Ariane" className="font-mono-label text-ink-3 flex gap-2 flex-wrap">
-        <Link href="/" className="hover:text-foreground transition-colors">
-          Accueil
-        </Link>
-        <span aria-hidden="true">/</span>
-        <Link href="/guides" className="hover:text-foreground transition-colors">
-          Guides
-        </Link>
-      </nav>
+      <TeteLecture
+        ariane={[
+          { href: "/", label: "Accueil" },
+          { href: "/guides", label: "Guides" },
+        ]}
+        titre={guide.titre}
+        meta={
+          <>
+            <p>
+              Mis à jour le {formatDateFR(guide.misAJour)} · {minutesDeLecture(guide)} min de lecture · Par l&apos;éditeur de
+              StreamActu.fr
+            </p>
+            <p>
+              Rédigé avec l&apos;aide de Claude, vérifié avant publication ·{" "}
+              <Link href="/a-propos#ia" className="underline underline-offset-[3px] transition-colors duration-200 hover:text-texte">
+                comment le site est fait
+              </Link>
+            </p>
+          </>
+        }
+        chapo={guide.chapo}
+      />
 
-      <article className="space-y-10">
-        <header className="space-y-4">
-          <h1 className="text-4xl font-extrabold tracking-[-0.025em]">{guide.titre}</h1>
-          <p className="font-mono-label text-ink-3">
-            Mis à jour le {formatDateFR(guide.misAJour)} · {minutesDeLecture(guide)} min de lecture · Par
-            l&apos;éditeur de StreamActu.fr
-          </p>
-          <p className="font-mono-label text-ink-3">
-            Rédigé avec l&apos;aide de Claude, vérifié avant publication ·{" "}
-            <Link href="/a-propos#ia" className="underline hover:text-foreground">
-              comment le site est fait
-            </Link>
-          </p>
-          <p
-            className="text-foreground leading-relaxed border-l-2 border-primary pl-4"
-            style={{ fontFamily: "var(--font-onest), sans-serif", fontSize: "19px" }}
-          >
-            {guide.chapo}
-          </p>
-        </header>
+      <div className="lecture">
+        <SommaireLecture liens={liensSommaire} />
 
-        {sommaire.length > 0 && (
-          <nav
-            aria-label="Les ordres de ce guide"
-            className={`grid gap-px overflow-hidden rounded-[4px] border border-border bg-border ${sommaire.length === 2 ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-3"}`}
-          >
-            {sommaire.map((c) => (
-              <a key={c.ancre} href={`#${c.ancre}`} className="flex flex-col gap-1.5 bg-card px-4 py-3.5 transition-colors hover:bg-[#221E17]">
-                <span className="font-mono-label text-primary">{c.libelle}</span>
-                <span className="text-[17px] font-bold text-foreground">
-                  {c.valeur}
-                  {c.ordre === "histoire" && <CompteVues cle={c.cleSuivi} etapes={c.etapes} />}
-                </span>
-              </a>
-            ))}
-          </nav>
-        )}
-
-        <CorpsGuide
-          sections={guide.sections}
-          oeuvres={oeuvres}
-          ancres={ordre ? ancresOrdre(guide.sections) : undefined}
-          slugGuide={guide.slug}
-        />
-      </article>
-
-      {guide.faq.length > 0 && (
-        <section className={ordre ? "" : "space-y-5 border-t border-border pt-6"}>
-          <h2 className={ordre ? "mb-2.5 text-2xl font-extrabold tracking-[-0.02em]" : "font-mono-label text-[#9A9282]"}>
-            Questions fréquentes
-          </h2>
-          {ordre
-            ? guide.faq.map((f, i) => (
-                <details key={f.q} open={i === 0} className="border-t border-border py-3.5">
-                  <summary className="flex cursor-pointer list-none justify-between gap-4 text-[17px] font-bold text-foreground [&::-webkit-details-marker]:hidden">
-                    {f.q}
-                    <span aria-hidden="true" className="flex-none font-mono text-primary">
-                      +
-                    </span>
-                  </summary>
-                  <p className="mt-2.5 font-serif text-[17px] leading-relaxed text-[#C4BBA9]">{f.r}</p>
-                </details>
-              ))
-            : guide.faq.map((f) => (
-                <div key={f.q}>
-                  <h3 className="text-[17px] font-bold mb-1">{f.q}</h3>
-                  <p
-                    className="text-[15px] leading-relaxed text-[#9A9282]"
-                    style={{ fontFamily: "var(--font-onest), sans-serif" }}
+        <div className="space-y-section">
+          <article className="space-y-10">
+            {sommaire.length > 0 && (
+              <nav
+                aria-label="Les ordres de ce guide"
+                className={`grid gap-2.5 ${sommaire.length === 2 ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-3"}`}
+              >
+                {sommaire.map((c) => (
+                  <a
+                    key={c.ancre}
+                    href={`#${c.ancre}`}
+                    className="flex flex-col gap-1.5 rounded-xl bg-surface px-4 py-3.5 transition-[background-color,translate] duration-200 ease-salle hover:-translate-y-0.5 hover:bg-surface-2"
                   >
-                    {f.r}
-                  </p>
-                </div>
-              ))}
-        </section>
-      )}
+                    <span className="font-mono-label text-texte-2">{c.libelle}</span>
+                    <span className="text-[17px] font-bold">
+                      {c.valeur}
+                      {c.ordre === "histoire" && <CompteVues cle={c.cleSuivi} etapes={c.etapes} />}
+                    </span>
+                  </a>
+                ))}
+              </nav>
+            )}
 
-      {guide.sources && guide.sources.length > 0 && (
-        <section className="space-y-3 border-t border-border pt-6">
-          <h2 className="font-mono-label text-[#9A9282]">Sources</h2>
-          <ul className="space-y-1 text-sm text-[#9A9282]">
-            {guide.sources.map((s) => (
-              <li key={s.url}>
-                <a href={s.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
-                  {s.titre}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+            <CorpsGuide
+              sections={guide.sections}
+              oeuvres={oeuvres}
+              ancres={ordre ? ancresOrdre(guide.sections) : undefined}
+              slugGuide={guide.slug}
+            />
+          </article>
+
+          {guide.faq.length > 0 && (
+            <section id="faq" aria-labelledby="h-faq" className="scroll-mt-24">
+              <h2 id="h-faq" className="mb-3.5 text-[clamp(22px,2vw,28px)] leading-[1.2] font-extrabold tracking-[-0.02em]">
+                Questions fréquentes
+              </h2>
+              {/* Accordéon : les réponses restent dans le HTML */}
+              {guide.faq.map((f, i) => (
+                <details key={f.q} open={ordre && i === 0} className="group border-t border-trait last:border-b">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-[18px] text-[17px] font-bold [&::-webkit-details-marker]:hidden">
+                    {f.q}
+                    <Icone
+                      nom="bas"
+                      taille={20}
+                      className="flex-none text-texte-2 transition-transform duration-300 ease-salle group-open:rotate-180"
+                    />
+                  </summary>
+                  <p className="pb-5 text-[17px] leading-[1.7] text-texte-doux">{f.r}</p>
+                </details>
+              ))}
+            </section>
+          )}
+
+          {guide.sources && guide.sources.length > 0 && (
+            <section id="sources" aria-labelledby="h-sources" className="scroll-mt-24">
+              <h2 id="h-sources" className="font-mono-label mb-3 text-texte-2">
+                Sources
+              </h2>
+              <ul className="space-y-1.5 text-[15px] text-texte-doux">
+                {guide.sources.map((s) => (
+                  <li key={s.url}>
+                    <a
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline decoration-ambre/60 underline-offset-4 transition-[text-decoration-color] duration-200 hover:decoration-ambre"
+                    >
+                      {s.titre}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
+      </div>
 
       {autres.length > 0 && (
-        <section className="space-y-3 border-t border-border pt-6">
-          <h2 className="font-mono-label text-[#9A9282]">Autres guides</h2>
-          <ul className="space-y-2">
+        <nav aria-labelledby="autres-guides" className="mb-section px-gouttiere">
+          <h2 id="autres-guides" className="mb-3 text-[clamp(19px,1.6vw,23px)] font-bold tracking-[-0.01em]">
+            Autres guides
+          </h2>
+          <ul className="flex flex-wrap gap-x-7 gap-y-2.5">
             {autres.map((g) => (
               <li key={g.slug}>
-                <Link href={`/guides/${g.slug}`} className="text-foreground hover:text-primary transition-colors">
-                  {g.titre} →
+                <Link href={`/guides/${g.slug}`} className="lien-fleche">
+                  {g.titre}
+                  <Icone nom="droite" taille={18} />
                 </Link>
               </li>
             ))}
           </ul>
-        </section>
+        </nav>
       )}
-    </div>
+    </>
   );
 }

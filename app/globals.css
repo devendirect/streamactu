@@ -781,6 +781,82 @@
   }
 }
 
+/* ── Pages de lecture (components/lecture/) : articles, guides, pages du site ── */
+.tete-texte {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: radial-gradient(ellipse 70% 90% at 20% 0%, #1a1012 0%, var(--sa-fond) 70%);
+}
+.tete-texte::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 120px;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--sa-fond));
+}
+/* Sommaire collant de 240 px à gauche, colonne de 720 px au plus */
+.lecture {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 720px);
+  gap: clamp(28px, 5vw, 72px);
+  padding: clamp(20px, 3vw, 36px) var(--spacing-gouttiere) 0;
+  margin-bottom: clamp(40px, 5vw, 64px);
+}
+.lecture > * {
+  min-width: 0;
+}
+.sommaire {
+  position: sticky;
+  top: 96px;
+  align-self: start;
+}
+.sommaire__liens a {
+  display: block;
+  padding: 8px 0 8px 14px;
+  font-size: 14.5px;
+  color: var(--sa-texte-2);
+  box-shadow: inset 1px 0 0 var(--sa-trait);
+  transition: color 0.2s;
+}
+.sommaire__liens a:hover {
+  color: #fff;
+}
+.sommaire__liens a[aria-current="true"] {
+  color: #fff;
+  font-weight: 700;
+}
+@media (max-width: 980px) {
+  .lecture {
+    grid-template-columns: 1fr;
+  }
+  .sommaire {
+    position: static;
+  }
+  .sommaire__liens {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .sommaire__liens a {
+    flex: none;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--sa-surface);
+    box-shadow: none;
+    white-space: nowrap;
+  }
+  .sommaire__liens a[aria-current="true"] {
+    background: #fff;
+    color: var(--sa-fond);
+  }
+}
+
 /* À la surprise : la carte se retourne à chaque tirage, sortie exponentielle sans rebond */
 .surprise__carte {
   animation: sa-retourne 0.7s var(--ease-salle) both;
@@ -947,7 +1023,7 @@
 .sa-hors { display: none; }
 [data-filtre] [data-ligne] { opacity: 0.38; }
 [data-filtre] [data-ligne] .sa-hors { display: block; }
-[data-filtre] [data-pf] { color: #6F685B; }
+[data-filtre] [data-pf] { color: rgba(161, 161, 168, 0.6); }
 /* Étape déjà vue (suivi de visionnage) : jamais en retrait */
 [data-filtre] [data-ligne][data-vue] { opacity: 1; }
 [data-abo-8] [data-ligne~="8"] { opacity: 1; }

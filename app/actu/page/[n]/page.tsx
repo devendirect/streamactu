@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { NB_PAGES_ACTU, articlesDeLaPage } from "@/lib/actu";
 import { metadonnees } from "@/lib/meta";
 import { imageArticle } from "@/lib/actu-oeuvres";
 import ListeArticles from "@/components/ListeArticles";
+import TeteLecture from "@/components/lecture/TeteLecture";
 
 // Pages 2, 3… de la liste des articles (la page 1 est /actu)
 export const revalidate = 86400;
@@ -35,17 +35,18 @@ export default async function ActuPageN({ params }: Props) {
   const images = await Promise.all(articles.map(imageArticle));
 
   return (
-    <div className="sa-container py-10 max-w-2xl space-y-10">
-      <div className="space-y-4">
-        <p className="font-mono-label text-ink-3">
-          <Link href="/actu" className="hover:text-foreground transition-colors">
-            Actu
-          </Link>{" "}
-          · page {n}
-        </p>
-        <h1 className="text-4xl font-extrabold tracking-[-0.025em]">Que regarder ce week-end : archives</h1>
+    <>
+      <TeteLecture
+        ariane={[
+          { href: "/", label: "Accueil" },
+          { href: "/actu", label: "Actu" },
+        ]}
+        titre="Que regarder ce week-end : archives"
+        meta={<p>Page {n}</p>}
+      />
+      <div className="px-gouttiere pt-4 pb-10">
+        <ListeArticles articles={articles} images={images} page={n} />
       </div>
-      <ListeArticles articles={articles} images={images} page={n} />
-    </div>
+    </>
   );
 }

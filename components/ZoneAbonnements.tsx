@@ -75,14 +75,14 @@ export default function ZoneAbonnements({ plateformes, titres, unite, etapes, ch
   return (
     <div {...attributs}>
       {monte && plateformes.length > 0 && (
-        <div className="sa-sticky-bleed sticky top-0 z-[3] flex flex-col gap-2.5 border-b border-border bg-background py-3">
+        <div className="sticky top-entete z-[3] -mx-3 flex flex-col gap-2.5 rounded-b-xl border-b border-trait bg-[rgba(10,10,11,0.86)] px-3 py-3 backdrop-blur-[16px]">
           <div className="flex items-baseline justify-between gap-3">
-            <span className="font-mono-label text-ink-3">Mes abonnements</span>
+            <span className="font-mono-label text-texte-2">Mes abonnements</span>
             {filtre && (
               <button
                 type="button"
                 onClick={() => ecrire([])}
-                className="cursor-pointer border-0 bg-transparent p-0 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-3 hover:text-foreground"
+                className="text-sm font-semibold text-ambre"
               >
                 Effacer
               </button>
@@ -97,15 +97,11 @@ export default function ZoneAbonnements({ plateformes, titres, unite, etapes, ch
                   type="button"
                   aria-pressed={actif}
                   onClick={() => basculer(p.id)}
-                  className={`inline-flex min-h-9 flex-none cursor-pointer items-center gap-2 whitespace-nowrap rounded-[2px] border px-3 font-mono text-[11px] font-medium uppercase tracking-[0.1em] ${
-                    actif
-                      ? "border-foreground bg-[#26221A] text-foreground"
-                      : "border-[rgba(236,230,216,0.16)] bg-transparent text-[#9A9282]"
-                  }`}
+                  className="puce"
                 >
                   <span
                     aria-hidden="true"
-                    className="size-2 shadow-[inset_0_0_0_1px_rgba(236,230,216,0.2)]"
+                    className="size-2 rounded-full shadow-[0_0_0_1px_rgba(245,245,247,0.22)]"
                     style={{ background: p.couleur }}
                   />
                   {p.nom}
@@ -114,7 +110,7 @@ export default function ZoneAbonnements({ plateformes, titres, unite, etapes, ch
               );
             })}
           </div>
-          <p className="m-0 font-serif text-[15px] leading-[1.4] text-[#C4BBA9]" aria-live="polite">
+          <p className="m-0 text-[15px] leading-[1.4] text-texte-doux" aria-live="polite">
             {synthese}
           </p>
         </div>

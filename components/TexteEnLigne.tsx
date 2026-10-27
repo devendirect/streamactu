@@ -10,7 +10,11 @@ export function TexteEnLigne({ texte }: { texte: string }) {
     const debut = m.index ?? 0;
     if (debut > dernier) morceaux.push(texte.slice(dernier, debut));
     morceaux.push(
-      <Link key={debut} href={m[2]} className="text-primary underline">
+      <Link
+        key={debut}
+        href={m[2]}
+        className="text-white underline decoration-ambre/60 underline-offset-4 transition-[text-decoration-color] duration-200 hover:decoration-ambre"
+      >
         {m[1]}
       </Link>
     );

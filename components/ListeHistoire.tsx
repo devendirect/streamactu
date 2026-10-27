@@ -57,38 +57,38 @@ function CarteProgression({
 }) {
   const prochaine = courante >= 0 ? etapes[courante] : null;
   return (
-    <div className="mb-2 flex flex-col gap-3.5 rounded-[4px] border border-border bg-card p-4">
+    <div className="mb-2 flex flex-col gap-3.5 rounded-xl bg-surface p-4">
       <div className="flex items-baseline justify-between">
-        <span className="font-mono-label text-ink-3">Votre progression</span>
+        <span className="font-mono-label text-texte-2">Votre progression</span>
         <span className="text-[20px] font-extrabold">
-          {nombre} <span className="font-semibold text-ink-3">/ {etapes.length}</span>
+          {nombre} <span className="font-semibold text-texte-2">/ {etapes.length}</span>
         </span>
       </div>
       <div className="grid gap-[3px]" style={{ gridTemplateColumns: `repeat(${etapes.length}, minmax(0, 1fr))` }}>
         {vu.map((v, i) => (
           <span
             key={etapes[i].id}
-            className="h-1.5 rounded-[1px]"
-            style={{ background: v ? "#E3A53A" : i === courante ? "rgba(227,165,58,0.4)" : "rgba(236,230,216,0.12)" }}
+            className="h-1.5 rounded-full"
+            style={{ background: v ? "#E3A53A" : i === courante ? "rgba(227,165,58,0.4)" : "rgba(245,245,247,0.12)" }}
           />
         ))}
       </div>
       {prochaine ? (
         <div className="grid gap-3.5 border-t border-border pt-3.5 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-          <div className="relative aspect-video overflow-hidden rounded-[2px] bg-[#2B2720]">
+          <div className="relative aspect-video overflow-hidden rounded-md bg-surface">
             {prochaine.image && <Image src={prochaine.image} alt="" fill sizes="(max-width: 600px) 100vw, 320px" className="object-cover" />}
           </div>
           <div className="flex min-w-0 flex-col gap-2.5">
             <span className="font-mono-label text-primary">Prochaine étape · {pad(courante + 1)}</span>
             <div className="flex flex-col gap-[3px]">
               <span className="text-[18px] font-extrabold leading-[1.2]">{prochaine.titre}</span>
-              {portionDe(prochaine) && <span className="font-serif text-[17px] text-[#C4BBA9]">{portionDe(prochaine)}</span>}
+              {portionDe(prochaine) && <span className="text-[17px] text-texte-doux">{portionDe(prochaine)}</span>}
             </div>
             {prochaine.plateformes && <Plateformes plateformes={prochaine.plateformes} auCinema={prochaine.auCinema} />}
             <div className="flex flex-wrap gap-1.5">
               <Link
                 href={prochaine.href}
-                className="inline-flex min-h-10 items-center rounded-[2px] border border-[rgba(236,230,216,0.16)] border-b-[3px] border-b-primary px-3 font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-foreground transition-colors hover:bg-[#221E17]"
+                className="inline-flex min-h-10 items-center rounded-md border border-trait px-3 text-[13px] font-medium uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-surface-2"
               >
                 Voir la fiche →
               </Link>
@@ -96,20 +96,20 @@ function CarteProgression({
             <button
               type="button"
               onClick={marquer}
-              className="min-h-11 cursor-pointer rounded-[2px] border-0 bg-primary font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-primary-foreground"
+              className="btn-blanc h-11 justify-center text-[15px]"
             >
               Marquer comme vue
             </button>
           </div>
         </div>
       ) : (
-        <p className="m-0 font-serif text-[17px] text-[#C4BBA9]">Vous avez tout vu, dans l&apos;ordre de l&apos;histoire.</p>
+        <p className="m-0 text-[17px] text-texte-doux">Vous avez tout vu, dans l&apos;ordre de l&apos;histoire.</p>
       )}
       {nombre > 0 && (
         <button
           type="button"
           onClick={reinitialiser}
-          className="cursor-pointer self-start border-0 bg-transparent p-0 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-3 hover:text-foreground"
+          className="cursor-pointer self-start border-0 bg-transparent p-0 text-[13px] uppercase tracking-[0.06em] text-texte-2 hover:text-foreground"
         >
           Réinitialiser
         </button>
@@ -159,12 +159,12 @@ export default function ListeHistoire({ cle, etapes }: { cle: string; etapes: Et
                 >
                   <span
                     aria-hidden="true"
-                    className={`flex size-[22px] items-center justify-center rounded-[2px] border font-mono text-[13px] font-bold text-primary-foreground ${
+                    className={`flex size-[22px] items-center justify-center rounded-md border tabular text-[13px] font-bold text-primary-foreground ${
                       estVue
                         ? "border-primary bg-primary"
                         : estCourante
                           ? "border-foreground"
-                          : "border-[rgba(236,230,216,0.3)]"
+                          : "border-[rgba(245,245,247,0.3)]"
                     }`}
                   >
                     {estVue ? "✓" : ""}
@@ -173,23 +173,23 @@ export default function ListeHistoire({ cle, etapes }: { cle: string; etapes: Et
               )}
               <div className="flex min-w-0 flex-1 flex-col gap-1.5 pt-2.5">
                 <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-                  <span className={`text-[17px] font-extrabold ${estVue ? "text-ink-3" : "text-primary"}`}>{i + 1}</span>
+                  <span className={`font-salle tabular text-[34px] leading-none font-black text-transparent ${estVue ? "[-webkit-text-stroke:1.5px_rgba(161,161,168,0.5)]" : "[-webkit-text-stroke:1.5px_rgba(255,241,210,0.5)]"}`}>{i + 1}</span>
                   <Link
                     href={e.href}
-                    className={`text-[17px] font-bold leading-[1.2] transition-colors hover:text-primary ${estVue ? "text-[#9A9282]" : "text-foreground"}`}
+                    className={`text-[17px] font-bold leading-[1.2] transition-colors hover:text-primary ${estVue ? "text-texte-2" : "text-foreground"}`}
                   >
                     {e.titre}
                   </Link>
                   {e.suite && <Etiquette>Suite</Etiquette>}
                   {e.facultatif && <Etiquette>Facultatif</Etiquette>}
                   {estCourante && (
-                    <span className="rounded-[2px] bg-primary px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-primary-foreground">
+                    <span className="rounded-md bg-primary px-1.5 py-0.5 text-[13px] uppercase tracking-[0.06em] text-primary-foreground">
                       À voir
                     </span>
                   )}
                 </div>
                 {portion && (
-                  <span className={`font-serif text-[17px] leading-[1.35] ${estVue ? "text-ink-3" : "text-foreground"}`}>{portion}</span>
+                  <span className={`text-[17px] leading-[1.35] ${estVue ? "text-texte-2" : "text-foreground"}`}>{portion}</span>
                 )}
                 {!estVue && (
                   <>
@@ -198,13 +198,13 @@ export default function ListeHistoire({ cle, etapes }: { cle: string; etapes: Et
                       {e.fiche && (
                         <a
                           href={`#${e.fiche.ancre}`}
-                          className="ml-auto font-mono text-[11px] uppercase tracking-[0.2em] text-ink-3 transition-colors hover:text-primary"
+                          className="ml-auto text-[13px] uppercase tracking-[0.06em] text-texte-2 transition-colors hover:text-primary"
                         >
                           Fiche {e.fiche.numero} ↑
                         </a>
                       )}
                     </div>
-                    <p className="m-0 font-serif text-[16px] leading-normal text-[#C4BBA9] [text-wrap:pretty]">
+                    <p className="m-0 text-[16px] leading-normal text-texte-doux [text-wrap:pretty]">
                       <TexteEnLigne texte={e.repere} />
                     </p>
                   </>

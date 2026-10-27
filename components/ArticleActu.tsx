@@ -1,12 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ARTICLES, cheminArticle, horodatageArticle, rubriquesArticle, type Article } from "@/lib/actu";
+import { ARTICLES, cheminArticle, horodatageArticle, periodeArticle, rubriquesArticle, type Article } from "@/lib/actu";
 import { slugify } from "@/lib/utils";
-import { cleOeuvre, imagePrincipale, type OeuvreArticle } from "@/lib/actu-oeuvres";
+import { cleOeuvre, imageArticle, imagePrincipale, type OeuvreArticle } from "@/lib/actu-oeuvres";
 import { ORG_ID, SITE_URL } from "@/lib/site";
 import { formatDateFR } from "@/lib/utils";
 import { BlocsGuide } from "@/components/CorpsGuide";
 import CarteOeuvreArticle from "@/components/CarteOeuvreArticle";
+import TeteLecture from "@/components/lecture/TeteLecture";
+import SommaireLecture from "@/components/lecture/SommaireLecture";
 
 interface Props {
   article: Article;
@@ -22,7 +24,7 @@ function jsonLd(data: unknown): string {
 }
 
 /** Corps d'un article Actu, servi à son adresse datée ou à l'adresse fixe de l'édition courante */
-export default function ArticleActu({ article, oeuvres, titre, edition }: Props) {
+export default async function ArticleActu({ article, oeuvres, titre, edition }: Props) {
   const url = `${SITE_URL}${cheminArticle(article)}`;
   const principale = imagePrincipale(article, oeuvres);
   // Éditions précédentes du même format (un week-end renvoie aux week-ends, un mois aux mois)
@@ -52,91 +54,89 @@ export default function ArticleActu({ article, oeuvres, titre, edition }: Props)
     ],
   };
 
+  // Sommaire : les rubriques (article du mois), sinon les titres des sections
+  const sommaire =
+    rubriques.length > 0
+      ? rubriques.map((r) => ({ id: r.ancre, label: r.titre }))
+      : article.sections.map((s) => ({ id: slugify(s.titre), label: s.titre }));
+  const imagesAutres = await Promise.all(autres.map(imageArticle));
+  // Période séparée du titre seulement à l'adresse datée et si le titre en a une (« … : 23 au 25 octobre 2026 »)
+  const periode = titre === article.titre && article.titre.includes(" : ") ? periodeArticle(article) : undefined;
+  const titreCourt = periode ? article.titre.slice(0, article.titre.length - periode.length - 3) : titre;
+
   return (
-    <div className="sa-container py-10 max-w-2xl space-y-12">
+    <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(donnees) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(filAriane) }} />
 
-      <nav aria-label="Fil d'Ariane" className="font-mono-label text-ink-3 flex gap-2 flex-wrap">
-        <Link href="/" className="hover:text-foreground transition-colors">
-          Accueil
-        </Link>
-        <span aria-hidden="true">/</span>
-        <Link href="/actu" className="hover:text-foreground transition-colors">
-          Actu
-        </Link>
-      </nav>
+      <TeteLecture
+        ariane={[
+          { href: "/", label: "Accueil" },
+          { href: "/actu", label: "Actu" },
+        ]}
+        titre={titreCourt}
+        periode={periode}
+        edition={edition}
+        meta={
+          <>
+            <p>
+              Publié le {formatDateFR(article.publie)}
+              {article.misAJour !== article.publie ? ` · mis à jour le ${formatDateFR(article.misAJour)}` : ""} · Par
+              l&apos;éditeur de StreamActu.fr
+            </p>
+            <p>
+              Rédigé avec l&apos;aide de Claude à partir des données du site, vérifié avant publication ·{" "}
+              <Link href="/a-propos#ia" className="underline underline-offset-[3px] transition-colors duration-200 hover:text-texte">
+                comment le site est fait
+              </Link>
+            </p>
+          </>
+        }
+        chapo={article.chapo}
+      />
 
-      <article className="space-y-10">
-        <header className="space-y-4">
+      <div className="lecture">
+        <SommaireLecture liens={sommaire} titre={rubriques.length > 0 ? "Par plateforme" : "Dans cet article"} />
+
+        <article className="space-y-10">
           {principale?.grandeImage && (
             <figure className="space-y-2">
-              <div className="relative aspect-[16/9] overflow-hidden border border-border bg-white/5">
+              <div className="relative aspect-video overflow-hidden rounded-[14px] bg-surface">
                 <Image
                   src={principale.grandeImage}
                   alt={`Image de ${principale.titre}`}
                   fill
                   priority
-                  sizes="(max-width: 672px) 100vw, 672px"
+                  sizes="(max-width: 980px) 100vw, 720px"
                   className="object-cover"
                 />
               </div>
-              <figcaption className="font-mono-label text-ink-4">{principale.titre} · image TMDB</figcaption>
+              <figcaption className="text-[13px] text-texte-2">{principale.titre} · image TMDB</figcaption>
             </figure>
           )}
-          <h1 className="text-4xl font-extrabold tracking-[-0.025em]">{titre}</h1>
-          {edition && <p className="text-xl font-semibold text-foreground">{edition}</p>}
-          <p className="font-mono-label text-ink-3">
-            Publié le {formatDateFR(article.publie)}
-            {article.misAJour !== article.publie ? ` · mis à jour le ${formatDateFR(article.misAJour)}` : ""} · Par
-            l&apos;éditeur de StreamActu.fr
-          </p>
-          <p className="font-mono-label text-ink-3">
-            Rédigé avec l&apos;aide de Claude à partir des données du site, vérifié avant publication ·{" "}
-            <Link href="/a-propos#ia" className="underline hover:text-foreground">
-              comment le site est fait
-            </Link>
-          </p>
-          <p
-            className="text-foreground leading-relaxed border-l-2 border-primary pl-4"
-            style={{ fontFamily: "var(--font-onest), sans-serif", fontSize: "19px" }}
-          >
-            {article.chapo}
-          </p>
-        </header>
 
-        {rubriques.length > 0 && (
-          <nav aria-label="Sommaire" className="border border-border p-4 space-y-2">
-            <p className="font-mono-label text-ink-3">Par plateforme</p>
-            <ul className="flex flex-wrap gap-x-5 gap-y-2">
-              {rubriques.map((r) => (
-                <li key={r.ancre}>
-                  <a href={`#${r.ancre}`} className="text-foreground hover:text-primary transition-colors">
-                    {r.titre}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        )}
-
-        <div className="space-y-10">
           {article.sections.map((s, i) => {
             const oeuvre = s.oeuvre ? oeuvres.get(cleOeuvre(s.oeuvre)) : undefined;
             // Article à rubriques : titre de rubrique (h2 ancré) à chaque changement, sections en h3
             const nouvelleRubrique = s.rubrique && s.rubrique !== article.sections[i - 1]?.rubrique;
             const Titre = rubriques.length > 0 && s.rubrique ? "h3" : "h2";
             return (
-              <section key={s.titre} className="space-y-4">
+              <section key={s.titre} id={rubriques.length > 0 ? undefined : slugify(s.titre)} className="scroll-mt-24 space-y-3.5">
                 {nouvelleRubrique && (
                   <h2
                     id={slugify(s.rubrique!)}
-                    className="scroll-mt-24 text-3xl font-extrabold tracking-[-0.025em] border-t border-border pt-8"
+                    className="scroll-mt-24 border-t border-trait pt-8 text-[clamp(26px,2.4vw,34px)] font-extrabold tracking-[-0.025em]"
                   >
                     {s.rubrique}
                   </h2>
                 )}
-                <Titre className={Titre === "h3" ? "text-xl font-bold tracking-[-0.015em]" : "text-2xl font-extrabold tracking-[-0.02em]"}>
+                <Titre
+                  className={
+                    Titre === "h3"
+                      ? "text-xl font-bold tracking-[-0.015em]"
+                      : "text-[clamp(22px,2vw,28px)] leading-[1.2] font-extrabold tracking-[-0.02em]"
+                  }
+                >
                   {s.titre}
                 </Titre>
                 <BlocsGuide blocs={s.blocs} />
@@ -144,25 +144,39 @@ export default function ArticleActu({ article, oeuvres, titre, edition }: Props)
               </section>
             );
           })}
-        </div>
-      </article>
+        </article>
+      </div>
 
       {autres.length > 0 && (
-        <section className="space-y-3 border-t border-border pt-6">
-          <h2 className="font-mono-label text-[#9A9282]">
+        <section aria-labelledby="editions-precedentes" className="mb-section px-gouttiere">
+          <h2 id="editions-precedentes" className="mb-3.5 text-[clamp(19px,1.6vw,23px)] font-bold tracking-[-0.01em]">
             {article.format === "mois" ? "Les mois précédents" : "Les semaines précédentes"}
           </h2>
-          <ul className="space-y-2">
-            {autres.map((a) => (
+          <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(260px,100%),1fr))] gap-3.5">
+            {autres.map((a, i) => (
               <li key={a.slug}>
-                <Link href={cheminArticle(a)} className="text-foreground hover:text-primary transition-colors">
-                  {a.titre} →
+                <Link href={cheminArticle(a)} className="group block">
+                  <span className="relative block aspect-video overflow-hidden rounded-lg bg-surface">
+                    {imagesAutres[i]?.grandeImage && (
+                      <Image
+                        src={imagesAutres[i]!.grandeImage!}
+                        alt=""
+                        fill
+                        sizes="(max-width: 760px) 100vw, 340px"
+                        className="object-cover transition-transform duration-300 ease-salle group-hover:scale-[1.03]"
+                      />
+                    )}
+                  </span>
+                  <span className="mt-2 block text-[15px] leading-snug font-semibold transition-colors duration-200 group-hover:text-white">
+                    {a.titre}
+                  </span>
+                  <span className="mt-0.5 block text-[13px] text-texte-2">{formatDateFR(a.publie)}</span>
                 </Link>
               </li>
             ))}
           </ul>
         </section>
       )}
-    </div>
+    </>
   );
 }

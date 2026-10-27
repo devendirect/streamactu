@@ -17,11 +17,11 @@ export function Plateformes({ plateformes, auCinema }: { plateformes: Plateforme
           <li
             key={p.id}
             data-pf={p.id}
-            className="inline-flex items-center gap-[7px] font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-foreground"
+            className="inline-flex items-center gap-[7px] text-[13px] font-medium uppercase tracking-[0.06em] text-foreground"
           >
             <span
               aria-hidden="true"
-              className="size-2 shadow-[inset_0_0_0_1px_rgba(236,230,216,0.18)]"
+              className="size-2 rounded-full shadow-[0_0_0_1px_rgba(245,245,247,0.22)]"
               style={{ background: p.couleur }}
             />
             {p.nom}
@@ -32,15 +32,15 @@ export function Plateformes({ plateformes, auCinema }: { plateformes: Plateforme
   }
   if (auCinema) {
     return (
-      <p className="inline-flex items-center gap-[7px] font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
+      <p className="inline-flex items-center gap-[7px] text-[13px] uppercase tracking-[0.06em] text-primary">
         <span aria-hidden="true" className="size-[7px] border border-primary" />
         Au cinéma · pas encore en streaming
       </p>
     );
   }
   return (
-    <p className="inline-flex items-center gap-[7px] font-mono text-[11px] uppercase tracking-[0.12em] text-[#9A9282]">
-      <span aria-hidden="true" className="size-[7px] border border-dashed border-[#9A9282]" />
+    <p className="inline-flex items-center gap-[7px] text-[13px] uppercase tracking-[0.06em] text-texte-2">
+      <span aria-hidden="true" className="size-[7px] border border-dashed border-texte-2" />
       Aucune plateforme d&apos;abonnement
     </p>
   );
@@ -48,7 +48,7 @@ export function Plateformes({ plateformes, auCinema }: { plateformes: Plateforme
 
 export function Etiquette({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded-[2px] border border-[rgba(236,230,216,0.24)] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[#C4BBA9]">
+    <span className="rounded-md border border-trait px-1.5 py-0.5 text-[13px] uppercase tracking-[0.06em] text-texte-doux">
       {children}
     </span>
   );

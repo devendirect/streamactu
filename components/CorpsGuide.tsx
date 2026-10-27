@@ -5,12 +5,8 @@ import { TexteEnLigne } from "@/components/TexteEnLigne";
 import ListeOrdre from "@/components/ListeOrdre";
 import ZoneAbonnements from "@/components/ZoneAbonnements";
 
-const styleProse = {
-  fontFamily: "var(--font-onest), sans-serif",
-  fontSize: "17px",
-} as const;
-
-const classeProse = "text-[#C4BBA9] leading-relaxed";
+/** Texte de lecture : 17 px, interligne 1,7, 62 à 72 caractères par ligne (colonne de 720 px) */
+const classeProse = "text-[17px] leading-[1.7] text-texte-doux";
 
 /** Blocs de texte d'une section (paragraphes, listes, tableaux), partagés par les guides et les articles */
 export function BlocsGuide({
@@ -32,7 +28,7 @@ export function BlocsGuide({
       {blocs.map((b, i) => {
         if ("p" in b) {
           return (
-            <p key={i} className={classeProse} style={styleProse}>
+            <p key={i} className={classeProse}>
               <TexteEnLigne texte={b.p} />
             </p>
           );
@@ -53,8 +49,8 @@ export function BlocsGuide({
           return (
             <Liste
               key={i}
-              className={`${classeProse} space-y-2 pl-5 ${"ul" in b ? "list-disc" : "list-decimal"}`}
-              style={styleProse}
+              className={`${classeProse} space-y-1.5 pl-[22px] marker:text-ambre ${"ul" in b ? "list-disc" : "list-decimal"}`}
+             
             >
               {items.map((item) => (
                 <li key={item.slice(0, 40)}>
@@ -65,22 +61,22 @@ export function BlocsGuide({
           );
         }
         return (
-          <div key={i} className="overflow-x-auto">
-            <table className="w-full text-left text-sm border border-border">
-              <thead className="font-mono-label text-ink-3">
+          <div key={i} className="overflow-x-auto rounded-xl border border-trait">
+            <table className="tabular w-full border-collapse text-left text-[15px]">
+              <thead className="bg-surface text-[13px] font-bold text-texte-2">
                 <tr>
                   {b.table.entetes.map((e) => (
-                    <th key={e} className="px-3 py-2 border-b border-border font-normal">
+                    <th key={e} className="px-3.5 py-3 whitespace-nowrap">
                       {e}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="text-[#C4BBA9]">
+              <tbody className="text-[#E2E2E6]">
                 {b.table.lignes.map((ligne) => (
-                  <tr key={ligne[0]} className="border-t border-border/50">
+                  <tr key={ligne[0]} className="border-t border-trait">
                     {ligne.map((cellule, j) => (
-                      <td key={j} className="px-3 py-2">
+                      <td key={j} className="px-3.5 py-3">
                         <TexteEnLigne texte={cellule} />
                       </td>
                     ))}
@@ -141,8 +137,8 @@ export default function CorpsGuide({
   ancres?: AncresOrdre;
 }) {
   const section = (s: SectionGuide, dansZone = false) => (
-    <section key={s.titre} id={ancreSection(s)} className={`${dansZone ? "scroll-mt-40" : "scroll-mt-4"} space-y-4`}>
-      <h2 className="text-2xl font-extrabold tracking-[-0.02em]">{s.titre}</h2>
+    <section key={s.titre} id={ancreSection(s)} className={`${dansZone ? "scroll-mt-56" : "scroll-mt-24"} space-y-3.5`}>
+      <h2 className="text-[clamp(22px,2vw,28px)] leading-[1.2] font-extrabold tracking-[-0.02em]">{s.titre}</h2>
       <BlocsGuide
         blocs={s.blocs}
         oeuvres={oeuvres}

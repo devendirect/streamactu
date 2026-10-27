@@ -2,38 +2,44 @@ import Image from "next/image";
 import Link from "next/link";
 import type { OeuvreArticle } from "@/lib/actu-oeuvres";
 import { altAffiche } from "@/lib/utils";
+import Icone from "@/components/Icone";
+import PastillePlateforme from "@/components/PastillePlateforme";
 
-/** Carte d'un titre dans un article : affiche, repères, lien vers la fiche */
+/** Carte « Où regarder » d'un titre dans un article : affiche, repères, plateformes, lien vers la fiche */
 export default function CarteOeuvreArticle({ oeuvre }: { oeuvre: OeuvreArticle }) {
   const href = `/${oeuvre.type}/${oeuvre.slug}`;
   return (
-    <Link
-      href={href}
-      className="flex items-center gap-4 border border-border/60 p-3 hover:border-primary transition-colors group"
-    >
+    <div className="flex items-center gap-4 rounded-xl bg-surface p-3.5">
       {oeuvre.poster && (
-        <div className="relative w-[60px] h-[90px] shrink-0 border border-border overflow-hidden bg-white/5">
-          <Image
-            src={oeuvre.poster}
-            alt={altAffiche(oeuvre.titre, oeuvre.type)}
-            fill
-            sizes="60px"
-            className="object-cover"
-          />
-        </div>
+        <Link href={href} tabIndex={-1} aria-hidden="true" className="relative h-[90px] w-[60px] shrink-0 overflow-hidden rounded-md bg-surface-2">
+          <Image src={oeuvre.poster} alt={altAffiche(oeuvre.titre, oeuvre.type)} fill sizes="60px" className="object-cover" />
+        </Link>
       )}
-      <div className="min-w-0 space-y-1">
-        <div className="text-[17px] font-semibold leading-tight group-hover:text-primary transition-colors">
+      <div className="min-w-0 flex-1 space-y-1.5">
+        <Link href={href} className="block text-[17px] leading-tight font-bold transition-colors duration-200 hover:text-ambre">
           {oeuvre.titre}
-        </div>
-        <div className="font-mono-label text-ink-3">
+        </Link>
+        <p className="flex flex-wrap items-center gap-x-2.5 text-[13.5px] text-texte-2">
           {oeuvre.type === "serie" ? "Série" : "Film"}
-          {oeuvre.annee ? ` · ${oeuvre.annee}` : ""}
-          {oeuvre.nbVotes >= 10 ?` · ★ ${oeuvre.note.toFixed(1)}` : ""}
-          {oeuvre.plateformes.length > 0 ? ` · ${oeuvre.plateformes.map((p) => p.nom).join(", ")}` : ""}
-        </div>
-        <div className="font-mono-label text-foreground">Voir la fiche →</div>
+          {oeuvre.annee ? <span>{oeuvre.annee}</span> : null}
+          {oeuvre.nbVotes >= 10 && (
+            <span className="inline-flex items-center gap-1 font-bold text-white">
+              <Icone nom="etoile" taille={12} className="fill-current text-ambre" />
+              {oeuvre.note.toFixed(1).replace(".", ",")}
+            </span>
+          )}
+        </p>
+        {oeuvre.plateformes.length > 0 && (
+          <p className="flex flex-wrap gap-x-3.5 gap-y-1 text-[13.5px] font-semibold">
+            {oeuvre.plateformes.map((p) => (
+              <PastillePlateforme key={p.id} pf={p} />
+            ))}
+          </p>
+        )}
       </div>
-    </Link>
+      <Link href={`${href}#ou-regarder`} className="btn-blanc h-11 flex-none px-4 text-[15px] max-[560px]:hidden">
+        Où regarder
+      </Link>
+    </div>
   );
 }

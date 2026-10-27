@@ -14,7 +14,7 @@ import ListeHistoire, { type EtapeAffichee } from "@/components/ListeHistoire";
  * couches « Mes abonnements » et suivi de visionnage viendront s'y greffer.
  */
 
-const POINTILLES = "repeating-linear-gradient(90deg,#8E8676 0 3px,transparent 3px 6px)";
+const POINTILLES = "repeating-linear-gradient(90deg,#A1A1A8 0 3px,transparent 3px 6px)";
 const pad = (n: number) => String(n).padStart(2, "0");
 
 interface Contexte {
@@ -57,14 +57,14 @@ function LigneSortie({ item, numero, ancre, o }: { item: OeuvreGuide; numero: nu
   return (
     <li id={ancre} {...dataLigne(o)} className="grid scroll-mt-40 grid-cols-[56px_minmax(0,1fr)] gap-4 border-t border-border py-4">
       <Link href={href} aria-hidden="true" tabIndex={-1} className="block w-14">
-        <div className="relative h-[84px] w-14 overflow-hidden rounded-[2px] bg-[#2B2720] shadow-[inset_0_0_0_1px_rgba(236,230,216,0.08)]">
+        <div className="relative h-[84px] w-14 overflow-hidden rounded-md bg-surface">
           {o?.poster && <Image src={o.poster} alt="" fill sizes="56px" className="object-cover" />}
         </div>
         {o && <BarrePlateformes plateformes={plateformes} auCinema={item.auCinema} />}
       </Link>
       <div className="flex min-w-0 flex-col gap-[7px]">
         <div className="flex items-baseline gap-2.5">
-          <span className="flex-none font-mono text-[11px] tracking-[0.1em] text-primary">{pad(numero)}</span>
+          <span className="font-salle tabular flex-none text-[34px] leading-none font-black text-transparent [-webkit-text-stroke:1.5px_rgba(255,241,210,0.5)]">{pad(numero)}</span>
           <Link
             href={href}
             className="text-[18px] font-bold leading-[1.2] text-foreground [text-wrap:pretty] hover:text-primary transition-colors"
@@ -72,7 +72,7 @@ function LigneSortie({ item, numero, ancre, o }: { item: OeuvreGuide; numero: nu
             {o?.titre ?? item.titre}
           </Link>
         </div>
-        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 font-mono text-[11px] uppercase tracking-[0.2em] text-ink-3">
+        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-[13px] uppercase tracking-[0.06em] text-texte-2">
           <span>
             {item.type === "serie" ? "Série" : "Film"}
             {o?.annee ? ` · ${o.annee}` : ""}
@@ -80,8 +80,8 @@ function LigneSortie({ item, numero, ancre, o }: { item: OeuvreGuide; numero: nu
           {item.facultatif && <Etiquette>Facultatif</Etiquette>}
         </div>
         {o && <Plateformes plateformes={plateformes} auCinema={item.auCinema} />}
-        <span className="sa-hors font-mono text-[10px] uppercase tracking-[0.2em] text-[#9A9282]">Hors de vos abonnements</span>
-        <p className="m-0 font-serif text-[16px] leading-normal text-[#C4BBA9] [text-wrap:pretty]">
+        <span className="sa-hors text-[13px] uppercase tracking-[0.06em] text-texte-2">Hors de vos abonnements</span>
+        <p className="m-0 text-[16px] leading-normal text-texte-doux [text-wrap:pretty]">
           <TexteEnLigne texte={item.repere} />
         </p>
       </div>
@@ -126,7 +126,7 @@ function ListeSortie({ bloc, idListe, ctx }: { bloc: BlocOrdre; idListe: string;
             <a
               key={g.annee}
               href={`#${idListe}-${g.annee}`}
-              className="border border-border px-2.5 py-[7px] font-mono text-[11px] tracking-[0.1em] text-[#C4BBA9] hover:text-primary transition-colors"
+              className="border border-border px-2.5 py-[7px] text-[13px] tracking-[0.06em] text-texte-doux hover:text-primary transition-colors"
             >
               {g.annee}
             </a>
