@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import type { Serie, Film } from "@/types";
+import Faisceau from "@/components/Faisceau";
+import Icone from "@/components/Icone";
 
 interface Props {
   contenu: Serie | Film;
@@ -54,32 +56,31 @@ export default function ConvaincsMoi({ contenu }: Props) {
   }
 
   return (
-    <div>
+    // Encadré velours (rendez-vous) : faisceau adouci, titre en capitales de salle
+    <div className="relative isolate mt-[26px] overflow-hidden rounded-[14px] bg-linear-135 from-velours to-velours-sombre p-[22px]">
+      <Faisceau doux />
+      <h3 className="font-salle text-[30px] leading-none font-black text-lumiere">Pas encore convaincu&nbsp;?</h3>
+      <p className="mt-2 max-w-[46ch] text-[#E6D5CE]">
+        L&apos;IA vous dit en quelques lignes pourquoi {contenu.titre} vaut votre soirée.
+      </p>
+
       {!pitchVisible && !loading && (
-        <button
-          onClick={lancerConvaincs}
-          className="w-full flex items-center justify-center gap-2 border border-primary text-primary font-semibold py-3.5 text-[15px] hover:bg-primary hover:text-background transition-colors"
-        >
-          <span aria-hidden="true">✦</span> Convaincs-moi
+        <button type="button" onClick={lancerConvaincs} className="btn-blanc mt-4">
+          <Icone nom="loupeIA" taille={20} />
+          Convaincs-moi
         </button>
       )}
 
       {loading && (
-        <div className="flex items-center gap-3 py-4">
-          <span
-            className="text-base text-[#B8AF9D] italic animate-pulse"
-            style={{ fontFamily: "var(--font-onest), sans-serif" }}
-          >
-            Un ami cinéphile cherche ses mots
-          </span>
-        </div>
+        <p role="status" className="mt-4 animate-pulse text-velours-texte italic">
+          Un ami cinéphile cherche ses mots
+        </p>
       )}
 
       {pitchVisible && (
-        <div className="border-y border-primary/35 bg-primary/[0.05] p-4">
-          <p className="font-mono-label text-primary mb-3">✦ Le mot d&apos;un ami</p>
-          <p className="text-[17px] leading-[1.55] text-foreground">{pitch}</p>
-        </div>
+        <p aria-live="polite" className="mt-3.5 rounded-[10px] bg-black/25 px-4 py-3.5 text-[15px] leading-[1.55] text-lumiere">
+          {pitch}
+        </p>
       )}
     </div>
   );

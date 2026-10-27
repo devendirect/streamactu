@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { OG_BASE, titreAffiche, titreFiche, titreMeta } from "@/lib/meta";
-import { getDetailFilm } from "@/lib/tmdb";
+import { getDetailFilm, getImagesUne } from "@/lib/tmdb";
 import { idDepuisSlug } from "@/lib/utils";
 import { descriptionFiche, fichePauvre, jsonLdFiche } from "@/lib/seo";
 import { suggestionsFiche } from "@/lib/suggestions";
@@ -63,18 +63,19 @@ export default async function FilmPage({ params }: Props) {
   const film = await getFilm(slug);
 
   if (!film) notFound();
-  const [suggestions, faits] = await Promise.all([
+  const [suggestions, faits, images] = await Promise.all([
     suggestionsFiche(film),
     getFaitsWikidata(film.wikidataId, "film"),
+    getImagesUne("film", film.id),
   ]);
 
   return (
-    <div className="sa-container py-6 max-w-2xl">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdFiche(film) }}
       />
-      <FicheDetail contenu={film} suggestions={suggestions} faits={faits} />
-    </div>
+      <FicheDetail contenu={film} suggestions={suggestions} faits={faits} images={images} />
+    </>
   );
 }

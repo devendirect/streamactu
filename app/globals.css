@@ -516,6 +516,107 @@
     pointer-events: none;
   }
 
+  /* Scène éclairée (fiches, pages intérieures) : image assombrie, fondue au
+     noir par le bas et par la gauche, faisceau par-dessus */
+  .scene {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .scene::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background:
+      linear-gradient(to top, var(--sa-fond) 0%, rgba(10, 10, 11, 0.45) 34%, transparent 62%),
+      linear-gradient(to right, rgba(10, 10, 11, 0.9), rgba(10, 10, 11, 0.4) 45%, transparent 70%);
+  }
+  .scene__fond {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+  }
+
+  /* Contrôles segmentés (saisons, périodes) dans une gélule de verre */
+  .segments {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgba(120, 120, 128, 0.24);
+    backdrop-filter: blur(16px);
+  }
+  .segments > a,
+  .segments > button {
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 600;
+    font-size: 14.5px;
+    color: var(--sa-texte-doux);
+    white-space: nowrap;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .segments > :hover {
+    color: #fff;
+  }
+  .segments > [aria-current="page"],
+  .segments > [aria-pressed="true"],
+  .segments > [aria-selected="true"] {
+    background: #fff;
+    color: var(--sa-fond);
+  }
+
+  /* Épisodes en cartes (components/fiche/EpisodesFiche.tsx) */
+  .episodes {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: clamp(220px, 22vw, 280px);
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--spacing-gouttiere);
+    padding: 4px var(--spacing-gouttiere) 14px;
+    margin-inline: calc(var(--spacing-gouttiere) * -1);
+    scrollbar-width: none;
+  }
+  .episodes::-webkit-scrollbar {
+    display: none;
+  }
+  .ep {
+    scroll-snap-align: start;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 150px;
+    padding: 18px;
+    border-radius: 12px;
+    background: var(--sa-surface);
+    overflow: hidden;
+  }
+  .ep--futur {
+    background: linear-gradient(180deg, rgba(74, 13, 23, 0.55), var(--sa-surface));
+  }
+  /* Numéro en creux, contour de lumière seul */
+  .ep__num {
+    position: absolute;
+    right: 14px;
+    top: 12px;
+    font-family: var(--font-big-shoulders), var(--font-onest), sans-serif;
+    font-variation-settings: "opsz" 72;
+    font-weight: 900;
+    font-size: 64px;
+    line-height: 0.8;
+    font-variant-numeric: tabular-nums;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(255, 241, 210, 0.5);
+  }
+
   /* Aperçu agrandi au survol (desktop, components/ApercuSurvol.tsx) */
   .apercu {
     position: fixed;

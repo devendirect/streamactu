@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { metadonnees, metaAccueil } from "@/lib/meta";
 import { getNouveautesJour, getNouveautesSemaine, getSortiesAVenir } from "@/lib/tmdb";
-import { aplatir, getUne, parScore } from "@/lib/accueil";
+import { aplatir, getUne, parScore, top10Series } from "@/lib/accueil";
 import { GENRES_SEO } from "@/lib/genres";
 import { getISOWeek, toISO, formatJourSemaineFR } from "@/lib/utils";
 import UneCarrousel from "@/components/accueil/UneCarrousel";
@@ -49,7 +49,7 @@ export default async function HomePage() {
   const seriesSemaine = aplatir(semaineData, "series");
   const filmsSemaine = parScore(aplatir(semaineData, "films"));
   const toutSemaine = parScore(aplatir(semaineData));
-  const top10 = parScore(seriesSemaine).slice(0, 10);
+  const top10 = top10Series(seriesSemaine);
   const bientot = aplatir(aVenir)
     .filter((c) => c.dateSortie)
     .sort((a, b) => (a.dateSortie ?? "").localeCompare(b.dateSortie ?? ""))

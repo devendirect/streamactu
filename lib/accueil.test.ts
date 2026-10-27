@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { Contenu, NouveautesParPlateforme } from "@/types";
 
 // Les fonctions testées n'appellent pas TMDB
-vi.mock("./tmdb", () => ({ getDetailFilm: vi.fn(), getDetailSerie: vi.fn(), getImagesUne: vi.fn() }));
+vi.mock("./tmdb", () => ({ getDetailFilm: vi.fn(), getDetailSerie: vi.fn(), getImagesUne: vi.fn(), getNouveautesSemaine: vi.fn() }));
 
 import { aplatir, parScore } from "./accueil";
 import { PLATEFORMES } from "./plateformes";

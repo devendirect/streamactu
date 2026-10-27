@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { OG_BASE, titreAffiche, titreFiche, titreMeta } from "@/lib/meta";
-import { getDetailSerie } from "@/lib/tmdb";
+import { getDetailSerie, getImagesUne } from "@/lib/tmdb";
+import { rangSemaine } from "@/lib/accueil";
 import { idDepuisSlug } from "@/lib/utils";
 import { descriptionFiche, fichePauvre, jsonLdFiche } from "@/lib/seo";
 import { suggestionsFiche } from "@/lib/suggestions";
@@ -63,18 +64,20 @@ export default async function SeriePage({ params }: Props) {
   const serie = await getSerie(slug);
 
   if (!serie) notFound();
-  const [suggestions, faits] = await Promise.all([
+  const [suggestions, faits, images, rang] = await Promise.all([
     suggestionsFiche(serie),
     getFaitsWikidata(serie.wikidataId, "serie"),
+    getImagesUne("serie", serie.id),
+    rangSemaine(serie.id),
   ]);
 
   return (
-    <div className="sa-container py-6 max-w-2xl">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdFiche(serie) }}
       />
-      <FicheDetail contenu={serie} suggestions={suggestions} faits={faits} />
-    </div>
+      <FicheDetail contenu={serie} suggestions={suggestions} faits={faits} images={images} rang={rang} />
+    </>
   );
 }

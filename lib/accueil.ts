@@ -1,8 +1,8 @@
 import type { Contenu, NouveautesParPlateforme, Plateforme } from "@/types";
 import { editionCourante } from "./actu";
 import { plateformesDepuisFournisseurs } from "./plateformes";
-import { getDetailFilm, getDetailSerie, getImagesUne } from "./tmdb";
-import { scoreBayesien } from "./utils";
+import { getDetailFilm, getDetailSerie, getImagesUne, getNouveautesSemaine } from "./tmdb";
+import { getISOWeek, scoreBayesien } from "./utils";
 
 /**
  * Données de l'accueil « La salle obscure » : la une et les rangées sont
@@ -29,6 +29,23 @@ export function aplatir(donnees: NouveautesParPlateforme[], quoi: "series" | "fi
 /** Mieux notés d'abord, la note pondérée par le nombre de votes (même règle que les tops) */
 export function parScore(contenus: Contenu[]): Contenu[] {
   return [...contenus].sort((a, b) => scoreBayesien(b.note, b.nbVotes) - scoreBayesien(a.note, a.nbVotes));
+}
+
+/** Top 10 des séries de la semaine (accueil, pastille de rang des fiches) */
+export function top10Series(seriesSemaine: Contenu[]): Contenu[] {
+  return parScore(seriesSemaine).slice(0, 10);
+}
+
+/** Rang d'une série dans le Top 10 de la semaine en cours (1 à 10), sinon null */
+export async function rangSemaine(id: number, maintenant: Date = new Date()): Promise<number | null> {
+  const { semaine, annee } = getISOWeek(maintenant);
+  try {
+    const rang = top10Series(aplatir(await getNouveautesSemaine(semaine, annee), "series")).findIndex((c) => c.id === id);
+    return rang >= 0 ? rang + 1 : null;
+  } catch {
+    // La pastille est un bonus : la fiche s'affiche sans
+    return null;
+  }
 }
 
 export interface DiapoUne {

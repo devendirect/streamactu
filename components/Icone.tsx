@@ -15,6 +15,8 @@ const TRACES = {
   gauche: <path d="m15 5-7 7 7 7" />,
   droite: <path d="m9 5 7 7-7 7" />,
   bas: <path d="m6 9 6 6 6-6" />,
+  // Bande-annonce seulement : le site ne diffuse rien, jamais d'action principale « Lecture »
+  lecture: <path d="M8 5.5v13l10.5-6.5z" />,
   externe: <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />,
   etoile: <path d="m12 3.8 2.5 5.2 5.7.8-4.1 4 1 5.7-5.1-2.7-5.1 2.7 1-5.7-4.1-4 5.7-.8z" />,
   de: (

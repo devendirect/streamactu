@@ -1,52 +1,40 @@
 import Link from "next/link";
 import type { SuggestionsFiche } from "@/lib/suggestions";
+import Rangee from "@/components/Rangee";
+import CarteAffiche from "@/components/CarteAffiche";
+import Icone from "@/components/Icone";
 
-/** Bas de fiche : autres titres du même genre sur la même plateforme */
+/** Bas de fiche : autres titres du même genre sur la même plateforme, en rangée d'affiches */
 export default function SuggestionsGenre({ suggestions }: { suggestions: SuggestionsFiche }) {
   const { genre, plateforme, contenus, pageGenreExiste } = suggestions;
+  const titre = genre ? `${genre.nom} sur ${plateforme.nom}` : `Aussi sur ${plateforme.nom}`;
   return (
-    <section className="space-y-3 border-t border-border pt-5" aria-labelledby="suggestions-genre">
-      <h2 id="suggestions-genre" className="font-mono-label text-ink-3">
-        {genre ? `${genre.nom} sur ${plateforme.nom}` : `Aussi sur ${plateforme.nom}`}
-      </h2>
-      <p className="text-[15px] leading-relaxed text-[#9A9282]" style={{ fontFamily: "var(--font-onest), sans-serif" }}>
-        {genre
-          ? `D'autres titres du même genre disponibles sur ${plateforme.nom} en France, parmi les plus populaires du moment :`
-          : `D'autres séries et films sortis sur ${plateforme.nom} en France ces quatre dernières semaines :`}
-      </p>
-      <ul className="space-y-2">
+    <div id="similaires" className="scroll-mt-[140px]">
+      <Rangee
+        titre={titre}
+        href={genre && pageGenreExiste ? `/genre/${genre.slug}/${plateforme.slug}` : `/${plateforme.slug}`}
+        sous={
+          genre
+            ? `D'autres titres du même genre disponibles sur ${plateforme.nom} en France, parmi les plus populaires du moment.`
+            : `D'autres séries et films sortis sur ${plateforme.nom} en France ces quatre dernières semaines.`
+        }
+      >
         {contenus.map((c) => (
-          <li key={`${c.type}-${c.id}`} className="flex items-baseline justify-between gap-3">
-            <Link
-              href={`/${c.type}/${c.slug}`}
-              className="text-foreground hover:text-primary transition-colors truncate"
-            >
-              {c.titre}
-            </Link>
-            <span className="font-mono-label text-ink-4 shrink-0">
-              {c.type === "serie" ? "Série" : "Film"}
-              {c.annee ? ` · ${c.annee}` : ""}
-              {c.nbVotes > 0 ? ` · ★ ${c.note.toFixed(1)}` : ""}
-            </span>
-          </li>
+          <CarteAffiche key={`${c.type}-${c.id}`} contenu={{ ...c, plateforme }} />
         ))}
-      </ul>
-      <nav className="flex items-center gap-x-5 gap-y-2 flex-wrap pt-1">
+      </Rangee>
+      <nav aria-label="Aller plus loin" className="-mt-3 mb-rangee flex flex-wrap items-center gap-x-6 gap-y-2 px-gouttiere">
         {genre && pageGenreExiste && (
-          <Link
-            href={`/genre/${genre.slug}/${plateforme.slug}`}
-            className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
-          >
-            Tout le genre {genre.nom.toLowerCase()} sur {plateforme.nom} →
+          <Link href={`/genre/${genre.slug}/${plateforme.slug}`} className="lien-fleche">
+            Tout le genre {genre.nom.toLowerCase()} sur {plateforme.nom}
+            <Icone nom="droite" taille={18} />
           </Link>
         )}
-        <Link
-          href={`/${plateforme.slug}`}
-          className="font-mono-label text-foreground border-b border-primary pb-1 hover:text-primary transition-colors"
-        >
-          Nouveautés {plateforme.nom} →
+        <Link href={`/${plateforme.slug}`} className="lien-fleche">
+          Nouveautés {plateforme.nom}
+          <Icone nom="droite" taille={18} />
         </Link>
       </nav>
-    </section>
+    </div>
   );
 }
