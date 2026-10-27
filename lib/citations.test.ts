@@ -46,10 +46,10 @@ describe("construireIndex", () => {
 });
 
 describe("citationsOeuvre (données du dépôt)", () => {
-  it("Tulsa King : choisi dans l'article du 16 octobre, brouillon de novembre exclu", () => {
+  it("Tulsa King : choisi dans l'article du 16 octobre, cité dans celui de novembre", () => {
     const c = citationsOeuvre("serie", 153312)!;
     expect(c.articles.some((a) => a.titre.includes("16 au 18 octobre 2026") && a.role === "choix")).toBe(true);
-    expect(c.articles.some((a) => a.titre.includes("novembre"))).toBe(false);
+    expect(c.articles.some((a) => a.titre.includes("novembre 2026") && a.role === "mention")).toBe(true);
   });
   it("Iron Man : dans le guide Marvel", () => {
     const c = citationsOeuvre("film", 1726)!;

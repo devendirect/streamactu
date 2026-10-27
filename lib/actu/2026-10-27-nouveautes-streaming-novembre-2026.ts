@@ -1,27 +1,36 @@
 import type { Article } from "../actu";
 
 /**
- * Brouillon du 2026-10-10 (premier article « mois »), données TMDB relevées
- * le 10 octobre : séries par réseau d'origine de la plateforme et dates des
- * épisodes par /tv/{id}/season/{n} ; films par sortie numérique française
- * (note de sortie = plateforme).
+ * Brouillon du 2026-10-10 (premier article « mois »), vérifié le 27 octobre :
+ * relevé TMDB de chaque titre (dates d'épisodes par /tv/{id}/season/{n},
+ * sorties numériques françaises, plateformes en France) et annonces de presse.
  *
- * À faire le lundi 26 octobre, avant publication le mardi 27 :
- * - refaire le relevé TMDB (scratchpad mensuel/releve.mjs) et lire les
- *   annonces officielles de novembre de chaque plateforme (films sous licence,
- *   absents de TMDB) ; noter ici la source de chaque fait extérieur à TMDB ;
- * - Canal+ : aucune nouveauté dans TMDB au 10 octobre, section à écrire depuis
- *   l'annonce officielle (ou rubrique absente si rien de notable) ;
- * - vérifier la disponibilité en France : The Gilded Age (date américaine du
- *   dimanche, HBO Max France ?), L'impératrice remariée, Rivals ;
- * - candidats écartés faute de certitude sur la France : The Chosen saison 6
- *   (Prime Video aux États-Unis, 15 novembre), Last Week Tonight ;
- * - `brouillon: false`, misAJour, puis mise à jour vers le 15 novembre.
+ * Corrections du 27 octobre : The Hunting Wives (Canal+ en France, aucune date
+ * française pour la saison 2) et L'Assassin (Prime Video au Royaume-Uni
+ * seulement, HBO Max en France pour la saison 1) retirés ; Percy Jackson en
+ * deux épisodes par semaine jusqu'au 11 décembre ; The Gilded Age aux dates
+ * françaises ; ajout de L'Impératrice, The Greatest, All's Fair, Send Help et
+ * d'une section Canal+.
  *
- * Faits extérieurs à TMDB : Julian Fellowes a créé Downton Abbey ; Blade
- * Runner 2099 se situe dans l'univers des films Blade Runner ; la famille du
- * crime de MobLand est londonienne. (FTX, Sam Bankman-Fried et Caroline
- * Ellison figurent dans le résumé TMDB de The Altruists.)
+ * Faits extérieurs à TMDB et leur source :
+ * - The Gilded Age, chaque lundi du 2 novembre au 21 décembre sur HBO Max
+ *   France : jechange.fr et julientellouck.com ;
+ * - L'Impératrice, saison 3 et dernière : jechange.fr (Netflix novembre 2026) ;
+ * - Send Help sur Disney+ le 13 novembre : jechange.fr (liste provisoire,
+ *   Disney+ n'avait pas publié sa liste officielle) ;
+ * - Rivals, seconde partie de la saison 2 (épisodes 7 à 12) : Disneyphile,
+ *   Deadline ;
+ * - Singapura (Canal+, absente de TMDB) : serie-news.com du 26 octobre et
+ *   Trois Couleurs, adaptée du roman L'Expatriée d'Elsa Marpeau ;
+ * - Julian Fellowes a créé Downton Abbey ; Blade Runner 2099 se situe dans
+ *   l'univers des films Blade Runner ; la famille du crime de MobLand est
+ *   londonienne ; Élisabeth de L'Impératrice est Sissi.
+ * (FTX, Sam Bankman-Fried et Caroline Ellison figurent dans le résumé TMDB de
+ * The Altruists.)
+ *
+ * Écartés faute de certitude sur la France : The Chosen saison 6, Last Week
+ * Tonight, The Hunting Wives saison 2, L'Assassin saison 2.
+ * Mise à jour prévue vers le 15 novembre.
  */
 export const ARTICLE_2026_10_27_NOVEMBRE: Article = {
   slug: "nouveautes-streaming-novembre-2026",
@@ -33,7 +42,7 @@ export const ARTICLE_2026_10_27_NOVEMBRE: Article = {
     "En novembre 2026, Prime Video lance la saison 3 des Anneaux de pouvoir le 11 et Blade Runner 2099 le 25, Disney+ la saison 3 de Percy Jackson le 20, et Netflix la saison 2 de Black Doves le 5. Apple TV+ ramène Stick, HBO Max The Gilded Age, et Paramount+ termine la saison 2 de MobLand.",
   publie: "2026-10-27",
   misAJour: "2026-10-27",
-  brouillon: true,
+  brouillon: false,
   sections: [
     // ── Netflix ──
     {
@@ -58,11 +67,11 @@ export const ARTICLE_2026_10_27_NOVEMBRE: Article = {
     },
     {
       rubrique: "Netflix",
-      titre: "The Hunting Wives, saison 2",
-      oeuvre: { type: "serie", id: 244447 },
+      titre: "L'Impératrice, saison 3",
+      oeuvre: { type: "serie", id: 131488 },
       blocs: [
         {
-          p: "Les huit épisodes arrivent ensemble le jeudi 26 novembre. Le drame à suspense de Rebecca Perry Cutter retrouve le club des riches épouses d'une petite ville du Texas, où une citadine s'était laissé entraîner par la charismatique Margot Banks.",
+          p: "La troisième et dernière saison arrive en entier le jeudi 12 novembre, en six épisodes. La série allemande de Katharina Eyssen raconte Élisabeth, Sissi, devenue impératrice en épousant François-Joseph, face aux pressions et aux intrigues de la cour de Vienne. Elle tient 7,7/10 sur TMDB.",
         },
       ],
     },
@@ -106,11 +115,20 @@ export const ARTICLE_2026_10_27_NOVEMBRE: Article = {
     },
     {
       rubrique: "Prime Video",
+      titre: "The Greatest",
+      oeuvre: { type: "serie", id: 258989 },
+      blocs: [
+        {
+          p: "Nouvelle série en huit épisodes, tous disponibles le mercredi 4 novembre. Ben Watkins raconte les débuts de Cassius Clay, futur Muhammad Ali, joué par Jaalen Best : tout juste médaillé d'or aux Jeux olympiques de 1960, le jeune boxeur vise le titre des poids lourds, entre doutes, conflit familial et une Amérique politisée.",
+        },
+      ],
+    },
+    {
+      rubrique: "Prime Video",
       titre: "Et aussi sur Prime Video",
       blocs: [
         {
           ul: [
-            "[L'Assassin](/serie/l-assassin-262352), saison 2 (vendredi 6 novembre) : six épisodes de la série britannique sur une tueuse à gages retraitée, rattrapée par son passé avec son fils.",
             "[Campus Drivers](/serie/campus-drivers-303044) (vendredi 6 novembre) : série française en six épisodes, une romance sur un campus universitaire.",
             "[Madden](/film/madden-1131943) (mercredi 18 novembre) : film de David O. Russell sur John Madden, entraîneur et voix du football américain, avec Nicolas Cage et Christian Bale.",
             "[Menteurs parfaits](/film/menteurs-parfaits-1568060) (vendredi 20 novembre) : film espagnol, une étudiante infiltre le cercle de trois frères tout-puissants pour venger son frère.",
@@ -129,7 +147,7 @@ export const ARTICLE_2026_10_27_NOVEMBRE: Article = {
       oeuvre: { type: "serie", id: 103540 },
       blocs: [
         {
-          p: "Deux épisodes le vendredi 20 novembre, puis un par semaine jusqu'au 1er janvier (huit en tout). L'adaptation des romans de Rick Riordan, qui cosigne la série, tient 7,2/10 sur TMDB, avec plus de 800 votes.",
+          p: "Huit épisodes, deux chaque vendredi du 20 novembre au 11 décembre. L'adaptation des romans de Rick Riordan, qui cosigne la série, tient 7,3/10 sur TMDB, avec plus de 800 votes.",
         },
       ],
     },
@@ -149,7 +167,9 @@ export const ARTICLE_2026_10_27_NOVEMBRE: Article = {
       blocs: [
         {
           ul: [
-            "[Rivals](/serie/rivals-208921), saison 2 : trois épisodes le mercredi 11 novembre, puis un chaque mercredi jusqu'au 2 décembre.",
+            "[All's Fair](/serie/all-s-fair-258742), saison 2 (mercredi 4 novembre) : la série judiciaire de Ryan Murphy avec Kim Kardashian, Naomi Watts et Niecy Nash-Betts revient avec trois épisodes, puis un par semaine.",
+            "[Rivals](/serie/rivals-208921), seconde partie de la saison 2 : trois épisodes le mercredi 11 novembre, puis un chaque mercredi jusqu'au 2 décembre (épisodes 7 à 12).",
+            "[Send Help](/film/send-help-1198994) (vendredi 13 novembre) : film de survie de Sam Raimi, avec Rachel McAdams et Dylan O'Brien en employée et patron seuls rescapés d'un accident d'avion sur une île déserte (1 h 53).",
           ],
         },
         {
@@ -204,7 +224,7 @@ export const ARTICLE_2026_10_27_NOVEMBRE: Article = {
       oeuvre: { type: "serie", id: 81723 },
       blocs: [
         {
-          p: "Huit épisodes, un par semaine du dimanche 1er novembre au 20 décembre (dates américaines). Julian Fellowes, le créateur de Downton Abbey, poursuit sa chronique de la haute société new-yorkaise des années 1880. La série tient 7,7/10 sur TMDB.",
+          p: "Huit épisodes, un chaque lundi du 2 novembre au 21 décembre, au lendemain de la diffusion américaine. Julian Fellowes, le créateur de Downton Abbey, poursuit sa chronique de la haute société new-yorkaise des années 1880. La série tient 7,7/10 sur TMDB.",
         },
       ],
     },
@@ -230,7 +250,7 @@ export const ARTICLE_2026_10_27_NOVEMBRE: Article = {
       oeuvre: { type: "serie", id: 247718 },
       blocs: [
         {
-          p: "Les trois derniers épisodes de la saison sortent les vendredis 6, 13 et 20 novembre. La série de Ronan Bennett suit Harry Da Souza, l'homme qui règle les problèmes d'une famille du crime londonienne en guerre contre une autre. Elle tient 8,5/10 sur TMDB, avec plus de 1 000 votes.",
+          p: "Les trois derniers épisodes de la saison sortent les vendredis 6, 13 et 20 novembre. La série de Ronan Bennett suit Harry Da Souza, l'homme qui règle les problèmes d'une famille du crime londonienne en guerre contre une autre. Elle tient 8,6/10 sur TMDB, avec plus de 1 000 votes.",
         },
       ],
     },
@@ -243,6 +263,20 @@ export const ARTICLE_2026_10_27_NOVEMBRE: Article = {
         },
         {
           p: "La liste complète, complétée au fil du mois : [nouveautés Paramount+ de novembre 2026](/paramount-plus/novembre-2026).",
+        },
+      ],
+    },
+
+    // ── Canal+ ──
+    {
+      rubrique: "Canal+",
+      titre: "Singapura",
+      blocs: [
+        {
+          p: "Nouvelle série française en six épisodes de 52 minutes : deux le lundi 2 novembre, puis un chaque lundi. Elsa Marpeau adapte son roman L'Expatriée : Justine découvre un cercle d'expatriés français, où un meurtre est commis.",
+        },
+        {
+          p: "La liste complète, complétée au fil du mois : [nouveautés Canal+ de novembre 2026](/canal-plus/novembre-2026).",
         },
       ],
     },
