@@ -5,10 +5,31 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-bricolage);
-  --font-mono: var(--font-spline-mono);
-  --font-serif: var(--font-newsreader);
-  --font-heading: var(--font-bricolage);
+  /* Onest partout ; mono et serif ne sont plus que des alias (chiffres,
+     anciens textes de lecture), remplacés page par page */
+  --font-sans: var(--font-onest), system-ui, sans-serif;
+  --font-mono: var(--font-onest), system-ui, sans-serif;
+  --font-serif: var(--font-onest), system-ui, sans-serif;
+  --font-heading: var(--font-onest), system-ui, sans-serif;
+
+  /* Jetons « La salle obscure » (DESIGN.md) : bg-fond, text-texte-2,
+     bg-velours, text-lumiere, text-ambre… */
+  --color-fond: var(--sa-fond);
+  --color-surface: var(--sa-surface);
+  --color-surface-2: var(--sa-surface-2);
+  --color-texte: var(--sa-texte);
+  --color-texte-doux: var(--sa-texte-doux);
+  --color-texte-2: var(--sa-texte-2);
+  --color-trait: var(--sa-trait);
+  --color-ambre: var(--sa-accent);
+  --color-sur-ambre: var(--sa-sur-accent);
+  --color-blanc-survol: var(--sa-blanc-survol);
+  --color-verre: var(--sa-verre);
+  --color-velours: var(--sa-velours);
+  --color-velours-sombre: var(--sa-velours-sombre);
+  --color-velours-texte: var(--sa-velours-texte);
+  --color-lumiere: var(--sa-lumiere);
+  --ease-salle: cubic-bezier(0.16, 1, 0.3, 1);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -40,50 +61,67 @@
   --radius-lg: var(--radius);
 }
 
-/* ── StreamActu dark theme (unique, pas de light mode) ── */
+/* ── Thème « La salle obscure » (DESIGN.md), unique, pas de mode clair ── */
 :root {
-  --background: #16140F;
-  --foreground: #ECE6D8;
+  --sa-fond: #0A0A0B;
+  --sa-surface: #17171A;
+  --sa-surface-2: #1F1F23;
+  --sa-texte: #F5F5F7;
+  --sa-texte-doux: #D5D5DA;
+  --sa-texte-2: #A1A1A8; /* 7.9:1 sur le fond */
+  --sa-trait: rgba(245, 245, 247, 0.14);
+  --sa-accent: #E3A53A;
+  --sa-sur-accent: #141005;
+  --sa-blanc-survol: #E7E7EA;
+  --sa-verre: rgba(120, 120, 128, 0.38);
+  --sa-velours: #4A0D17;
+  --sa-velours-sombre: #2B080E;
+  --sa-velours-texte: #D9C3BB;
+  --sa-lumiere: #FFF1D2;
 
-  --card: #1B1812;
-  --card-foreground: #ECE6D8;
+  /* Noms de l'ancien thème (Tailwind et composants), repointés sur les jetons */
+  --background: var(--sa-fond);
+  --foreground: var(--sa-texte);
 
-  --popover: #201D17;
-  --popover-foreground: #ECE6D8;
+  --card: var(--sa-surface);
+  --card-foreground: var(--sa-texte);
 
-  --primary: #E3A53A;
-  --primary-foreground: #16140F;
+  --popover: var(--sa-surface-2);
+  --popover-foreground: var(--sa-texte);
 
-  --secondary: rgba(236, 230, 216, 0.07);
-  --secondary-foreground: #ECE6D8;
+  --primary: var(--sa-accent);
+  --primary-foreground: var(--sa-sur-accent);
 
-  --muted: rgba(236, 230, 216, 0.05);
-  --muted-foreground: #9A9282;
+  --secondary: rgba(245, 245, 247, 0.07);
+  --secondary-foreground: var(--sa-texte);
+
+  --muted: rgba(245, 245, 247, 0.05);
+  --muted-foreground: var(--sa-texte-2);
 
   --accent: rgba(227, 165, 58, 0.12);
-  --accent-foreground: #E3A53A;
+  --accent-foreground: var(--sa-accent);
 
   --destructive: #C2624E;
 
-  --border: rgba(236, 230, 216, 0.12);
-  --input: rgba(236, 230, 216, 0.08);
-  --ring: #E3A53A;
+  --border: var(--sa-trait);
+  --input: rgba(245, 245, 247, 0.08);
+  --ring: var(--sa-accent);
 
-  /* Gris texte accessibles — ≥ 4.5:1 sur #16140F (WCAG AA).
-     Ne pas descendre en dessous de --ink-4 pour du texte. */
-  --ink-3: #8E8676; /* libellés, méta (remplace #6E6857 / #7C7565) */
-  --ink-4: #8A8272; /* niveau le plus effacé (remplace #4A4437 / #5C564A) */
+  /* Anciens gris de texte : tous au gris de salle (≥ 4.5:1, WCAG AA) */
+  --ink-3: var(--sa-texte-2);
+  --ink-4: var(--sa-texte-2);
 
-  --radius: 0.25rem;
+  /* Rayon de base 8 px (affiches, boutons, menus) */
+  --radius: 0.5rem;
 
-  --sidebar: #1B1812;
-  --sidebar-foreground: #ECE6D8;
-  --sidebar-primary: #E3A53A;
-  --sidebar-primary-foreground: #16140F;
+  --sidebar: var(--sa-surface);
+  --sidebar-foreground: var(--sa-texte);
+  --sidebar-primary: var(--sa-accent);
+  --sidebar-primary-foreground: var(--sa-sur-accent);
   --sidebar-accent: rgba(227, 165, 58, 0.12);
-  --sidebar-accent-foreground: #E3A53A;
-  --sidebar-border: rgba(236, 230, 216, 0.12);
-  --sidebar-ring: #E3A53A;
+  --sidebar-accent-foreground: var(--sa-accent);
+  --sidebar-border: var(--sa-trait);
+  --sidebar-ring: var(--sa-accent);
 }
 
 /* ── Couleurs de marque des plateformes ── */
@@ -103,34 +141,60 @@
   }
   html {
     @apply font-sans antialiased;
-    background: #16140F;
-    color: #ECE6D8;
+    background: var(--sa-fond);
+    color: var(--sa-texte);
+    color-scheme: dark;
+    scrollbar-color: var(--sa-surface-2) var(--sa-fond);
   }
+  /* Noir de salle uni : la profondeur vient du faisceau, pas d'un halo de fond */
   body {
     @apply text-foreground;
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
-    background-color: #16140F;
-  }
-  /* Halo de fond fixe via pseudo-élément : background-attachment: fixed
-     force un repaint au scroll sur mobile et est ignoré par iOS Safari */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background: radial-gradient(130% 90% at 50% -10%, #221E16 0%, #16140F 55%);
+    background-color: var(--sa-fond);
+    caret-color: var(--sa-accent);
   }
   ::selection {
-    background: #E3A53A;
-    color: #16140F;
+    background: var(--sa-accent);
+    color: var(--sa-sur-accent);
   }
+  /* Anneau ambre de 2 px à 3 px de distance, partout */
   a:focus-visible,
   button:focus-visible,
-  input:focus-visible {
-    outline: 2px solid #E3A53A;
-    outline-offset: 2px;
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  summary:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--sa-accent);
+    outline-offset: 3px;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--sa-fond);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--sa-surface-2);
+    border: 2px solid var(--sa-fond);
+    border-radius: 999px;
+  }
+}
+
+/* Toute animation et transition ramenée à l'instant, sans exception */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -150,11 +214,25 @@
     }
   }
 
+  /* Ancien libellé mono : désormais le style « label » de DESIGN.md,
+     en attendant le passage de chaque page */
   .font-mono-label {
-    font-family: var(--font-spline-mono), monospace;
-    font-size: 0.6875rem;
-    letter-spacing: 0.2em;
+    font-family: var(--font-onest), system-ui, sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
+  }
+
+  /* Capitales de salle : velours, rendez-vous et chiffres seulement */
+  .font-salle {
+    font-family: var(--font-big-shoulders), var(--font-onest), sans-serif;
+    font-variation-settings: "opsz" 72;
+    text-transform: uppercase;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
   }
 
   .sa-platform-bar {

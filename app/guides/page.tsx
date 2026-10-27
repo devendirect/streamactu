@@ -19,7 +19,7 @@ export default function GuidesPage() {
       <div className="space-y-4">
         <p className="font-mono-label text-ink-3">Le site</p>
         <h1 className="text-4xl font-extrabold tracking-[-0.025em]">Guides</h1>
-        <p className="text-[#C4BBA9] leading-relaxed" style={{ fontFamily: "var(--font-newsreader), serif", fontSize: "17px" }}>
+        <p className="text-[#C4BBA9] leading-relaxed" style={{ fontFamily: "var(--font-onest), sans-serif", fontSize: "17px" }}>
           Des guides durables, mis à jour quand les faits changent. Chacun s&apos;appuie sur les données
           du site et cite ses sources extérieures. Ils sont signés par l&apos;éditeur du site et rédigés
           avec l&apos;aide de Claude, puis vérifiés ; le détail est sur la page{" "}
@@ -36,7 +36,7 @@ export default function GuidesPage() {
             <Link href={`/guides/${g.slug}`} className="text-xl font-bold hover:text-primary transition-colors">
               {g.titre} →
             </Link>
-            <p className="text-[15px] leading-relaxed text-[#9A9282]" style={{ fontFamily: "var(--font-newsreader), serif" }}>
+            <p className="text-[15px] leading-relaxed text-[#9A9282]" style={{ fontFamily: "var(--font-onest), sans-serif" }}>
               {g.description}
             </p>
             <p className="font-mono-label text-ink-3">Mis à jour le {formatDateFR(g.misAJour)}</p>

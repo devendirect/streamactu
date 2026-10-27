@@ -6,7 +6,7 @@ import ListeOrdre from "@/components/ListeOrdre";
 import ZoneAbonnements from "@/components/ZoneAbonnements";
 
 const styleProse = {
-  fontFamily: "var(--font-newsreader), serif",
+  fontFamily: "var(--font-onest), sans-serif",
   fontSize: "17px",
 } as const;
 

@@ -10,7 +10,7 @@ export const metadata: Metadata = metadonnees(
 );
 
 const styleProse = {
-  fontFamily: "var(--font-newsreader), serif",
+  fontFamily: "var(--font-onest), sans-serif",
   fontSize: "17px",
 } as const;
 

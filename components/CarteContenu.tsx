@@ -24,7 +24,7 @@ export default function CarteContenu({ contenu, priorite = false }: Props) {
       saisonLabel = (
         <span
           className="italic"
-          style={{ color: "#E3A53A", fontFamily: "var(--font-newsreader), serif" }}
+          style={{ color: "#E3A53A", fontFamily: "var(--font-onest), sans-serif" }}
         >
           Nouvelle série
         </span>

@@ -21,7 +21,7 @@ export default function MaListeClient() {
       <div className="py-16 text-center space-y-6">
         <p
           className="text-[clamp(22px,4vw,32px)] leading-tight text-[#C7BEAC] max-w-[24ch] mx-auto italic"
-          style={{ fontFamily: "var(--font-newsreader), serif" }}
+          style={{ fontFamily: "var(--font-onest), sans-serif" }}
         >
           Rien pour l&apos;instant : votre prochaine soirée se prépare ici.
         </p>

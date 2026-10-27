@@ -52,7 +52,7 @@ export default function Error({
 
           <p
             className="mb-8 max-w-[46ch] text-[#B6AD9B] leading-relaxed"
-            style={{ fontFamily: "var(--font-newsreader), serif", fontSize: "18px" }}
+            style={{ fontFamily: "var(--font-onest), sans-serif", fontSize: "18px" }}
           >
             Une erreur inattendue s&apos;est produite. Vous pouvez réessayer ou revenir à l&apos;accueil.
           </p>

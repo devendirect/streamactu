@@ -84,7 +84,7 @@ export default function RechercheClient({
             placeholder="Un titre, un genre, un acteur…"
             autoFocus
             className="flex-1 bg-transparent border-none text-[clamp(20px,4vw,32px)] font-bold tracking-[-0.02em] text-foreground placeholder-ink-4 focus:outline-none"
-            style={{ fontFamily: "var(--font-bricolage), sans-serif" }}
+            style={{ fontFamily: "var(--font-onest), sans-serif" }}
           />
           {query && (
             <button
@@ -103,7 +103,7 @@ export default function RechercheClient({
           <span className="font-mono text-sm text-[#9A9282]">
             {resultats.length} résultat{resultats.length > 1 ? "s" : ""}
           </span>
-          <span className="text-sm text-ink-3 italic" style={{ fontFamily: "var(--font-newsreader), serif" }}>
+          <span className="text-sm text-ink-3 italic" style={{ fontFamily: "var(--font-onest), sans-serif" }}>
             pour « {query} »
           </span>
         </div>
@@ -111,7 +111,7 @@ export default function RechercheClient({
 
       {/* Loading */}
       {loading && (
-        <p className="text-ink-3 italic" style={{ fontFamily: "var(--font-newsreader), serif" }}>
+        <p className="text-ink-3 italic" style={{ fontFamily: "var(--font-onest), sans-serif" }}>
           Recherche en cours…
         </p>
       )}
@@ -165,7 +165,7 @@ export default function RechercheClient({
         <div className="py-16 text-center space-y-6">
           <p
             className="text-[clamp(22px,4vw,36px)] leading-tight text-[#C7BEAC] max-w-[20ch] mx-auto italic"
-            style={{ fontFamily: "var(--font-newsreader), serif" }}
+            style={{ fontFamily: "var(--font-onest), sans-serif" }}
           >
             Rien sous ce titre… pour l&apos;instant.
           </p>

@@ -24,7 +24,7 @@ export default function CarteContenuPoster({ contenu, priorite = false }: Props)
       saisonNode = (
         <span
           className="italic"
-          style={{ color: "#E3A53A", fontFamily: "var(--font-newsreader), serif" }}
+          style={{ color: "#E3A53A", fontFamily: "var(--font-onest), sans-serif" }}
         >
           Nouvelle série
         </span>

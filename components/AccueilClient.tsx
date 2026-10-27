@@ -239,7 +239,7 @@ export default function AccueilClient({ plateformes, contexte }: Props) {
           <div className="py-20 text-center">
             <p
               className="text-xl text-[#9A9282] italic"
-              style={{ fontFamily: "var(--font-newsreader), serif" }}
+              style={{ fontFamily: "var(--font-onest), sans-serif" }}
             >
               Aucun contenu ne correspond à ces filtres.
             </p>

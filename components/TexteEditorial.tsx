@@ -18,7 +18,7 @@ export default function TexteEditorial({ titre, paragraphes, liens }: Props) {
           <p
             key={p.slice(0, 40)}
             className="text-[15px] leading-relaxed text-[#9A9282]"
-            style={{ fontFamily: "var(--font-newsreader), serif" }}
+            style={{ fontFamily: "var(--font-onest), sans-serif" }}
           >
             {p}
           </p>

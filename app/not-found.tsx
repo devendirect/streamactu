@@ -41,7 +41,7 @@ export default function NotFound() {
           <div className="flex items-center gap-3 mb-4 justify-center md:justify-start font-mono-label text-[#B8AF9D]">
             <span aria-hidden="true" className="text-[13px] text-foreground">⌗</span>
             Page fantôme
-            <span className="border-l border-border/40 pl-3 text-primary italic" style={{ fontFamily: "var(--font-newsreader), serif" }}>
+            <span className="border-l border-border/40 pl-3 text-primary italic" style={{ fontFamily: "var(--font-onest), sans-serif" }}>
               Jamais diffusée
             </span>
           </div>
@@ -55,7 +55,7 @@ export default function NotFound() {
 
           <p
             className="mb-2 max-w-[46ch] text-[#B6AD9B] leading-relaxed"
-            style={{ fontFamily: "var(--font-newsreader), serif", fontSize: "18px" }}
+            style={{ fontFamily: "var(--font-onest), sans-serif", fontSize: "18px" }}
           >
             Annoncée, jamais tournée, probablement coincée en <em>development hell</em>. Le lien que vous suivez ne figure à aucune grille de programme.
           </p>

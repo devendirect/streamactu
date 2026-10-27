@@ -109,7 +109,7 @@ export default function SurpriseClient({ initialContenu }: SurpriseClientProps) 
         {contenu.synopsis && (
           <p
             className="text-sm leading-relaxed text-[#B6AD9B] max-w-[32ch] mx-auto"
-            style={{ fontFamily: "var(--font-newsreader), serif" }}
+            style={{ fontFamily: "var(--font-onest), sans-serif" }}
           >
             {contenu.synopsis.slice(0, 120)}
             {contenu.synopsis.length > 120 ? "…" : ""}

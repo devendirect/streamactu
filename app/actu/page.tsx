@@ -27,7 +27,7 @@ export default async function ActuPage() {
       <div className="space-y-4">
         <p className="font-mono-label text-ink-3">Actu</p>
         <h1 className="text-4xl font-extrabold tracking-[-0.025em]">Que regarder ce week-end</h1>
-        <p className="text-[#C4BBA9] leading-relaxed" style={{ fontFamily: "var(--font-newsreader), serif", fontSize: "17px" }}>
+        <p className="text-[#C4BBA9] leading-relaxed" style={{ fontFamily: "var(--font-onest), sans-serif", fontSize: "17px" }}>
           Chaque vendredi matin, une sélection de trois à cinq nouveautés sorties dans la semaine sur les
           plateformes en France, choisies d&apos;après les données du site et expliquées en quelques lignes,
           puis le reste des sorties. Articles rédigés avec l&apos;aide de Claude et vérifiés avant publication.

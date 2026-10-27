@@ -99,7 +99,7 @@ export default function ArticleActu({ article, oeuvres, titre, edition }: Props)
           </p>
           <p
             className="text-foreground leading-relaxed border-l-2 border-primary pl-4"
-            style={{ fontFamily: "var(--font-newsreader), serif", fontSize: "19px" }}
+            style={{ fontFamily: "var(--font-onest), sans-serif", fontSize: "19px" }}
           >
             {article.chapo}
           </p>

@@ -49,7 +49,7 @@ export default function ListeArticles({ articles, images, page }: Props) {
           </h2>
           <p
             className="text-[15px] leading-relaxed text-[#9A9282]"
-            style={{ fontFamily: "var(--font-newsreader), serif" }}
+            style={{ fontFamily: "var(--font-onest), sans-serif" }}
           >
             {vedette.description}
           </p>

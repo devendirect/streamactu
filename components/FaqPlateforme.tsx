@@ -98,7 +98,7 @@ export default function FaqPlateforme({ plateforme, series, films, periodeIntro,
             <h3 className="text-[17px] font-bold mb-1">{e.question}</h3>
             <p
               className="text-[15px] leading-relaxed text-[#9A9282]"
-              style={{ fontFamily: "var(--font-newsreader), serif" }}
+              style={{ fontFamily: "var(--font-onest), sans-serif" }}
             >
               {e.reponse}
               {e.lien && (

@@ -16,7 +16,7 @@ const EN_LIGNE_DEPUIS = "juin 2026";
 const MIS_A_JOUR = "2026-10-14";
 
 const styleProse = {
-  fontFamily: "var(--font-newsreader), serif",
+  fontFamily: "var(--font-onest), sans-serif",
   fontSize: "17px",
 } as const;
 

@@ -215,7 +215,7 @@ export default function FicheDetail({ contenu, suggestions, faits }: FicheDetail
 
           <p
             className="text-[15px] leading-relaxed text-[#9A9282]"
-            style={{ fontFamily: "var(--font-newsreader), serif" }}
+            style={{ fontFamily: "var(--font-onest), sans-serif" }}
           >
             {phraseDispo}
           </p>
@@ -229,7 +229,7 @@ export default function FicheDetail({ contenu, suggestions, faits }: FicheDetail
             </h2>
             <p
               className="text-[15px] leading-relaxed text-[#9A9282]"
-              style={{ fontFamily: "var(--font-newsreader), serif" }}
+              style={{ fontFamily: "var(--font-onest), sans-serif" }}
             >
               {phraseCalendrier(calendrier, calendrier.plateforme ? PLATEFORME_PAR_ID[calendrier.plateforme].nom : null)}
               {dureeTotale &&
@@ -287,7 +287,7 @@ export default function FicheDetail({ contenu, suggestions, faits }: FicheDetail
         {/* Synopsis */}
         <p
           className="text-[18px] leading-relaxed text-[#C4BBA9]"
-          style={{ fontFamily: "var(--font-newsreader), serif" }}
+          style={{ fontFamily: "var(--font-onest), sans-serif" }}
         >
           {contenu.synopsis || "Synopsis non disponible."}
         </p>

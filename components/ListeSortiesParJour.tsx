@@ -47,7 +47,7 @@ export default function ListeSortiesParJour({ jours }: Props) {
     return (
       <p
         className="py-12 text-center text-xl text-[#9A9282] italic"
-        style={{ fontFamily: "var(--font-newsreader), serif" }}
+        style={{ fontFamily: "var(--font-onest), sans-serif" }}
       >
         Aucune sortie annoncée sur cette période pour l&apos;instant.
       </p>

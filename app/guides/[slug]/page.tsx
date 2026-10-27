@@ -161,7 +161,7 @@ export default async function GuidePage({ params }: Props) {
           </p>
           <p
             className="text-foreground leading-relaxed border-l-2 border-primary pl-4"
-            style={{ fontFamily: "var(--font-newsreader), serif", fontSize: "19px" }}
+            style={{ fontFamily: "var(--font-onest), sans-serif", fontSize: "19px" }}
           >
             {guide.chapo}
           </p>
@@ -214,7 +214,7 @@ export default async function GuidePage({ params }: Props) {
                   <h3 className="text-[17px] font-bold mb-1">{f.q}</h3>
                   <p
                     className="text-[15px] leading-relaxed text-[#9A9282]"
-                    style={{ fontFamily: "var(--font-newsreader), serif" }}
+                    style={{ fontFamily: "var(--font-onest), sans-serif" }}
                   >
                     {f.r}
                   </p>

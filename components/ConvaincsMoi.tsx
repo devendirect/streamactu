@@ -68,7 +68,7 @@ export default function ConvaincsMoi({ contenu }: Props) {
         <div className="flex items-center gap-3 py-4">
           <span
             className="text-base text-[#B8AF9D] italic animate-pulse"
-            style={{ fontFamily: "var(--font-newsreader), serif" }}
+            style={{ fontFamily: "var(--font-onest), sans-serif" }}
           >
             Un ami cinéphile cherche ses mots
           </span>

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Newsreader, Spline_Sans_Mono } from "next/font/google";
+import { Big_Shoulders, Onest } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SplashScreenLoader from "@/components/SplashScreenLoader";
@@ -7,23 +7,20 @@ import ConsentAnalytics from "@/components/ConsentAnalytics";
 import { CONTACT_EMAIL, ORG_ID, REPO_URL, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage",
+// Police de toute l'interface (variable, 100 à 900)
+const onest = Onest({
+  variable: "--font-onest",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
 });
 
-const newsreader = Newsreader({
-  variable: "--font-newsreader",
+// Capitales de salle (velours, rendez-vous, chiffres). « Big Shoulders Display »
+// est devenue la famille Big Shoulders : l'axe opsz, réglé à 72 dans
+// globals.css, redonne la coupe Display. Peu de texte : pas de préchargement.
+const bigShoulders = Big_Shoulders({
+  variable: "--font-big-shoulders",
   subsets: ["latin"],
-  weight: ["400", "500"],
-  style: ["normal", "italic"],
-});
-
-const splineMono = Spline_Sans_Mono({
-  variable: "--font-spline-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  axes: ["opsz"],
+  preload: false,
 });
 
 const DESCRIPTION =
@@ -110,7 +107,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#16140F",
+  themeColor: "#0A0A0B",
 };
 
 export default function RootLayout({
@@ -119,7 +116,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${bricolage.variable} ${newsreader.variable} ${splineMono.variable}`}
+      className={`${onest.variable} ${bigShoulders.variable}`}
     >
       <body>
         <script

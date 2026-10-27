@@ -15,7 +15,7 @@ export default function EnTeteNouveautes({ titre, intro }: Props) {
       </h1>
       <p
         className="mt-1.5 text-[#9A9282] max-w-[68ch]"
-        style={{ fontFamily: "var(--font-newsreader), serif", fontSize: "16px", lineHeight: 1.5 }}
+        style={{ fontFamily: "var(--font-onest), sans-serif", fontSize: "16px", lineHeight: 1.5 }}
       >
         {intro}
       </p>

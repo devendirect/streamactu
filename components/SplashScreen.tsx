@@ -89,7 +89,7 @@ export default function SplashScreen() {
       <p
         className="sa-splash__wordmark"
         style={{
-          fontFamily: "var(--font-bricolage), sans-serif",
+          fontFamily: "var(--font-onest), sans-serif",
           fontSize: "36px",
           fontWeight: 800,
           letterSpacing: "-0.025em",
@@ -105,7 +105,7 @@ export default function SplashScreen() {
       <p
         className="sa-splash__tagline"
         style={{
-          fontFamily: "var(--font-spline-mono), monospace",
+          fontFamily: "var(--font-onest), sans-serif",
           fontSize: "11px",
           letterSpacing: "0.42em",
           textTransform: "uppercase",
