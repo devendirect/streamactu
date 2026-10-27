@@ -30,6 +30,9 @@
   --color-velours-texte: var(--sa-velours-texte);
   --color-lumiere: var(--sa-lumiere);
   --ease-salle: cubic-bezier(0.16, 1, 0.3, 1);
+  /* px-gouttiere, h-entete, pt-entete… */
+  --spacing-gouttiere: clamp(16px, 4vw, 60px);
+  --spacing-entete: 68px;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -154,6 +157,16 @@
     flex-direction: column;
     background-color: var(--sa-fond);
     caret-color: var(--sa-accent);
+  }
+  /* Feuille « Plus » ouverte : la page ne défile plus dessous */
+  html.feuille-ouverte {
+    overflow: hidden;
+  }
+  /* Place de la barre d'onglets mobile (components/BarreMobile.tsx) */
+  @media (max-width: 760px) {
+    body {
+      padding-bottom: calc(72px + env(safe-area-inset-bottom));
+    }
   }
   ::selection {
     background: var(--sa-accent);

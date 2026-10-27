@@ -102,12 +102,12 @@ export default function ConsentAnalytics({ gaId }: { gaId: string }) {
 }
 
 /** Lien du footer : efface le choix et rouvre la bannière (retrait du consentement) */
-export function BoutonGererCookies() {
+export function BoutonGererCookies({ className }: { className?: string }) {
   return (
     <button
       type="button"
       onClick={() => enregistrer(null)}
-      className="font-mono-label text-ink-3 hover:text-foreground transition-colors"
+      className={className ?? "font-mono-label text-ink-3 hover:text-foreground transition-colors"}
     >
       Gérer les cookies
     </button>

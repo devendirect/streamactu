@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Big_Shoulders, Onest } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import BarreMobile from "@/components/BarreMobile";
+import { ACTU_PUBLIEE } from "@/lib/actu";
 import SplashScreenLoader from "@/components/SplashScreenLoader";
 import ConsentAnalytics from "@/components/ConsentAnalytics";
 import { CONTACT_EMAIL, ORG_ID, REPO_URL, SITE_URL } from "@/lib/site";
@@ -37,7 +39,7 @@ const jsonLd = [
     url: SITE_URL,
     logo: {
       "@type": "ImageObject",
-      url: `${SITE_URL}/icons/repere-pwa-512.png`,
+      url: `${SITE_URL}/icons/symbole-512.png`,
       width: 512,
       height: 512,
     },
@@ -102,7 +104,7 @@ export const metadata: Metadata = {
     types: { "application/rss+xml": "/flux.xml" },
   },
   icons: {
-    apple: "/icons/repere-apple-touch-180.png",
+    apple: "/icons/symbole-apple-touch-180.png",
   },
 };
 
@@ -125,8 +127,23 @@ export default function RootLayout({
         />
         <SplashScreenLoader />
         <Header />
-        <main className="flex-1">{children}</main>
+        {/* En-tête fixe : le contenu commence dessous. Les pages qui ouvrent
+            sur une scène éclairée (une, fiches) remontent sous l'en-tête. */}
+        <main className="flex-1 pt-entete">{children}</main>
         <Footer />
+        <BarreMobile
+          explorer={[
+            { href: `/top/series-${new Date().getUTCFullYear()}`, label: "Tops", icone: "top" },
+            { href: "/genre/policier", label: "Genres", icone: "grille" },
+            ...(ACTU_PUBLIEE ? [{ href: "/actu", label: "Actu", icone: "actu" as const }] : []),
+            { href: "/guides", label: "Guides", icone: "livre" },
+          ]}
+          plaisir={[
+            { href: "/jeux", label: "Jeux", icone: "jeu" },
+            { href: "/surprise", label: "À la surprise", icone: "de" },
+            { href: "/retrouver", label: "Retrouver un titre", icone: "loupeIA" },
+          ]}
+        />
         {/* GA4 derrière consentement CNIL — inerte si NEXT_PUBLIC_GA_ID absent */}
         {process.env.NEXT_PUBLIC_GA_ID && (
           <ConsentAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
