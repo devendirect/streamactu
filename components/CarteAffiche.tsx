@@ -77,9 +77,11 @@ interface Props {
 export default function CarteAffiche({ contenu, priorite = false, badge, meta, plateformes, differee = false }: Props) {
   const { type, titre, slug, poster, plateforme } = contenu;
   const Img = differee ? ImageDifferee : Image;
+  // prefetch={false} : une page d'affiches déclenchait plus de 30 préchargements de
+  // fiches au chargement de l'accueil, logos compris (Lighthouse du 29/10)
   return (
     <article className="relative min-w-0" {...attributsCarte(contenu, plateformes)}>
-      <Link href={`/${type}/${slug}`} className="group block">
+      <Link href={`/${type}/${slug}`} prefetch={false} className="group block">
         <span className="relative block aspect-[2/3] overflow-hidden rounded-lg bg-surface">
           {poster && (
             <Img

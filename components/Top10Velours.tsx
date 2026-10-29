@@ -24,7 +24,7 @@ export default function Top10Velours({ titre, href, contenus }: Props) {
       <Rangee titre={titre} href={href} salle className="top10 mb-6">
         {contenus.slice(0, 10).map((c, i) => (
           <article key={`${c.type}-${c.id}`} className="top10__carte min-w-0" {...attributsCarte(c)}>
-            <Link href={`/${c.type}/${c.slug}`} className="grid grid-cols-[46%_54%] items-end">
+            <Link href={`/${c.type}/${c.slug}`} prefetch={false} className="grid grid-cols-[46%_54%] items-end">
               <span aria-hidden="true" className="top10__rang">
                 {i + 1}
               </span>

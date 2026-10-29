@@ -22,9 +22,10 @@ export default function CartePaysage({ contenu, logo, meta, plateformes, differe
   const { type, titre, slug, backdrop, poster, plateforme } = contenu;
   const image = backdrop ?? poster;
   const Img = differee ? ImageDifferee : Image;
+  // Pas de préchargement des fiches, comme CarteAffiche
   return (
     <article className="relative min-w-0" {...attributsCarte(contenu, plateformes)}>
-      <Link href={`/${type}/${slug}`} className="group block">
+      <Link href={`/${type}/${slug}`} prefetch={false} className="group block">
         <span className="relative block aspect-video overflow-hidden rounded-lg bg-surface">
           {image && (
             <Img
