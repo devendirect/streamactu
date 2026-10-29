@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   classificationFilm,
   dureeSaison,
+  dureesSerie,
   formatDureeLongue,
   libelleClassification,
   normaliserClassification,
@@ -72,5 +73,40 @@ describe("durée d'une saison", () => {
     expect(formatDureeLongue(125)).toBe("2 h 05");
     expect(formatDureeLongue(120)).toBe("2 h");
     expect(formatDureeLongue(45)).toBe("45 min");
+  });
+});
+
+describe("durées de la série", () => {
+  const AUJ = "2026-10-28";
+  const ep = (numero: number, date: string | null, duree: number | null) => ({ numero, date, duree });
+  it("total des épisodes diffusés, saison 0 et saisons à venir ignorées", () => {
+    const r = dureesSerie(
+      [
+        { saison: 0, episodes: [ep(1, "2020-01-01", 30)] },
+        { saison: 1, episodes: [ep(1, "2021-01-01", 50), ep(2, "2021-01-08", 45)] },
+        { saison: 2, episodes: [ep(1, "2026-10-20", 60), ep(2, "2026-11-03", null)] },
+        { saison: 3, episodes: [ep(1, null, null)] },
+      ],
+      AUJ
+    );
+    expect(r.parSaison).toEqual([
+      { saison: 1, minutes: 95, nbEpisodes: 2 },
+      { saison: 2, minutes: 60, nbEpisodes: 1 },
+    ]);
+    expect(r.total).toEqual({ minutes: 155, nbEpisodes: 3 });
+  });
+  it("une durée manquante dans une saison diffusée : la saison n'a pas de durée, et pas de total", () => {
+    const r = dureesSerie(
+      [
+        { saison: 1, episodes: [ep(1, "2021-01-01", 50)] },
+        { saison: 2, episodes: [ep(1, "2022-01-01", 50), ep(2, "2022-01-08", null)] },
+      ],
+      AUJ
+    );
+    expect(r.parSaison).toEqual([{ saison: 1, minutes: 50, nbEpisodes: 1 }]);
+    expect(r.total).toBeNull();
+  });
+  it("rien de diffusé : rien", () => {
+    expect(dureesSerie([{ saison: 1, episodes: [ep(1, "2027-01-01", 50)] }], AUJ)).toEqual({ parSaison: [], total: null });
   });
 });

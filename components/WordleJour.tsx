@@ -175,7 +175,7 @@ export default function WordleJour({ contenu, dateISO }: WordleJourProps) {
             <span
               key={i}
               className={`h-1.5 flex-1 rounded-full ${
-                i < etat.resultats.length ? (etat.resultats[i] ? "bg-ambre" : "bg-[#C2624E]") : "bg-white/15"
+                i < etat.resultats.length ? (etat.resultats[i] ? "bg-ambre" : "bg-alerte") : "bg-white/15"
               }`}
             />
           ))}
@@ -195,7 +195,7 @@ export default function WordleJour({ contenu, dateISO }: WordleJourProps) {
                 {i + 1}
               </span>
               <span className="block text-xs font-bold tracking-[0.06em] text-velours-texte uppercase">{label}</span>
-              <span className={`mt-1 block text-[15px] font-semibold ${ouvert ? "text-white" : "text-velours-texte/60"}`}>
+              <span className={`mt-1 block text-[15px] font-semibold ${ouvert ? "text-white" : "text-velours-texte/80"}`}>
                 {ouvert ? getIndice(contenu, i) : "Après un essai raté"}
               </span>
             </li>

@@ -69,6 +69,7 @@ ${PLATEFORMES.map((pf) => `- [Nouveautés ${pf.nom} ${annee}](${SITE_URL}/${pf.s
 
 - [Sitemap](${SITE_URL}/sitemap.xml) : toutes les fiches films et séries
 - [Flux RSS](${SITE_URL}/flux.xml) : les nouveautés des 7 derniers jours
+- [Calendrier des sorties](${SITE_URL}/calendrier/prochaines-sorties.ics) : les sorties à venir au format iCalendar, à ajouter à son agenda ; une adresse par plateforme (${SITE_URL}/calendrier/netflix.ics, …)
 - [À propos](${SITE_URL}/a-propos) : éditeur, sources, méthode de classement, limites, financement
 ${GUIDES.map((g) => `- [${g.titre}](${SITE_URL}/guides/${g.slug}) : ${g.description}`).join("\n")}
 ${editionCourante("week-end") ? `- [Que regarder ce week-end](${SITE_URL}${cheminFixe("week-end")}) : l'édition de la semaine, mise à jour chaque vendredi à cette adresse

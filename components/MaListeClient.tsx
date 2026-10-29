@@ -9,6 +9,8 @@ import Rangee from "@/components/Rangee";
 import CartePaysage from "@/components/CartePaysage";
 import Icone from "@/components/Icone";
 import { annoncer } from "@/components/Annonce";
+import AbonnementDuMois from "@/components/AbonnementDuMois";
+import AjouterAgenda from "@/components/AjouterAgenda";
 
 type Filtre = "tout" | "serie" | "film";
 type Tri = "ajout" | "note" | "titre";
@@ -21,11 +23,12 @@ const TRIS: { val: Tri; label: string }[] = [
 
 /**
  * Ma liste : nouveaux épisodes de la semaine sur le velours (séries gardées
- * croisées avec les sorties de la semaine), puis les titres gardés en grille,
- * filtrables et triables, chacun retirable.
+ * croisées avec les sorties de la semaine), « Quel abonnement ce mois-ci ? »,
+ * puis les titres gardés en grille, filtrables et triables, chacun marquable
+ * comme vu et retirable.
  */
 export default function MaListeClient({ seriesSemaine }: { seriesSemaine: Contenu[] }) {
-  const { liste, restaure, retirer } = useMaListe();
+  const { liste, restaure, retirer, basculerVu } = useMaListe();
   const [filtre, setFiltre] = useState<Filtre>("tout");
   const [tri, setTri] = useState<Tri>("ajout");
 
@@ -69,6 +72,13 @@ export default function MaListeClient({ seriesSemaine }: { seriesSemaine: Conten
       tri === "note" ? b.note - a.note : tri === "titre" ? a.titre.localeCompare(b.titre, "fr") : a.ajouteLe < b.ajouteLe ? 1 : -1
     );
 
+  // Titres à voir (60 au plus, comme la route) : l'adresse du calendrier Ma liste
+  const aVoirAgenda = liste
+    .filter((e) => !e.vu)
+    .sort((a, b) => (a.ajouteLe < b.ajouteLe ? 1 : -1))
+    .slice(0, 60)
+    .map((e) => `${e.type}-${e.id}`);
+
   return (
     <div className="pt-8 pb-10">
       {nouveauxEpisodes.length > 0 && (
@@ -82,6 +92,8 @@ export default function MaListeClient({ seriesSemaine }: { seriesSemaine: Conten
       )}
 
       <div className="px-gouttiere">
+        <AbonnementDuMois liste={liste} />
+
         <div className="mb-6 flex flex-wrap items-center gap-3">
           <div role="group" aria-label="Type" className="segments">
             {(
@@ -119,8 +131,13 @@ export default function MaListeClient({ seriesSemaine }: { seriesSemaine: Conten
                       alt={item.titre}
                       fill
                       sizes="(max-width: 760px) 40vw, 180px"
-                      className="object-cover transition-transform duration-300 ease-salle group-hover:scale-[1.03]"
+                      className={`object-cover transition-[transform,opacity] duration-300 ease-salle group-hover:scale-[1.03] ${item.vu ? "opacity-45" : ""}`}
                     />
+                  )}
+                  {item.vu && (
+                    <span className="absolute bottom-2 left-2 rounded-[4px] bg-[rgba(10,10,11,0.75)] px-2 py-0.5 text-[12px] font-bold text-texte backdrop-blur-[10px]">
+                      Vu
+                    </span>
                   )}
                 </span>
                 <span className="block truncate pt-2 text-sm leading-[1.3] font-semibold">{item.titre}</span>
@@ -135,7 +152,22 @@ export default function MaListeClient({ seriesSemaine }: { seriesSemaine: Conten
                   )}
                 </span>
               </Link>
-              {/* Retrait : hors du lien (imbrication invalide sinon) */}
+              {/* Vu et retrait : hors du lien (imbrication invalide sinon) */}
+              <button
+                type="button"
+                onClick={() => {
+                  basculerVu(item.id, item.type);
+                  annoncer(item.vu ? `${item.titre} : de nouveau à voir` : `${item.titre} marqué comme vu`);
+                }}
+                aria-pressed={!!item.vu}
+                aria-label={`${item.titre} : vu`}
+                title={item.vu ? "Remettre à voir" : "Marquer comme vu"}
+                className={`absolute top-2 left-2 grid size-9 place-items-center rounded-full backdrop-blur-[10px] transition-colors duration-200 ${
+                  item.vu ? "bg-white text-fond" : "bg-[rgba(10,10,11,0.6)] text-white hover:bg-[rgba(10,10,11,0.85)]"
+                }`}
+              >
+                <Icone nom="coche" taille={18} />
+              </button>
               <button
                 type="button"
                 onClick={() => {
@@ -150,6 +182,15 @@ export default function MaListeClient({ seriesSemaine }: { seriesSemaine: Conten
             </li>
           ))}
         </ul>
+
+        {aVoirAgenda.length > 0 && (
+          <div className="mt-section">
+            <AjouterAgenda
+              chemin={`/calendrier/ma-liste.ics?t=${aVoirAgenda.join(",")}`}
+              texte="Les nouveaux épisodes de vos séries et la sortie de vos films dans votre agenda. Les titres sont dans l'adresse : ajoutez à nouveau le calendrier quand votre liste a beaucoup changé."
+            />
+          </div>
+        )}
       </div>
     </div>
   );

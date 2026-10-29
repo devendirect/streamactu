@@ -16,7 +16,7 @@ export default function MaillagePlateformes({ actuelle }: Props) {
 
   return (
     <nav aria-label="Nouveautés par plateforme">
-      <h2 className="font-mono-label mb-3 text-texte-2">{actuelle ? "Autres plateformes" : "Nouveautés par plateforme"}</h2>
+      <h2 className="libelle mb-3 text-texte-2">{actuelle ? "Autres plateformes" : "Nouveautés par plateforme"}</h2>
       <div className="flex flex-wrap gap-2">
         {liens.map((pf) => (
           <Link key={pf.id} href={`/${pf.slug}`} className="puce">

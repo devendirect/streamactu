@@ -38,6 +38,7 @@ import MaillagePlateformes from "@/components/MaillagePlateformes";
 import ArchivesMoisPlateforme from "@/components/ArchivesMoisPlateforme";
 import MoisDeLAnnee from "@/components/MoisDeLAnnee";
 import TexteEditorial from "@/components/TexteEditorial";
+import AjouterAgenda from "@/components/AjouterAgenda";
 import { CONTENU_PLATEFORME, methodeCalendrier, methodeListe } from "@/lib/plateformes-contenu";
 import { syntheseCalendrier, syntheseFilms, syntheseMois, syntheseSeries } from "@/lib/syntheses";
 import ListeSortiesParJour, { agregerSortiesParJour } from "@/components/ListeSortiesParJour";
@@ -255,6 +256,8 @@ export default async function SousPlateformePage({ params }: Props) {
         </EnTeteNouveautes>
         <div className="space-y-section px-gouttiere pt-8 pb-10">
           <ListeSortiesParJour jours={jours} />
+
+          <AjouterAgenda chemin={`/calendrier/${pf.slug}.ics`} texte={`Recevoir les sorties ${pf.nom} dans votre agenda, mises à jour chaque jour.`} />
 
           <TexteEditorial
             titre={`Lire le calendrier ${pf.nom}`}

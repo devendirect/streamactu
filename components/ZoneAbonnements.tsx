@@ -77,7 +77,7 @@ export default function ZoneAbonnements({ plateformes, titres, unite, etapes, ch
       {monte && plateformes.length > 0 && (
         <div className="sticky top-entete z-[3] -mx-3 flex flex-col gap-2.5 rounded-b-xl border-b border-trait bg-[rgba(10,10,11,0.86)] px-3 py-3 backdrop-blur-[16px]">
           <div className="flex items-baseline justify-between gap-3">
-            <span className="font-mono-label text-texte-2">Mes abonnements</span>
+            <span className="libelle text-texte-2">Mes abonnements</span>
             {filtre && (
               <button
                 type="button"
@@ -105,7 +105,7 @@ export default function ZoneAbonnements({ plateformes, titres, unite, etapes, ch
                     style={{ background: p.couleur }}
                   />
                   {p.nom}
-                  <span className="text-primary">{p.nombre}</span>
+                  <span className="text-ambre">{p.nombre}</span>
                 </button>
               );
             })}

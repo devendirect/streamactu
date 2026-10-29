@@ -28,7 +28,7 @@ function BarrePlateformes({ plateformes, auCinema }: { plateformes: Plateforme[]
   const segments =
     plateformes.length > 0
       ? plateformes.map((p) => p.couleur)
-      : [auCinema ? "var(--primary)" : POINTILLES];
+      : [auCinema ? "var(--sa-accent)" : POINTILLES];
   return (
     <div className="mt-1 flex h-[3px] gap-px">
       {segments.map((fond, i) => (
@@ -55,7 +55,7 @@ function LigneSortie({ item, numero, ancre, o }: { item: OeuvreGuide; numero: nu
   const href = hrefOeuvre(item, o);
   const plateformes = o?.plateformes ?? [];
   return (
-    <li id={ancre} {...dataLigne(o)} className="grid scroll-mt-40 grid-cols-[56px_minmax(0,1fr)] gap-4 border-t border-border py-4">
+    <li id={ancre} {...dataLigne(o)} className="grid scroll-mt-40 grid-cols-[56px_minmax(0,1fr)] gap-4 border-t border-trait py-4">
       <Link href={href} aria-hidden="true" tabIndex={-1} className="block w-14">
         <div className="relative h-[84px] w-14 overflow-hidden rounded-md bg-surface">
           {o?.poster && <Image src={o.poster} alt="" fill sizes="56px" className="object-cover" />}
@@ -67,7 +67,7 @@ function LigneSortie({ item, numero, ancre, o }: { item: OeuvreGuide; numero: nu
           <span className="font-salle tabular flex-none text-[34px] leading-none font-black text-transparent [-webkit-text-stroke:1.5px_rgba(255,241,210,0.5)]">{pad(numero)}</span>
           <Link
             href={href}
-            className="text-[18px] font-bold leading-[1.2] text-foreground [text-wrap:pretty] hover:text-primary transition-colors"
+            className="text-[18px] font-bold leading-[1.2] text-texte [text-wrap:pretty] hover:text-ambre transition-colors"
           >
             {o?.titre ?? item.titre}
           </Link>
@@ -126,7 +126,7 @@ function ListeSortie({ bloc, idListe, ctx }: { bloc: BlocOrdre; idListe: string;
             <a
               key={g.annee}
               href={`#${idListe}-${g.annee}`}
-              className="border border-border px-2.5 py-[7px] text-[13px] tracking-[0.06em] text-texte-doux hover:text-primary transition-colors"
+              className="border border-trait px-2.5 py-[7px] text-[13px] tracking-[0.06em] text-texte-doux hover:text-ambre transition-colors"
             >
               {g.annee}
             </a>
@@ -137,7 +137,7 @@ function ListeSortie({ bloc, idListe, ctx }: { bloc: BlocOrdre; idListe: string;
         {groupes.map((g, gi) => (
           <li key={`${g.annee}-${gi}`} className="list-none">
             {g.annee !== null && (
-              <h3 id={`${idListe}-${g.annee}`} className="scroll-mt-40 pb-2 pt-5 text-[15px] font-extrabold text-primary">
+              <h3 id={`${idListe}-${g.annee}`} className="scroll-mt-40 pb-2 pt-5 text-[15px] font-extrabold text-ambre">
                 {g.annee}
               </h3>
             )}

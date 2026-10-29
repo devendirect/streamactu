@@ -12,7 +12,7 @@ export default function MaillageGenres({ actuel }: Props) {
 
   return (
     <nav aria-label="Genres">
-      <h2 className="font-mono-label mb-3 text-texte-2">{actuel ? "Autres genres" : "Par genre"}</h2>
+      <h2 className="libelle mb-3 text-texte-2">{actuel ? "Autres genres" : "Par genre"}</h2>
       <div className="flex flex-wrap gap-2">
         {liens.map((g) => (
           <Link key={g.slug} href={`/genre/${g.slug}`} className="puce">

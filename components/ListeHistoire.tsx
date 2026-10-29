@@ -59,7 +59,7 @@ function CarteProgression({
   return (
     <div className="mb-2 flex flex-col gap-3.5 rounded-xl bg-surface p-4">
       <div className="flex items-baseline justify-between">
-        <span className="font-mono-label text-texte-2">Votre progression</span>
+        <span className="libelle text-texte-2">Votre progression</span>
         <span className="text-[20px] font-extrabold">
           {nombre} <span className="font-semibold text-texte-2">/ {etapes.length}</span>
         </span>
@@ -74,12 +74,12 @@ function CarteProgression({
         ))}
       </div>
       {prochaine ? (
-        <div className="grid gap-3.5 border-t border-border pt-3.5 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
+        <div className="grid gap-3.5 border-t border-trait pt-3.5 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
           <div className="relative aspect-video overflow-hidden rounded-md bg-surface">
             {prochaine.image && <Image src={prochaine.image} alt="" fill sizes="(max-width: 600px) 100vw, 320px" className="object-cover" />}
           </div>
           <div className="flex min-w-0 flex-col gap-2.5">
-            <span className="font-mono-label text-primary">Prochaine étape · {pad(courante + 1)}</span>
+            <span className="libelle text-ambre">Prochaine étape · {pad(courante + 1)}</span>
             <div className="flex flex-col gap-[3px]">
               <span className="text-[18px] font-extrabold leading-[1.2]">{prochaine.titre}</span>
               {portionDe(prochaine) && <span className="text-[17px] text-texte-doux">{portionDe(prochaine)}</span>}
@@ -88,7 +88,7 @@ function CarteProgression({
             <div className="flex flex-wrap gap-1.5">
               <Link
                 href={prochaine.href}
-                className="inline-flex min-h-10 items-center rounded-md border border-trait px-3 text-[13px] font-medium uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-surface-2"
+                className="inline-flex min-h-10 items-center rounded-md border border-trait px-3 text-[13px] font-medium uppercase tracking-[0.06em] text-texte transition-colors hover:bg-surface-2"
               >
                 Voir la fiche →
               </Link>
@@ -109,7 +109,7 @@ function CarteProgression({
         <button
           type="button"
           onClick={reinitialiser}
-          className="cursor-pointer self-start border-0 bg-transparent p-0 text-[13px] uppercase tracking-[0.06em] text-texte-2 hover:text-foreground"
+          className="cursor-pointer self-start border-0 bg-transparent p-0 text-[13px] uppercase tracking-[0.06em] text-texte-2 hover:text-texte"
         >
           Réinitialiser
         </button>
@@ -147,7 +147,7 @@ export default function ListeHistoire({ cle, etapes }: { cle: string; etapes: Et
               key={`${e.id}-${i}`}
               {...(e.plateformes ? { "data-ligne": e.plateformes.map((p) => p.id).join(" ") } : {})}
               {...(estVue ? { "data-vue": "" } : {})}
-              className="flex gap-2 border-t border-border py-2.5"
+              className="flex gap-2 border-t border-trait py-2.5"
             >
               {monte && (
                 <button
@@ -159,9 +159,9 @@ export default function ListeHistoire({ cle, etapes }: { cle: string; etapes: Et
                 >
                   <span
                     aria-hidden="true"
-                    className={`flex size-[22px] items-center justify-center rounded-md border tabular text-[13px] font-bold text-primary-foreground ${
+                    className={`flex size-[22px] items-center justify-center rounded-md border tabular text-[13px] font-bold text-sur-ambre ${
                       estVue
-                        ? "border-primary bg-primary"
+                        ? "border-ambre bg-ambre"
                         : estCourante
                           ? "border-foreground"
                           : "border-[rgba(245,245,247,0.3)]"
@@ -176,20 +176,20 @@ export default function ListeHistoire({ cle, etapes }: { cle: string; etapes: Et
                   <span className={`font-salle tabular text-[34px] leading-none font-black text-transparent ${estVue ? "[-webkit-text-stroke:1.5px_rgba(161,161,168,0.5)]" : "[-webkit-text-stroke:1.5px_rgba(255,241,210,0.5)]"}`}>{i + 1}</span>
                   <Link
                     href={e.href}
-                    className={`text-[17px] font-bold leading-[1.2] transition-colors hover:text-primary ${estVue ? "text-texte-2" : "text-foreground"}`}
+                    className={`text-[17px] font-bold leading-[1.2] transition-colors hover:text-ambre ${estVue ? "text-texte-2" : "text-texte"}`}
                   >
                     {e.titre}
                   </Link>
                   {e.suite && <Etiquette>Suite</Etiquette>}
                   {e.facultatif && <Etiquette>Facultatif</Etiquette>}
                   {estCourante && (
-                    <span className="rounded-md bg-primary px-1.5 py-0.5 text-[13px] uppercase tracking-[0.06em] text-primary-foreground">
+                    <span className="rounded-md bg-ambre px-1.5 py-0.5 text-[13px] uppercase tracking-[0.06em] text-sur-ambre">
                       À voir
                     </span>
                   )}
                 </div>
                 {portion && (
-                  <span className={`text-[17px] leading-[1.35] ${estVue ? "text-texte-2" : "text-foreground"}`}>{portion}</span>
+                  <span className={`text-[17px] leading-[1.35] ${estVue ? "text-texte-2" : "text-texte"}`}>{portion}</span>
                 )}
                 {!estVue && (
                   <>
@@ -198,7 +198,7 @@ export default function ListeHistoire({ cle, etapes }: { cle: string; etapes: Et
                       {e.fiche && (
                         <a
                           href={`#${e.fiche.ancre}`}
-                          className="ml-auto text-[13px] uppercase tracking-[0.06em] text-texte-2 transition-colors hover:text-primary"
+                          className="ml-auto text-[13px] uppercase tracking-[0.06em] text-texte-2 transition-colors hover:text-ambre"
                         >
                           Fiche {e.fiche.numero} ↑
                         </a>

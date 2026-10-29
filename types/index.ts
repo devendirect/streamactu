@@ -83,6 +83,10 @@ export interface Serie extends Contenu {
   derniereDiffusion?: string;
   /** Épisodes datés de la saison en cours, si elle est diffusée en ce moment */
   episodesSaison?: SaisonEpisodes;
+  /** Durée des épisodes déjà diffusés, par saison (seulement les saisons dont toutes les durées sont connues) */
+  dureesSaisons?: { saison: number; minutes: number; nbEpisodes: number }[];
+  /** Durée de toute la série diffusée, seulement si toutes les saisons ont une durée */
+  dureeTotale?: { minutes: number; nbEpisodes: number };
 }
 
 /** Épisode daté (date d'origine TMDB) */

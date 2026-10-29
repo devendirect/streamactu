@@ -142,7 +142,7 @@ export default function PochetteMystere({ contenu, dateISO }: PochetteMysterePro
               i < partie.nbEssais
                 ? partie.etat === "gagne" && i === partie.nbEssais - 1
                   ? "bg-ambre"
-                  : "bg-[#C2624E]"
+                  : "bg-alerte"
                 : "bg-white/15"
             }`}
           />

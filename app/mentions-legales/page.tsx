@@ -86,7 +86,7 @@ export default function MentionsLegalesPage() {
               , via TMDB.
             </p>
             <div className="rounded-xl bg-surface p-[18px] text-[15px] leading-relaxed text-texte-doux">
-              <p className="font-semibold text-foreground mb-1">Attribution obligatoire</p>
+              <p className="font-semibold text-texte mb-1">Attribution obligatoire</p>
               <p>
                 This product uses the TMDB API but is not endorsed or certified by TMDB.<br />
                 Données &amp; visuels fournis par TMDB. Ce produit utilise l&apos;API de TMDB mais n&apos;est ni approuvé ni certifié par TMDB.
@@ -98,10 +98,10 @@ export default function MentionsLegalesPage() {
             <h2 className="text-[clamp(22px,2vw,28px)] leading-[1.2] font-extrabold tracking-[-0.02em]">Intelligence artificielle</h2>
             <p className={classeProse}>
               Deux fonctions utilisent l&apos;API d&apos;Anthropic (modèle Claude Haiku).{" "}
-              <strong className="text-foreground">Convaincs-moi</strong> rédige un court texte
+              <strong className="text-texte">Convaincs-moi</strong> rédige un court texte
               persuasif sur un titre, à partir de ses seules données TMDB (titre, synopsis, genres,
               casting) : rien de ce que vous saisissez n&apos;est envoyé.{" "}
-              <strong className="text-foreground">Le Retrouveur</strong> envoie à Anthropic le
+              <strong className="text-texte">Le Retrouveur</strong> envoie à Anthropic le
               texte que vous tapez pour décrire un film ou une série (600 caractères au plus), afin
               de proposer des titres. Les textes générés sont produits par une IA : ils ne
               reflètent pas l&apos;avis de l&apos;éditeur et peuvent contenir des erreurs.
@@ -126,7 +126,7 @@ export default function MentionsLegalesPage() {
           <section className="scroll-mt-24 space-y-3.5" id="rgpd">
             <h2 className="text-[clamp(22px,2vw,28px)] leading-[1.2] font-extrabold tracking-[-0.02em]">Données personnelles (RGPD)</h2>
             <p className={classeProse}>
-              <strong className="text-foreground">Mesure d&apos;audience.</strong> Avec votre
+              <strong className="text-texte">Mesure d&apos;audience.</strong> Avec votre
               consentement uniquement, le site utilise Google Analytics 4 pour compter les
               visites et comprendre quelles pages sont consultées. Tant que vous n&apos;avez
               pas accepté, aucun script Google n&apos;est chargé et aucun cookie n&apos;est
@@ -136,7 +136,7 @@ export default function MentionsLegalesPage() {
               page : les cookies de mesure sont alors supprimés.
             </p>
             <p className={classeProse}>
-              <strong className="text-foreground">Texte saisi dans le Retrouveur.</strong> Il est
+              <strong className="text-texte">Texte saisi dans le Retrouveur.</strong> Il est
               transmis à Anthropic (Anthropic PBC, États-Unis), qui agit comme sous-traitant pour
               générer la réponse ; le site ne l&apos;enregistre pas. Aucune donnée personnelle
               n&apos;est demandée : évitez d&apos;en écrire dans ce champ. Le traitement par

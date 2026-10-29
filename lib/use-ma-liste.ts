@@ -12,6 +12,8 @@ export interface ElementListe {
   note: number;
   annee: number;
   ajouteLe: string; // ISO — pour trier du plus récent au plus ancien
+  /** Marqué comme vu : reste dans la liste, mais ne compte plus pour « Quel abonnement ce mois-ci ? » */
+  vu?: boolean;
 }
 
 const CLE = "sa-ma-liste";
@@ -70,6 +72,10 @@ export function useMaListe() {
     );
   }, []);
 
+  const basculerVu = useCallback((id: number, type: MediaType) => {
+    ecrire(lire().map((e) => (e.id === id && e.type === type ? { ...e, vu: !e.vu } : e)));
+  }, []);
+
   const retirer = useCallback((id: number, type: MediaType) => {
     ecrire(lire().filter((e) => !(e.id === id && e.type === type)));
   }, []);
@@ -79,5 +85,5 @@ export function useMaListe() {
     [liste]
   );
 
-  return { liste, restaure, basculer, retirer, contient };
+  return { liste, restaure, basculer, basculerVu, retirer, contient };
 }

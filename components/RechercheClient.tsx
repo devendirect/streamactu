@@ -105,7 +105,7 @@ export default function RechercheClient({
             onChange={onInput}
             placeholder="Un titre, un genre, un acteur…"
             autoFocus
-            className="min-w-0 flex-1 border-none bg-transparent text-[clamp(26px,4vw,46px)] font-extrabold tracking-[-0.02em] text-texte caret-ambre placeholder:text-texte-2/60 focus:outline-none focus-visible:outline-none [&::-webkit-search-cancel-button]:hidden"
+            className="min-w-0 flex-1 border-none bg-transparent text-[clamp(26px,4vw,46px)] font-extrabold tracking-[-0.02em] text-texte caret-ambre placeholder:text-texte-2 focus:outline-none focus-visible:outline-none [&::-webkit-search-cancel-button]:hidden"
           />
           {query && (
             <button
@@ -174,7 +174,7 @@ export default function RechercheClient({
             </p>
             <p className="text-texte-2">Aucune série ni film ne correspond à « {query} ».</p>
             <div>
-              <h2 className="font-mono-label mb-3 text-texte-2">Tendances cette semaine</h2>
+              <h2 className="libelle mb-3 text-texte-2">Tendances cette semaine</h2>
               <div className="flex flex-wrap justify-center gap-2">{suggestions.map(puceTendance)}</div>
             </div>
             <Link href="/surprise" className="btn-verre">
@@ -188,11 +188,11 @@ export default function RechercheClient({
         {!query.trim() && !loading && (
           <div className="space-y-section">
             <section>
-              <h2 className="font-mono-label mb-3 text-texte-2">Tendances cette semaine</h2>
+              <h2 className="libelle mb-3 text-texte-2">Tendances cette semaine</h2>
               <div className="flex flex-wrap gap-2">{suggestions.map(puceTendance)}</div>
             </section>
             <section>
-              <h2 className="font-mono-label mb-3 text-texte-2">Parcourir par genre</h2>
+              <h2 className="libelle mb-3 text-texte-2">Parcourir par genre</h2>
               <div className="flex flex-wrap gap-2">
                 {GENRES_SEO.map((g) => (
                   <Link key={g.slug} href={`/genre/${g.slug}`} className="puce">

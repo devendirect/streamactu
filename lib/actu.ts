@@ -160,10 +160,3 @@ export function periodeArticle(article: Article): string {
   return i >= 0 ? article.titre.slice(i + 3) : article.titre;
 }
 
-/** Entrées de menu : « Sorties » + « Actu » une fois la rubrique publiée, « Actu » pour l'accueil sinon */
-export const NAV_ACCUEIL = ACTU_PUBLIEE
-  ? [
-      { href: "/", label: "Sorties" },
-      { href: "/actu", label: "Actu" },
-    ]
-  : [{ href: "/", label: "Actu" }];

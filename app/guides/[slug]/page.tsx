@@ -185,7 +185,7 @@ export default async function GuidePage({ params }: Props) {
                     href={`#${c.ancre}`}
                     className="flex flex-col gap-1.5 rounded-xl bg-surface px-4 py-3.5 transition-[background-color,translate] duration-200 ease-salle hover:-translate-y-0.5 hover:bg-surface-2"
                   >
-                    <span className="font-mono-label text-texte-2">{c.libelle}</span>
+                    <span className="libelle text-texte-2">{c.libelle}</span>
                     <span className="text-[17px] font-bold">
                       {c.valeur}
                       {c.ordre === "histoire" && <CompteVues cle={c.cleSuivi} etapes={c.etapes} />}
@@ -227,7 +227,7 @@ export default async function GuidePage({ params }: Props) {
 
           {guide.sources && guide.sources.length > 0 && (
             <section id="sources" aria-labelledby="h-sources" className="scroll-mt-24">
-              <h2 id="h-sources" className="font-mono-label mb-3 text-texte-2">
+              <h2 id="h-sources" className="libelle mb-3 text-texte-2">
                 Sources
               </h2>
               <ul className="space-y-1.5 text-[15px] text-texte-doux">

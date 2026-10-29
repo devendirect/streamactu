@@ -57,11 +57,15 @@ export default function FicheDetail({ contenu, suggestions, faits, images, rang 
         ? contenu.dispo[0]
         : `${contenu.dispo.slice(0, -1).join(", ")} et ${contenu.dispo.at(-1)}`
       : null;
-  // Détails factuels tirés de TMDB : saisons et épisodes, réalisation
+  // Durée de toute la série, reprise dans la phrase seulement si elle couvre tous les épisodes comptés par TMDB
+  const dureeTout = serie?.dureeTotale && serie.dureeTotale.nbEpisodes === serie.nbEpisodes ? serie.dureeTotale : null;
+  // Détails factuels tirés de TMDB : saisons et épisodes (et leur durée), réalisation
   const details = serie
     ? serie.nbSaisons > 0
       ? ` en ${serie.nbSaisons} saison${serie.nbSaisons > 1 ? "s" : ""}${
-          serie.nbEpisodes > 0 ? ` (${serie.nbEpisodes} épisode${serie.nbEpisodes > 1 ? "s" : ""})` : ""
+          serie.nbEpisodes > 0
+            ? ` (${serie.nbEpisodes} épisode${serie.nbEpisodes > 1 ? "s" : ""}${dureeTout ? `, ${formatDureeLongue(dureeTout.minutes)} au total` : ""})`
+            : ""
         }`
       : ""
     : film && film.realisateurs.length > 0
@@ -144,7 +148,14 @@ export default function FicheDetail({ contenu, suggestions, faits, images, rang 
   const saisonsListe = serie
     ? serie.saisons
         .filter((s) => s.numero > 0)
-        .map((s) => ({ numero: s.numero, nom: s.nom, nbEpisodes: s.nbEpisodes, annee: s.dateDiffusion ? s.dateDiffusion.slice(0, 4) : null }))
+        .map((s) => ({
+          numero: s.numero,
+          nom: s.nom,
+          nbEpisodes: s.nbEpisodes,
+          annee: s.dateDiffusion ? s.dateDiffusion.slice(0, 4) : null,
+          // Durée seulement si toute la saison est diffusée (sinon elle ne vaut que pour une partie)
+          duree: serie.dureesSaisons?.find((d) => d.saison === s.numero && d.nbEpisodes === s.nbEpisodes)?.minutes ?? null,
+        }))
     : [];
   const prochaine = calendrier?.prochaine ?? null;
 
@@ -160,7 +171,7 @@ export default function FicheDetail({ contenu, suggestions, faits, images, rang 
 
   const SECTION = "mb-section scroll-mt-[140px] px-gouttiere";
   const TITRE = "mb-3.5 text-[clamp(20px,1.7vw,24px)] font-extrabold tracking-[-0.015em]";
-  const ETIQUETTE = "font-mono-label mb-2 text-texte-2";
+  const ETIQUETTE = "libelle mb-2 text-texte-2";
 
   return (
     <article>
@@ -531,12 +542,20 @@ export default function FicheDetail({ contenu, suggestions, faits, images, rang 
             {saisonsListe.length > 0 && (
               <div>
                 <h3 className={ETIQUETTE}>Saisons</h3>
+                {serie?.dureeTotale && (
+                  <p className="mb-3 text-[15px] leading-[1.55] text-texte-doux">
+                    Pour tout voir : <strong className="font-semibold text-texte">{formatDureeLongue(serie.dureeTotale.minutes)}</strong>{" "}
+                    pour les {serie.dureeTotale.nbEpisodes} épisode{serie.dureeTotale.nbEpisodes > 1 ? "s" : ""}
+                    {serie.statut ? "" : ` déjà diffusé${serie.dureeTotale.nbEpisodes > 1 ? "s" : ""}`}.
+                  </p>
+                )}
                 <ul>
                   {saisonsListe.map((s) => (
                     <li key={s.numero} className="flex justify-between gap-4 border-t border-trait py-[13px] text-[15px]">
                       <strong className="truncate">{s.nom}</strong>
                       <span className="tabular shrink-0 whitespace-nowrap text-texte-2">
                         {s.nbEpisodes > 0 ? `${s.nbEpisodes} épisode${s.nbEpisodes > 1 ? "s" : ""}` : "épisodes à venir"}
+                        {s.duree ? ` · ${formatDureeLongue(s.duree)}` : ""}
                         {" · "}
                         {s.annee ?? "à venir"}
                       </span>

@@ -34,7 +34,7 @@ export default function ArchivesMoisPlateforme({
 
   return (
     <nav aria-label={`Archives ${plateforme.nom}`}>
-      <h2 className="font-mono-label mb-3 text-texte-2">Mois précédents</h2>
+      <h2 className="libelle mb-3 text-texte-2">Mois précédents</h2>
       <div className="flex flex-wrap gap-2">
         {liens.map((l) => (
           <Link

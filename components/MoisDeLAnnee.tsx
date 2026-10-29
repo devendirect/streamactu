@@ -18,7 +18,7 @@ export default function MoisDeLAnnee({ plateforme, mois }: Props) {
 
   return (
     <nav aria-label={`Archives ${plateforme.nom} mois par mois`} >
-      <h2 className="font-mono-label mb-3 text-texte-2">Mois par mois</h2>
+      <h2 className="libelle mb-3 text-texte-2">Mois par mois</h2>
       <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {mois.map((m) => {
           const total = m.nbSeries + m.nbFilms;

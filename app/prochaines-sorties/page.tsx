@@ -8,6 +8,7 @@ import PastillePlateforme from "@/components/PastillePlateforme";
 import ListeSortiesParJour, { agregerSortiesParJour } from "@/components/ListeSortiesParJour";
 import MaillagePlateformes from "@/components/MaillagePlateformes";
 import TexteEditorial from "@/components/TexteEditorial";
+import AjouterAgenda from "@/components/AjouterAgenda";
 import { methodeCalendrier } from "@/lib/plateformes-contenu";
 import { syntheseCalendrier } from "@/lib/syntheses";
 
@@ -57,6 +58,8 @@ export default async function ProchainesSortiesPage() {
         </nav>
 
         <ListeSortiesParJour jours={jours} />
+
+        <AjouterAgenda chemin="/calendrier/prochaines-sorties.ics" texte="Recevoir ces sorties dans votre agenda, mises à jour chaque jour." />
 
         <TexteEditorial
           titre="Lire ce calendrier"

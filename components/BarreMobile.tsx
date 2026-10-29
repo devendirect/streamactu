@@ -147,7 +147,7 @@ export default function BarreMobile({ explorer, plaisir }: { explorer: LienFeuil
               </button>
             </div>
 
-            <h3 className="font-mono-label mt-5 mb-2.5 text-texte-2">Plateformes</h3>
+            <h3 className="libelle mt-5 mb-2.5 text-texte-2">Plateformes</h3>
             <div className="flex flex-wrap gap-2">
               {PLATEFORMES.map((pf) => (
                 <Link
@@ -165,7 +165,7 @@ export default function BarreMobile({ explorer, plaisir }: { explorer: LienFeuil
               { titre: "Pour le plaisir", liens: plaisir },
             ].map((g) => (
               <div key={g.titre}>
-                <h3 className="font-mono-label mt-5 mb-2.5 text-texte-2">{g.titre}</h3>
+                <h3 className="libelle mt-5 mb-2.5 text-texte-2">{g.titre}</h3>
                 <div className="grid grid-cols-2 gap-2">
                   {g.liens.map((l) => (
                     <Link

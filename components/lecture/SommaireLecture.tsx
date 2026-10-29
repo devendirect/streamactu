@@ -24,7 +24,7 @@ export default function SommaireLecture({ liens, titre = "Sommaire" }: { liens: 
 
   return (
     <nav aria-label={titre} className="sommaire">
-      <h2 className="font-mono-label mb-2.5 text-texte-2 max-[980px]:sr-only">{titre}</h2>
+      <h2 className="libelle mb-2.5 text-texte-2 max-[980px]:sr-only">{titre}</h2>
       <ul className="sommaire__liens">
         {liens.map(({ id, label }) => (
           <li key={id}>

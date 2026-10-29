@@ -17,7 +17,7 @@ export function Plateformes({ plateformes, auCinema }: { plateformes: Plateforme
           <li
             key={p.id}
             data-pf={p.id}
-            className="inline-flex items-center gap-[7px] text-[13px] font-medium uppercase tracking-[0.06em] text-foreground"
+            className="inline-flex items-center gap-[7px] text-[13px] font-medium uppercase tracking-[0.06em] text-texte"
           >
             <span
               aria-hidden="true"
@@ -32,8 +32,8 @@ export function Plateformes({ plateformes, auCinema }: { plateformes: Plateforme
   }
   if (auCinema) {
     return (
-      <p className="inline-flex items-center gap-[7px] text-[13px] uppercase tracking-[0.06em] text-primary">
-        <span aria-hidden="true" className="size-[7px] border border-primary" />
+      <p className="inline-flex items-center gap-[7px] text-[13px] uppercase tracking-[0.06em] text-ambre">
+        <span aria-hidden="true" className="size-[7px] border border-ambre" />
         Au cinéma · pas encore en streaming
       </p>
     );

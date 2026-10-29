@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Contenu } from "@/types";
@@ -29,13 +29,20 @@ export default function SurpriseClient({ initialContenu }: SurpriseClientProps) 
   const [contenu, setContenu] = useState<Contenu>(initialContenu);
   const [filtre, setFiltre] = useState<FiltreType>("tous");
   const [loading, setLoading] = useState(false);
+  // Change à chaque nouveau titre : relance le rallumage du projecteur
+  const [tour, setTour] = useState(0);
+  // Le faisceau vise l'emplacement de la carte (stable d'un tirage à l'autre)
+  const emplacement = useRef<HTMLDivElement>(null);
 
   async function autreSuggestion() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/surprise?type=${filtre}`);
+      // Le projecteur reste baissé un court instant, même si la réponse est immédiate
+      const pause = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 400;
+      const [res] = await Promise.all([fetch(`/api/surprise?type=${filtre}`), new Promise((r) => setTimeout(r, pause))]);
       const data = (await res.json()) as Contenu;
       setContenu(data);
+      setTour((t) => t + 1);
     } catch {
       // silently fail — keep current content
     } finally {
@@ -47,7 +54,10 @@ export default function SurpriseClient({ initialContenu }: SurpriseClientProps) 
 
   return (
     <div className="scene -mt-entete flex min-h-[calc(100dvh-1px)] flex-col items-center px-gouttiere pt-[clamp(110px,15vh,160px)] pb-12 text-center">
-      <Faisceau doux />
+      {/* Deux classes identiques en alternance : le rallumage repart à chaque tirage sans remonter le faisceau */}
+      <div aria-hidden="true" data-eteint={loading || undefined} className={`surprise__lumiere ${tour === 0 ? "" : tour % 2 ? "revele-a" : "revele-b"}`}>
+        <Faisceau cible={emplacement} />
+      </div>
       <h1 className="text-[clamp(34px,4.6vw,64px)] leading-none font-black tracking-[-0.03em]">À la surprise</h1>
       <p className="mt-3 max-w-[46ch] text-texte-doux">Un titre tiré au hasard parmi les plateformes suivies. Pas convaincu ? Relancez le tirage.</p>
 
@@ -60,11 +70,11 @@ export default function SurpriseClient({ initialContenu }: SurpriseClientProps) 
       </div>
 
       {/* La carte se retourne à chaque tirage (clé = titre tiré) */}
-      <div className="mt-8 [perspective:1200px]">
+      <div ref={emplacement} className="mt-8 [perspective:1200px]">
         <Link
           key={`${contenu.type}-${contenu.id}`}
           href={href}
-          className="surprise__carte group relative block h-[330px] w-[220px] overflow-hidden rounded-[14px] bg-surface shadow-[0_24px_60px_rgba(0,0,0,0.7)]"
+          className="surprise__carte group relative block h-[330px] w-[220px] overflow-hidden rounded-[14px] bg-surface shadow-[0_-14px_50px_-12px_rgba(255,236,196,0.3),0_24px_60px_rgba(0,0,0,0.7)]"
         >
           {contenu.poster && (
             <Image
@@ -73,7 +83,7 @@ export default function SurpriseClient({ initialContenu }: SurpriseClientProps) 
               fill
               sizes="220px"
               priority
-              className={`object-cover transition-[opacity,transform] duration-300 ease-salle group-hover:scale-[1.03] ${loading ? "opacity-40" : ""}`}
+              className={`object-cover transition-[filter,transform] duration-300 ease-salle group-hover:scale-[1.03] ${loading ? "brightness-[0.3]" : ""}`}
             />
           )}
         </Link>

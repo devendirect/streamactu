@@ -107,6 +107,9 @@ export default function Footer() {
           <a href="/flux.xml" className={LIEN}>
             Flux RSS
           </a>
+          <a href="/calendrier/prochaines-sorties.ics" className={LIEN}>
+            Calendrier (.ics)
+          </a>
           <a href={REPO_URL} target="_blank" rel="noopener noreferrer" className={LIEN}>
             Code source
           </a>

@@ -64,6 +64,7 @@ ${recapsAnnuels}
 - [Retrouveur](${SITE_URL}/retrouver) : retrouver un film ou une série à partir d'une description (IA)
 - [Sitemap](${SITE_URL}/sitemap.xml) : toutes les fiches films et séries
 - [Flux RSS](${SITE_URL}/flux.xml) : les nouveautés des 7 derniers jours
+- [Calendrier des sorties](${SITE_URL}/calendrier/prochaines-sorties.ics) : les sorties à venir au format iCalendar, à ajouter à son agenda ; une adresse par plateforme (${SITE_URL}/calendrier/netflix.ics, …)
 - [Version détaillée](${SITE_URL}/llms-full.txt) : les classements complets, titre par titre
 
 ## Guides

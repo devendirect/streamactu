@@ -22,10 +22,10 @@ import type {
   Genre,
   MediaType,
 } from "@/types";
-import { PLATEFORMES, PLATEFORME_PAR_ID, filtreFournisseurs } from "@/lib/plateformes";
+import { PLATEFORMES, PLATEFORME_PAR_ID, filtreFournisseurs, plateformesDepuisFournisseurs } from "@/lib/plateformes";
 import { RESEAUX_PAR_PLATEFORME, plateformeDepuisNote, serieAnnonceeCredible } from "@/lib/calendrier";
-import { saisonADetailler } from "@/lib/episodes";
-import { classificationFilm, normaliserClassification, statutSerie } from "@/lib/faits";
+import { calendrierSerie, saisonADetailler, type CalendrierSaison } from "@/lib/episodes";
+import { classificationFilm, dureesSerie, normaliserClassification, statutSerie } from "@/lib/faits";
 import {
   slugify,
   bornesMois,
@@ -601,6 +601,94 @@ export async function getProvidersFR(
   }
 }
 
+/**
+ * Disponibilité d'un titre de Ma liste pour « Quel abonnement ce mois-ci ? » :
+ * plateformes suivies (abonnement, France) et date du prochain épisode d'une
+ * série (date d'origine TMDB). Un seul appel par titre, cache 12 h. Une erreur :
+ * null, le titre est alors ignoré.
+ */
+export const getDispoTitre = unstable_cache(
+  async (type: MediaType, id: number): Promise<{ plateformes: number[]; prochainEpisode: string | null } | null> => {
+    try {
+      const data = await tmdbGet<{ "watch/providers"?: TMDBProviders; next_episode_to_air?: { air_date: string | null } | null }>(
+        `/${type === "serie" ? "tv" : "movie"}/${id}`,
+        { append_to_response: "watch/providers" },
+        43200
+      );
+      const noms = data["watch/providers"]?.results?.FR?.flatrate?.map((p) => p.provider_name) ?? [];
+      return {
+        plateformes: plateformesDepuisFournisseurs(noms).map((p) => p.id),
+        prochainEpisode: data.next_episode_to_air?.air_date || null,
+      };
+    } catch (err) {
+      console.error(`[tmdb] dispo de ${type}/${id} :`, err instanceof Error ? err.message : err);
+      return null;
+    }
+  },
+  ["dispo-titre"],
+  { revalidate: 43200 }
+);
+
+export type AgendaTitre =
+  | { type: "serie"; id: number; titre: string; slug: string; calendrier: (CalendrierSaison & { plateforme: number | null }) | null }
+  | { type: "film"; id: number; titre: string; slug: string; sortieNumerique: { date: string; plateforme: number | null } | null };
+
+/**
+ * Ce qu'un titre de Ma liste met dans l'agenda : les épisodes de la saison en
+ * cours (même calcul que la fiche, décalage français compris), ou la sortie
+ * numérique française à venir d'un film. Une erreur : rien pour ce titre.
+ */
+export const getAgendaTitre = unstable_cache(
+  async (type: MediaType, id: number): Promise<AgendaTitre | null> => {
+    const aujourdhui = toISO(new Date());
+    try {
+      if (type === "serie") {
+        const detail = await tmdbGet<TMDBSerieDetail & { "watch/providers"?: TMDBProviders }>(
+          `/tv/${id}`,
+          { append_to_response: "watch/providers" },
+          43200
+        );
+        const noms = detail["watch/providers"]?.results?.FR?.flatrate?.map((p) => p.provider_name) ?? [];
+        const episodes = await getEpisodesSaison(detail);
+        return {
+          type,
+          id,
+          titre: detail.name,
+          slug: `${slugify(detail.name)}-${id}`,
+          calendrier: calendrierSerie(
+            episodes ?? undefined,
+            (detail.networks ?? []).map((n) => n.id),
+            plateformesDepuisFournisseurs(noms).map((p) => p.id),
+            aujourdhui
+          ),
+        };
+      }
+      const film = await tmdbGet<{ title: string; release_dates?: TMDBReleaseDates }>(
+        `/movie/${id}`,
+        { append_to_response: "release_dates" },
+        43200
+      );
+      const sortie = (film.release_dates?.results ?? [])
+        .filter((r) => r.iso_3166_1 === "FR")
+        .flatMap((r) => r.release_dates)
+        .filter((d) => d.type === 4 && d.release_date.slice(0, 10) >= aujourdhui)
+        .sort((a, b) => a.release_date.localeCompare(b.release_date))[0];
+      return {
+        type,
+        id,
+        titre: film.title,
+        slug: `${slugify(film.title)}-${id}`,
+        sortieNumerique: sortie ? { date: sortie.release_date.slice(0, 10), plateforme: plateformeDepuisNote(sortie.note) } : null,
+      };
+    } catch (err) {
+      console.error(`[tmdb] agenda de ${type}/${id} :`, err instanceof Error ? err.message : err);
+      return null;
+    }
+  },
+  ["agenda-titre"],
+  { revalidate: 21600 }
+);
+
 // ──────────────────────────────────────────────
 // Images de mise en avant (une de l'accueil, cache 7 jours) : logo du titre
 // (français, sinon anglais) et grande image de fond sans texte
@@ -653,7 +741,7 @@ export const getDetailSerie = unstable_cache(
     const genres = detail.genres.map((g) => ({ id: g.id, nom: g.name }));
 
     const derniereS = detail.seasons.at(-1);
-    const episodesSaison = await getEpisodesSaison(detail);
+    const [episodesSaison, durees] = await Promise.all([getEpisodesSaison(detail), getDureesSerie(detail)]);
 
     return {
       id: detail.id,
@@ -691,6 +779,8 @@ export const getDetailSerie = unstable_cache(
         derniereDiffusion: detail.last_air_date || null,
       }),
       ...(episodesSaison ? { episodesSaison } : {}),
+      ...(durees && durees.parSaison.length > 0 ? { dureesSaisons: durees.parSaison } : {}),
+      ...(durees?.total ? { dureeTotale: durees.total } : {}),
     };
   },
   ["detail-serie"],
@@ -723,6 +813,44 @@ async function getEpisodesSaison(detail: TMDBSerieDetail): Promise<SaisonEpisode
     };
   } catch (err) {
     console.error(`[tmdb] saison ${n} de la série ${detail.id} :`, err);
+    return null;
+  }
+}
+
+/** TMDB refuse plus de 20 sous-requêtes append_to_response par appel (400, vérifié le 2026-10-28) */
+const SAISONS_PAR_APPEL = 20;
+/** Au-delà, pas de durée (feuilletons quotidiens : trop d'appels pour une ligne) */
+const MAX_SAISONS_DUREE = 40;
+
+/**
+ * Durée des épisodes déjà diffusés, saison par saison, pour « combien de temps
+ * pour tout voir ». Les saisons sont ajoutées à l'appel de la série par paquets
+ * de 20 (un appel pour la plupart des séries). Une erreur : pas de durée.
+ */
+async function getDureesSerie(detail: TMDBSerieDetail): Promise<ReturnType<typeof dureesSerie> | null> {
+  const numeros = detail.seasons.filter((s) => s.season_number > 0 && s.episode_count > 0).map((s) => s.season_number);
+  if (numeros.length === 0 || numeros.length > MAX_SAISONS_DUREE) return null;
+  const paquets: number[][] = [];
+  for (let i = 0; i < numeros.length; i += SAISONS_PAR_APPEL) paquets.push(numeros.slice(i, i + SAISONS_PAR_APPEL));
+  try {
+    const reponses = await Promise.all(
+      paquets.map((p) =>
+        tmdbGet<Record<string, TMDBSaisonDetail | undefined>>(
+          `/tv/${detail.id}`,
+          { append_to_response: p.map((n) => `season/${n}`).join(",") },
+          86400
+        )
+      )
+    );
+    const trouvees = numeros.map((n) => ({ saison: n, detail: reponses.map((r) => r[`season/${n}`]).find(Boolean) }));
+    const saisons = trouvees.flatMap(({ saison, detail: s }) =>
+      s ? [{ saison, episodes: s.episodes.map((e) => ({ numero: e.episode_number, date: e.air_date || null, duree: e.runtime || null })) }] : []
+    );
+    const durees = dureesSerie(saisons, toISO(new Date()));
+    // Une saison absente de la réponse : les saisons connues restent, mais pas de total
+    return saisons.length === numeros.length ? durees : { ...durees, total: null };
+  } catch (err) {
+    console.error(`[tmdb] durées de la série ${detail.id} :`, err);
     return null;
   }
 }

@@ -1,6 +1,6 @@
 /**
  * Faits calculés pour les fiches, à partir des données TMDB déjà chargées :
- * classification française, statut d'une série, durée d'une saison.
+ * classification française, statut d'une série, durée d'une saison ou de la série.
  * Chaque fonction renvoie null quand la donnée manque : la fiche n'affiche
  * alors rien (jamais de « non disponible »). Module pur, testé.
  */
@@ -48,6 +48,43 @@ export function statutSerie(status: string | undefined): StatutSerie | null {
 export function dureeSaison(episodes: EpisodeDate[]): number | null {
   if (episodes.length === 0 || episodes.some((e) => !e.duree)) return null;
   return episodes.reduce((total, e) => total + e.duree!, 0);
+}
+
+/** Durée d'une saison : ses épisodes déjà diffusés et leur durée totale (minutes) */
+export interface DureeSaison {
+  saison: number;
+  minutes: number;
+  nbEpisodes: number;
+}
+
+/**
+ * Durées de la série, épisodes déjà diffusés seulement (saison 0 « épisodes
+ * spéciaux » exclue). Une saison n'a de durée que si tous ses épisodes
+ * diffusés en ont une ; le total n'existe que si toutes les saisons diffusées
+ * en ont une. Une saison pas encore diffusée est ignorée.
+ */
+export function dureesSerie(
+  saisons: { saison: number; episodes: EpisodeDate[] }[],
+  aujourdhui: string
+): { parSaison: DureeSaison[]; total: { minutes: number; nbEpisodes: number } | null } {
+  const parSaison: DureeSaison[] = [];
+  let complet = true;
+  for (const { saison, episodes } of saisons) {
+    if (saison === 0) continue;
+    const diffuses = episodes.filter((e) => e.date && e.date <= aujourdhui);
+    if (diffuses.length === 0) continue;
+    const minutes = dureeSaison(diffuses);
+    if (minutes === null) complet = false;
+    else parSaison.push({ saison, minutes, nbEpisodes: diffuses.length });
+  }
+  const total =
+    complet && parSaison.length > 0
+      ? {
+          minutes: parSaison.reduce((t, s) => t + s.minutes, 0),
+          nbEpisodes: parSaison.reduce((t, s) => t + s.nbEpisodes, 0),
+        }
+      : null;
+  return { parSaison, total };
 }
 
 /** 395 → « 6 h 35 » ; 120 → « 2 h » ; 45 → « 45 min » */

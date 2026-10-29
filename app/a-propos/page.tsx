@@ -121,9 +121,9 @@ export default function AProposPage() {
               heures, les archives et les classements une fois par jour.
             </P>
             <P>
-              <strong className="text-foreground">Les listes de nouveautés</strong> sont triées
+              <strong className="text-texte">Les listes de nouveautés</strong> sont triées
               par note des spectateurs TMDB.{" "}
-              <strong className="text-foreground">Les classements</strong> (tops du mois et de
+              <strong className="text-texte">Les classements</strong> (tops du mois et de
               l&apos;année) utilisent une note pondérée par le nombre de votes. Sans elle, un
               titre noté 9/10 par 12 personnes passerait devant un classique noté 8,5 par
               20 000 personnes. Chaque note est donc mélangée à une note de référence de 7/10,
@@ -166,9 +166,9 @@ export default function AProposPage() {
           <Section id="ia" titre="Intelligence artificielle">
             <P>
               Deux fonctions utilisent Claude Haiku, un modèle d&apos;Anthropic.{" "}
-              <strong className="text-foreground">Convaincs-moi</strong> rédige un court texte
+              <strong className="text-texte">Convaincs-moi</strong> rédige un court texte
               pour donner envie de regarder un titre, à partir de ses données TMDB.{" "}
-              <strong className="text-foreground">Le Retrouveur</strong> propose des titres à partir
+              <strong className="text-texte">Le Retrouveur</strong> propose des titres à partir
               d&apos;une description libre ; le texte que vous tapez est envoyé à Anthropic pour
               cela (détails dans les{" "}
               <Link href="/mentions-legales#rgpd" className={classeLien}>

@@ -158,7 +158,7 @@ export default function RetrouveurClient() {
               }
             }}
             placeholder="Un film avec un astronaute bloqué seul sur une planète, qui doit survivre avec les moyens du bord…"
-            className="w-full resize-none border-none bg-transparent px-[22px] pt-[22px] pb-1.5 text-[clamp(20px,2.2vw,26px)] leading-[1.32] font-semibold tracking-[-0.015em] text-texte caret-ambre placeholder:text-texte-2/60 focus:outline-none focus-visible:outline-none"
+            className="w-full resize-none border-none bg-transparent px-[22px] pt-[22px] pb-1.5 text-[clamp(20px,2.2vw,26px)] leading-[1.32] font-semibold tracking-[-0.015em] text-texte caret-ambre placeholder:text-texte-2 focus:outline-none focus-visible:outline-none"
           />
           <div className="flex flex-wrap items-center justify-between gap-3.5 pt-2.5 pr-4 pb-4 pl-[22px]">
             {/* Interrupteur : titres disponibles en France seulement */}
@@ -191,7 +191,7 @@ export default function RetrouveurClient() {
 
         {/* ── Exemples ── */}
         <div className="mt-3.5 flex flex-wrap items-center gap-2">
-          <span className="font-mono-label mr-1 text-texte-2">Essayez</span>
+          <span className="libelle mr-1 text-texte-2">Essayez</span>
           {EXEMPLES.map((ex) => (
             <button key={ex} type="button" onClick={() => setExemple(ex)} className="puce">
               {ex}
@@ -212,7 +212,7 @@ export default function RetrouveurClient() {
             {/* Critères compris */}
             {state.criteres.length > 0 && (
               <div className="border-t border-trait pt-6">
-                <h2 className="font-mono-label mb-3.5 text-texte-2">Ce que Claude a compris</h2>
+                <h2 className="libelle mb-3.5 text-texte-2">Ce que Claude a compris</h2>
                 <div className="flex flex-wrap gap-2">
                   {state.criteres.map(([label, valeur], i) => (
                     <div
@@ -252,7 +252,7 @@ export default function RetrouveurClient() {
               ))}
             </div>
 
-            {state.phase === "error" && <p className="mt-6 font-semibold text-destructive">{state.erreur}</p>}
+            {state.phase === "error" && <p className="mt-6 font-semibold text-alerte">{state.erreur}</p>}
           </div>
         )}
       </div>

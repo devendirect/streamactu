@@ -3,7 +3,6 @@ import {
   ACTU_PUBLIEE,
   ARTICLES,
   ARTICLES_PAR_PAGE,
-  NAV_ACCUEIL,
   NB_PAGES_ACTU,
   TOUS_LES_ARTICLES,
   ADRESSES_FIXES,
@@ -38,17 +37,6 @@ describe("rubrique Actu", () => {
   it("n'expose jamais un brouillon", () => {
     expect(ARTICLES.some((a) => a.brouillon)).toBe(false);
     expect(ACTU_PUBLIEE).toBe(ARTICLES.length > 0);
-  });
-
-  it("garde « Actu » pour l'accueil tant que rien n'est publié, puis « Sorties » + « Actu »", () => {
-    if (ACTU_PUBLIEE) {
-      expect(NAV_ACCUEIL).toEqual([
-        { href: "/", label: "Sorties" },
-        { href: "/actu", label: "Actu" },
-      ]);
-    } else {
-      expect(NAV_ACCUEIL).toEqual([{ href: "/", label: "Actu" }]);
-    }
   });
 
   it("découpe la liste en pages de 12, la page 1 étant /actu", () => {
