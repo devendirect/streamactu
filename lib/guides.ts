@@ -7,6 +7,10 @@ import { GUIDE_HARRY_POTTER_ORDRE } from "./guides/harry-potter-ordre";
 import { GUIDE_MARVEL_ORDRE } from "./guides/marvel-ordre";
 import { GUIDE_STAR_WARS_ORDRE } from "./guides/star-wars-ordre";
 import { GUIDE_WALKING_DEAD_ORDRE } from "./guides/walking-dead-ordre";
+import { GUIDE_SORTIES_AGENDA } from "./guides/sorties-dans-son-agenda";
+import { GUIDE_LIRE_NOTE } from "./guides/lire-note-spectateurs";
+import { GUIDE_ALTERNER_ABONNEMENTS } from "./guides/alterner-abonnements";
+import { GUIDE_RETROUVER_TITRE } from "./guides/retrouver-titre-oublie";
 
 /**
  * Guides éditoriaux (/guides/[slug]) : contenus durables, signés « l'éditeur
@@ -143,6 +147,10 @@ export const GUIDES: Guide[] = [
   GUIDE_MARVEL_ORDRE,
   GUIDE_WALKING_DEAD_ORDRE,
   GUIDE_HARRY_POTTER_ORDRE,
+  GUIDE_ALTERNER_ABONNEMENTS,
+  GUIDE_LIRE_NOTE,
+  GUIDE_SORTIES_AGENDA,
+  GUIDE_RETROUVER_TITRE,
 ];
 
 /** En dessous, la page /guides reste en noindex : une liste d'un ou deux liens est trop maigre */

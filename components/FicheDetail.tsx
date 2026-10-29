@@ -322,7 +322,8 @@ export default function FicheDetail({ contenu, suggestions, faits, images, rang 
       {/* ── Où regarder : la question telle qu'on la tape, puis la réponse ── */}
       <section id="ou-regarder" aria-labelledby="h-ou-regarder" className={SECTION}>
         <h2 id="h-ou-regarder" className={TITRE}>
-          Où regarder {contenu.titre} en streaming&nbsp;?
+          {/* {" "} explicite : le compilateur perd l'espace après {…} quand la ligne contient une entité */}
+          Où regarder {contenu.titre}{" "}en streaming&nbsp;?
         </h2>
         {(plateformesSuivies.length > 0 || autresServices.length > 0) && (
           <div className="grid max-w-[900px] grid-cols-[repeat(auto-fill,minmax(min(320px,100%),1fr))] gap-3">

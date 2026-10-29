@@ -154,8 +154,9 @@ export default async function GuidePage({ params }: Props) {
         titre={guide.titre}
         meta={
           <>
+            {/* {" "} explicite : le compilateur perd l'espace après {…} quand la ligne contient une entité (« 3min ») */}
             <p>
-              Mis à jour le {formatDateFR(guide.misAJour)} · {minutesDeLecture(guide)} min de lecture · Par l&apos;éditeur de
+              Mis à jour le {formatDateFR(guide.misAJour)} · {minutesDeLecture(guide)}{" "}min de lecture · Par l&apos;éditeur de
               StreamActu.fr
             </p>
             <p>
