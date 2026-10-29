@@ -26,6 +26,31 @@ export function aplatir(donnees: NouveautesParPlateforme[], quoi: "series" | "fi
   return sortie;
 }
 
+/**
+ * Champs lus par les cartes (CarteAffiche, CartePaysage, aperçu au survol),
+ * pour les listes passées à un composant client : tout ce qu'il reçoit part
+ * dans la page, et le synopsis des ~80 séries de la semaine pesait le plus.
+ */
+export function pourCarte(c: Contenu): Contenu {
+  const { id, type, titre, slug, poster, backdrop, note, nbVotes, annee, genres, plateforme, saisonActuelle, premiereDiffusion } = c;
+  return {
+    id,
+    type,
+    titre,
+    slug,
+    poster,
+    backdrop,
+    note,
+    nbVotes,
+    annee,
+    genres: genres.slice(0, 3),
+    synopsis: "",
+    ...(plateforme ? { plateforme } : {}),
+    ...(saisonActuelle !== undefined ? { saisonActuelle } : {}),
+    ...(premiereDiffusion ? { premiereDiffusion } : {}),
+  };
+}
+
 /** Mieux notés d'abord, la note pondérée par le nombre de votes (même règle que les tops) */
 export function parScore(contenus: Contenu[]): Contenu[] {
   return [...contenus].sort((a, b) => scoreBayesien(b.note, b.nbVotes) - scoreBayesien(a.note, a.nbVotes));
@@ -54,6 +79,8 @@ export interface DiapoUne {
   fond: string | null;
   /** Logo du titre, s'il existe */
   logo: string | null;
+  /** Largeur / hauteur du logo (dimensions de l'<img>) */
+  logoRatio: number | null;
   /** Première plateforme suivie où le titre est disponible */
   plateforme: Plateforme | null;
 }
@@ -85,9 +112,11 @@ export async function getUne(seriesSemaine: Contenu[]): Promise<DiapoUne[]> {
         const { id, type, titre, slug, poster, backdrop, note, nbVotes, annee, genres, synopsis, saisonActuelle, premiereDiffusion } =
           contenu;
         return {
-          contenu: { id, type, titre, slug, poster, backdrop, note, nbVotes, annee, genres, synopsis, saisonActuelle, premiereDiffusion },
+          contenu: { id, type, titre, slug, poster, backdrop: null, note, nbVotes, annee, genres: genres.slice(0, 1), synopsis, saisonActuelle, premiereDiffusion },
           fond: images.fond ?? backdrop,
           logo: images.logo,
+          // Absent des réponses mises en cache avant son ajout
+          logoRatio: images.logoRatio ?? null,
           plateforme,
         };
       } catch (err) {

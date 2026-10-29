@@ -106,7 +106,7 @@ export default async function ArticleActu({ article, oeuvres, titre, edition }: 
                   src={principale.grandeImage}
                   alt={`Image de ${principale.titre}`}
                   fill
-                  priority
+                  preload
                   sizes="(max-width: 980px) 100vw, 720px"
                   className="object-cover"
                 />

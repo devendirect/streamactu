@@ -18,12 +18,13 @@ const onest = Onest({
 
 // Capitales de salle (velours, rendez-vous, chiffres). « Big Shoulders Display »
 // est devenue la famille Big Shoulders : l'axe opsz, réglé à 72 dans
-// globals.css, redonne la coupe Display. Peu de texte : pas de préchargement.
+// globals.css, redonne la coupe Display. Préchargée : elle est dans le premier
+// écran (titres sans logo, Top 10, badges) et, sans métriques de repli connues
+// de Next, son arrivée tardive décalait la fiche (CLS 0,11, Lighthouse 29/10).
 const bigShoulders = Big_Shoulders({
   variable: "--font-big-shoulders",
   subsets: ["latin"],
   axes: ["opsz"],
-  preload: false,
 });
 
 const DESCRIPTION =

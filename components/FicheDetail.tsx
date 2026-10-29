@@ -8,6 +8,7 @@ import { dureeSaison, formatDureeLongue, libelleClassification } from "@/lib/fai
 import type { FaitsWikidata } from "@/lib/wikidata";
 import { PLATEFORME_PAR_ID, plateformesDepuisFournisseurs } from "@/lib/plateformes";
 import { slugPourGenreId } from "@/lib/genres";
+import { hauteurLogo } from "@/lib/logo";
 import ConvaincsMoi from "@/components/ConvaincsMoi";
 import BoutonMaListe from "@/components/BoutonMaListe";
 import LienGA from "@/components/LienGA";
@@ -29,7 +30,7 @@ interface FicheDetailProps {
   /** Récompenses, adaptation, tournage, liens externes (Wikidata), si disponibles */
   faits?: FaitsWikidata | null;
   /** Logo du titre et grande image de fond (TMDB images), si disponibles */
-  images?: { logo: string | null; fond: string | null };
+  images?: { logo: string | null; logoRatio?: number | null; fond: string | null };
   /** Rang dans le Top 10 des séries de la semaine (1 à 10), sinon null */
   rang?: number | null;
 }
@@ -187,7 +188,8 @@ export default function FicheDetail({ contenu, suggestions, faits, images, rang 
               alt=""
               fill
               sizes="100vw"
-              priority
+              loading="eager"
+              fetchPriority="high"
               className="object-cover object-[65%_20%] brightness-[0.62] saturate-[0.9]"
             />
           )}
@@ -233,6 +235,8 @@ export default function FicheDetail({ contenu, suggestions, faits, images, rang 
                 <img
                   src={logo}
                   alt=""
+                  width={500}
+                  height={hauteurLogo(images?.logoRatio)}
                   className="max-h-[190px] w-[min(460px,86%)] object-contain object-[left_bottom] drop-shadow-[0_4px_30px_rgba(0,0,0,0.55)]"
                 />
               </>

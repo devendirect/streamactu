@@ -199,7 +199,7 @@ export default async function TopPage({ params }: Props) {
                 </span>
                 <span className="top10__affiche relative block aspect-[2/3] overflow-hidden rounded-lg bg-surface shadow-[0_14px_24px_-12px_rgba(0,0,0,0.9)]">
                   {c.poster && (
-                    <Image src={c.poster} alt={altAffiche(c.titre, c.type)} fill sizes="(max-width: 640px) 50vw, 20vw" priority={i === 0} className="object-cover" />
+                    <Image src={c.poster} alt={altAffiche(c.titre, c.type)} fill sizes="(max-width: 640px) 50vw, 20vw" preload={i === 0} className="object-cover" />
                   )}
                 </span>
                 <span className="col-span-2 block pt-3">

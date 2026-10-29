@@ -24,7 +24,7 @@ export default function CarteContenu({ contenu, priorite = false }: Props) {
       className="group flex items-center gap-4 border-t border-trait py-3.5 transition-colors duration-200 hover:bg-white/[0.025]"
     >
       <span className="relative h-[80px] w-[54px] shrink-0 overflow-hidden rounded-md bg-surface">
-        {poster && <Image src={poster} alt={altAffiche(titre, type)} fill sizes="54px" className="object-cover" priority={priorite} />}
+        {poster && <Image src={poster} alt={altAffiche(titre, type)} fill sizes="54px" className="object-cover" preload={priorite} />}
       </span>
 
       <span className="min-w-0 flex-1">

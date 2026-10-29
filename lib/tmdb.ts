@@ -698,10 +698,12 @@ interface TMDBImage {
   file_path: string;
   iso_639_1: string | null;
   vote_average: number;
+  /** largeur / hauteur */
+  aspect_ratio?: number;
 }
 
 export const getImagesUne = unstable_cache(
-  async (type: MediaType, id: number): Promise<{ logo: string | null; fond: string | null }> => {
+  async (type: MediaType, id: number): Promise<{ logo: string | null; logoRatio: number | null; fond: string | null }> => {
     try {
       const data = await tmdbGet<{ logos: TMDBImage[]; backdrops: TMDBImage[] }>(
         `/${type === "serie" ? "tv" : "movie"}/${id}/images`,
@@ -713,10 +715,14 @@ export const getImagesUne = unstable_cache(
       const fond = [...data.backdrops].sort(
         (a, b) => Number(a.iso_639_1 !== null) - Number(b.iso_639_1 !== null) || b.vote_average - a.vote_average
       )[0];
-      return { logo: posterUrl(logo?.file_path ?? null, "w500"), fond: posterUrl(fond?.file_path ?? null, "w1280") };
+      return {
+        logo: posterUrl(logo?.file_path ?? null, "w500"),
+        logoRatio: logo?.aspect_ratio ?? null,
+        fond: posterUrl(fond?.file_path ?? null, "w1280"),
+      };
     } catch (err) {
       console.error(`[tmdb] images indisponibles pour ${type}/${id} :`, err instanceof Error ? err.message : err);
-      return { logo: null, fond: null };
+      return { logo: null, logoRatio: null, fond: null };
     }
   },
   ["images-une"],

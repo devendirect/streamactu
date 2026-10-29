@@ -23,7 +23,7 @@ interface Apercu {
 const LARGEUR = 340;
 const DELAI = 420;
 // Cartes concernées : affiches des rangées et des grilles, jamais le Top 10 ni les paysages
-const CARTES = ".rangee:not(.top10) .rangee__piste:not(.rangee__piste--paysage) [data-apercu], [data-grille] [data-apercu]";
+const CARTES = ".rangee:not(.top10) .rangee__piste:not(.rangee__piste--paysage) [data-carte], [data-grille] [data-carte]";
 
 /**
  * Aperçu agrandi au survol d'une affiche (desktop seulement) : la carte
@@ -52,7 +52,11 @@ export default function ApercuSurvol() {
     const montrer = (carte: HTMLElement) => {
       let d: Apercu;
       try {
-        d = JSON.parse(carte.dataset.apercu ?? "");
+        // Un titre présent dans plusieurs rangées ne porte son JSON qu'une fois (attributsCarte)
+        const brut =
+          carte.dataset.apercu ??
+          document.querySelector<HTMLElement>(`[data-apercu][data-cle="${carte.dataset.cle}"]`)?.dataset.apercu;
+        d = JSON.parse(brut ?? "");
       } catch {
         return;
       }

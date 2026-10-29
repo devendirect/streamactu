@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Contenu } from "@/types";
 import { attributsCarte, metaContenu } from "@/components/CarteAffiche";
+import ImageDifferee from "@/components/ImageDifferee";
 
 interface Props {
   contenu: Contenu;
@@ -9,25 +10,29 @@ interface Props {
   logo?: string | null;
   meta?: string;
   plateformes?: number[];
+  /** Carte cachée à droite de sa rangée : image chargée au défilement */
+  differee?: boolean;
 }
 
 /**
  * Carte paysage (16:9) : image de fond fondue au noir par le bas, logo du
  * titre dessus quand il existe, sinon le titre écrit.
  */
-export default function CartePaysage({ contenu, logo, meta, plateformes }: Props) {
+export default function CartePaysage({ contenu, logo, meta, plateformes, differee = false }: Props) {
   const { type, titre, slug, backdrop, poster, plateforme } = contenu;
   const image = backdrop ?? poster;
+  const Img = differee ? ImageDifferee : Image;
   return (
     <article className="relative min-w-0" {...attributsCarte(contenu, plateformes)}>
       <Link href={`/${type}/${slug}`} className="group block">
         <span className="relative block aspect-video overflow-hidden rounded-lg bg-surface">
           {image && (
-            <Image
+            <Img
               src={image}
               alt=""
               fill
-              sizes="(max-width: 760px) 80vw, 340px"
+              // Largeur de .rangee__piste--paysage : clamp(240px, 24vw, 340px)
+              sizes="(max-width: 1000px) 240px, (max-width: 1417px) 24vw, 340px"
               className="object-cover transition-transform duration-300 ease-salle group-hover:scale-[1.03]"
             />
           )}

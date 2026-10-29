@@ -24,7 +24,7 @@ export default function EnTeteNouveautes({ titre, intro, fond, marque, children 
     <header className="scene -mt-entete flex min-h-[380px] flex-col justify-end px-gouttiere pt-[clamp(130px,18vh,190px)] pb-[34px]">
       {fond && (
         <div className="scene__fond">
-          <Image src={fond} alt="" fill sizes="100vw" priority className="object-cover object-[65%_20%] brightness-[0.62] saturate-[0.9]" />
+          <Image src={fond} alt="" fill sizes="100vw" loading="eager" fetchPriority="high" className="object-cover object-[65%_20%] brightness-[0.62] saturate-[0.9]" />
         </div>
       )}
       <Faisceau doux />

@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import { cache } from "react";
 import type { Contenu } from "@/types";
+import ImageDifferee from "@/components/ImageDifferee";
 import { altAffiche, isNouvelleSerieCheck } from "@/lib/utils";
 
 /** Ligne de méta par défaut d'une carte : « Nouvelle série », « Saison 3 », « Film · 2026 » */
@@ -10,16 +12,37 @@ export function metaContenu(c: Contenu): string {
   return c.saisonActuelle ? `Saison ${c.saisonActuelle}` : "Série";
 }
 
+/** Cartes de rangée dont l'image est chargée d'emblée ; au-delà, au défilement (ImageDifferee) */
+export const CARTES_IMMEDIATES = 6;
+
+/**
+ * Titres dont l'aperçu est déjà dans la page (une requête serveur) : un titre
+ * présent dans trois rangées ne porte son JSON qu'une fois, les autres cartes
+ * le retrouvent par data-cle. Côté client, cache() ne mémorise rien : chaque
+ * carte porte alors le sien.
+ */
+const apercusEmis = cache(() => new Set<string>());
+
 /**
  * Données lues par l'aperçu au survol (components/ApercuSurvol.tsx) et par
  * les puces de filtre : type et plateformes de la carte.
  */
 export function attributsCarte(c: Contenu, plateformes: number[] = c.plateforme ? [c.plateforme.id] : []) {
+  const cle = `${c.type}-${c.id}`;
+  const emis = apercusEmis();
+  const premier = !emis.has(cle);
+  emis.add(cle);
   return {
     "data-carte": "",
+    "data-cle": cle,
     "data-type": c.type,
     "data-pfs": plateformes.join(" "),
-    "data-apercu": JSON.stringify({
+    ...(premier ? { "data-apercu": apercu(c) } : {}),
+  };
+}
+
+function apercu(c: Contenu): string {
+  return JSON.stringify({
       id: c.id,
       type: c.type,
       titre: c.titre,
@@ -31,8 +54,7 @@ export function attributsCarte(c: Contenu, plateformes: number[] = c.plateforme 
       meta: metaContenu(c),
       genres: c.genres.slice(0, 3).map((g) => g.nom),
       pf: c.plateforme ? { nom: c.plateforme.nom, couleur: c.plateforme.couleur } : null,
-    }),
-  };
+  });
 }
 
 interface Props {
@@ -44,25 +66,29 @@ interface Props {
   meta?: string;
   /** Plateformes de la carte (ids TMDB), pour les filtres ; par défaut celle du contenu */
   plateformes?: number[];
+  /** Carte cachée à droite de sa rangée : image chargée au défilement */
+  differee?: boolean;
 }
 
 /**
  * Carte affiche (2:3) : coins 8 px, fond `surface` pendant le chargement,
  * titre sur une ligne, méta en gris avec la pastille de la plateforme.
  */
-export default function CarteAffiche({ contenu, priorite = false, badge, meta, plateformes }: Props) {
+export default function CarteAffiche({ contenu, priorite = false, badge, meta, plateformes, differee = false }: Props) {
   const { type, titre, slug, poster, plateforme } = contenu;
+  const Img = differee ? ImageDifferee : Image;
   return (
     <article className="relative min-w-0" {...attributsCarte(contenu, plateformes)}>
       <Link href={`/${type}/${slug}`} className="group block">
         <span className="relative block aspect-[2/3] overflow-hidden rounded-lg bg-surface">
           {poster && (
-            <Image
+            <Img
               src={poster}
               alt={altAffiche(titre, type)}
               fill
-              sizes="(max-width: 760px) 40vw, 190px"
-              priority={priorite}
+              // Largeur de .rangee__piste : clamp(132px, 13vw, 190px)
+              sizes="(max-width: 1015px) 132px, (max-width: 1462px) 13vw, 190px"
+              preload={priorite}
               className="object-cover transition-transform duration-300 ease-salle group-hover:scale-[1.03]"
             />
           )}

@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   // Déploiement VPS/Plesk : build autonome (.next/standalone + server.js).
   // ⚠️ Après le build, copier public/ et .next/static dans le dossier standalone.
   output: "standalone",
+  // Pas d'en-tête « X-Powered-By: Next.js » (inutile, et renseigne sur la pile)
+  poweredByHeader: false,
 
   images: {
     remotePatterns: [
@@ -17,6 +19,10 @@ const nextConfig: NextConfig = {
     ],
     minimumCacheTTL: 604800,
     formats: ["image/avif", "image/webp"],
+    // srcset plus court (environ 2 Ko de HTML par affiche avec les valeurs par
+    // défaut) : les sources TMDB font au plus 1280 px (fonds) et 500 px (affiches)
+    imageSizes: [64, 96, 128, 256, 384],
+    deviceSizes: [640, 828, 1080, 1280, 1920],
   },
 
   async redirects() {
@@ -41,6 +47,8 @@ const nextConfig: NextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          // Isole la fenêtre des pages ouvertes depuis le site (ni connexion ni paiement par fenêtre externe)
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
           {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",
@@ -49,6 +57,9 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
+              // 'unsafe-inline' : Next écrit les données React en scripts dans la page. Testé le
+              // 29/10 : avec experimental.sri et sans 'unsafe-inline', 119 scripts bloqués et
+              // React cassé ; les nonces imposent un rendu dynamique de toutes les pages.
               `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com${isDev ? " 'unsafe-eval'" : ""}`,
               "style-src 'self' 'unsafe-inline'",
               "font-src 'self'",
@@ -56,6 +67,10 @@ const nextConfig: NextConfig = {
               "frame-src https://www.youtube-nocookie.com",
               "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com",
               "frame-ancestors 'none'",
+              // Rien de tout ça sur le site : interdit par défaut
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self'",
             ].join("; "),
           },
         ],

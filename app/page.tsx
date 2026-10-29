@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { metadonnees, metaAccueil } from "@/lib/meta";
 import { getNouveautesJour, getNouveautesSemaine, getSortiesAVenir } from "@/lib/tmdb";
-import { aplatir, getUne, parScore, top10Series } from "@/lib/accueil";
+import { aplatir, getUne, parScore, pourCarte, top10Series } from "@/lib/accueil";
 import { GENRES_SEO } from "@/lib/genres";
 import { getISOWeek, toISO, formatJourSemaineFR } from "@/lib/utils";
 import UneCarrousel from "@/components/accueil/UneCarrousel";
@@ -11,7 +11,7 @@ import BanniereWeekend from "@/components/accueil/BanniereWeekend";
 import Decouvrir from "@/components/accueil/Decouvrir";
 import FiltresRangees from "@/components/FiltresRangees";
 import Rangee from "@/components/Rangee";
-import CarteAffiche from "@/components/CarteAffiche";
+import CarteAffiche, { CARTES_IMMEDIATES } from "@/components/CarteAffiche";
 import CartePaysage from "@/components/CartePaysage";
 import Top10Velours from "@/components/Top10Velours";
 import TexteEditorial from "@/components/TexteEditorial";
@@ -31,8 +31,12 @@ function jourCourt(iso: string): string {
   return `${JOURS_COURTS[d.getUTCDay()]} ${d.getUTCDate()}`;
 }
 
-/** Rangées de plus de MAX titres : la page complète est au bout du lien */
-const MAX = 20;
+/**
+ * Rangées de plus de MAX titres : la page complète est au bout du lien. 12 et
+ * non 20 : Chrome charge les affiches cachées à droite des premières rangées
+ * (son « lazy » ne regarde que la hauteur), mesuré à 2,3 Mo d'images avec 20.
+ */
+const MAX = 12;
 
 export default async function HomePage() {
   const maintenant = new Date();
@@ -77,7 +81,7 @@ export default async function HomePage() {
         </div>
 
         <div data-rangees>
-          <RangeeMesSeries seriesSemaine={seriesSemaine} />
+          <RangeeMesSeries seriesSemaine={seriesSemaine.map(pourCarte)} />
 
           <Rangee
             niveau={1}
@@ -85,13 +89,18 @@ export default async function HomePage() {
             sous={duJour.length === 0 ? "Pas encore de sortie aujourd'hui sur les sept plateformes." : undefined}
           >
             {duJour.slice(0, MAX).map((c, i) => (
-              <CarteAffiche key={`${c.type}-${c.id}`} contenu={c} priorite={une.length === 0 && i < 4} />
+              <CarteAffiche
+                key={`${c.type}-${c.id}`}
+                contenu={c}
+                priorite={une.length === 0 && i < 4}
+                differee={i >= CARTES_IMMEDIATES}
+              />
             ))}
           </Rangee>
 
           <Rangee titre="Sortis cette semaine">
-            {toutSemaine.slice(0, MAX).map((c) => (
-              <CarteAffiche key={`${c.type}-${c.id}`} contenu={c} />
+            {toutSemaine.slice(0, MAX).map((c, i) => (
+              <CarteAffiche key={`${c.type}-${c.id}`} contenu={c} differee={i >= CARTES_IMMEDIATES} />
             ))}
           </Rangee>
 
@@ -101,8 +110,8 @@ export default async function HomePage() {
 
           {bientot.length > 0 && (
             <Rangee titre="Bientôt sur vos plateformes" href="/prochaines-sorties">
-              {bientot.map((c) => (
-                <CarteAffiche key={`${c.type}-${c.id}`} contenu={c} badge={jourCourt(c.dateSortie!)} />
+              {bientot.map((c, i) => (
+                <CarteAffiche key={`${c.type}-${c.id}`} contenu={c} badge={jourCourt(c.dateSortie!)} differee={i >= CARTES_IMMEDIATES} />
               ))}
             </Rangee>
           )}
@@ -112,8 +121,8 @@ export default async function HomePage() {
             if (liste.length < 3) return null;
             return (
               <Rangee key={plateforme.id} titre={`Nouveautés ${plateforme.nom}`} href={`/${plateforme.slug}`}>
-                {liste.slice(0, MAX).map((c) => (
-                  <CarteAffiche key={`${c.type}-${c.id}`} contenu={c} />
+                {liste.slice(0, MAX).map((c, i) => (
+                  <CarteAffiche key={`${c.type}-${c.id}`} contenu={c} differee={i >= CARTES_IMMEDIATES} />
                 ))}
               </Rangee>
             );
@@ -123,8 +132,8 @@ export default async function HomePage() {
 
           {filmsSemaine.length > 0 && (
             <Rangee titre="Films de la semaine" paysage>
-              {filmsSemaine.slice(0, MAX).map((c) => (
-                <CartePaysage key={c.id} contenu={c} />
+              {filmsSemaine.slice(0, MAX).map((c, i) => (
+                <CartePaysage key={c.id} contenu={c} differee={i >= CARTES_IMMEDIATES} />
               ))}
             </Rangee>
           )}

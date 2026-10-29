@@ -33,7 +33,7 @@ export default function ListeArticles({ articles, images, page }: Props) {
                   src={images[0].grandeImage}
                   alt={`Image de ${images[0].titre}`}
                   fill
-                  priority
+                  preload
                   sizes="(max-width: 1100px) 100vw, 1100px"
                   className="object-cover transition-transform duration-[600ms] ease-salle group-hover:scale-[1.02]"
                 />

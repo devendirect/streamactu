@@ -34,7 +34,8 @@ export default function Top10Velours({ titre, href, contenus }: Props) {
                     src={c.poster}
                     alt={altAffiche(c.titre, c.type)}
                     fill
-                    sizes="(max-width: 760px) 30vw, 140px"
+                    // 54 % de la carte .top10 : clamp(190px, 19vw, 260px)
+                    sizes="(max-width: 1000px) 103px, (max-width: 1368px) 10.3vw, 140px"
                     className="object-cover"
                   />
                 )}

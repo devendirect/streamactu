@@ -82,7 +82,7 @@ export default function SurpriseClient({ initialContenu }: SurpriseClientProps) 
               alt={contenu.titre}
               fill
               sizes="220px"
-              priority
+              preload
               className={`object-cover transition-[filter,transform] duration-300 ease-salle group-hover:scale-[1.03] ${loading ? "brightness-[0.3]" : ""}`}
             />
           )}

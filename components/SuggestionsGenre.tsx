@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { SuggestionsFiche } from "@/lib/suggestions";
 import Rangee from "@/components/Rangee";
-import CarteAffiche from "@/components/CarteAffiche";
+import CarteAffiche, { CARTES_IMMEDIATES } from "@/components/CarteAffiche";
 import Icone from "@/components/Icone";
 
 /** Bas de fiche : autres titres du même genre sur la même plateforme, en rangée d'affiches */
@@ -19,8 +19,8 @@ export default function SuggestionsGenre({ suggestions }: { suggestions: Suggest
             : `D'autres séries et films sortis sur ${plateforme.nom} en France ces quatre dernières semaines.`
         }
       >
-        {contenus.map((c) => (
-          <CarteAffiche key={`${c.type}-${c.id}`} contenu={{ ...c, plateforme }} />
+        {contenus.map((c, i) => (
+          <CarteAffiche key={`${c.type}-${c.id}`} contenu={{ ...c, plateforme }} differee={i >= CARTES_IMMEDIATES} />
         ))}
       </Rangee>
       <nav aria-label="Aller plus loin" className="-mt-3 mb-rangee flex flex-wrap items-center gap-x-6 gap-y-2 px-gouttiere">

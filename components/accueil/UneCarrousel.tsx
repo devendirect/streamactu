@@ -7,6 +7,7 @@ import BoutonMaListe from "@/components/BoutonMaListe";
 import Faisceau from "@/components/Faisceau";
 import Icone from "@/components/Icone";
 import { metaContenu } from "@/components/CarteAffiche";
+import { hauteurLogo } from "@/lib/logo";
 
 const DUREE = 8000;
 
@@ -24,11 +25,18 @@ export default function UneCarrousel({ diapos }: { diapos: DiapoUne[] }) {
   // Change à chaque diapositive : relance le vacillement du projecteur et la barre de progression
   const [tour, setTour] = useState(0);
   const une = useRef<HTMLElement>(null);
+  // Images des diapositives : la première d'emblée ; les suivantes une à une,
+  // celle d'après dès que la page est chargée (8 s d'avance), pour ne pas
+  // concurrencer la première (elles sont dans l'écran : « lazy » ne suffit pas)
+  const [chargees, setChargees] = useState(1);
 
   const aller = useCallback(
     (n: number) => {
-      setActuelle((n + diapos.length) % diapos.length);
+      const m = (n + diapos.length) % diapos.length;
+      setActuelle(m);
       setTour((t) => t + 1);
+      // La diapositive affichée et la suivante (saut par les points compris)
+      setChargees((c) => Math.max(c, m + 2));
     },
     [diapos.length]
   );
@@ -39,6 +47,13 @@ export default function UneCarrousel({ diapos }: { diapos: DiapoUne[] }) {
     suivre();
     requete.addEventListener("change", suivre);
     return () => requete.removeEventListener("change", suivre);
+  }, []);
+
+  useEffect(() => {
+    const charger = () => setChargees((c) => Math.max(c, 2));
+    if (document.readyState === "complete") charger();
+    else window.addEventListener("load", charger, { once: true });
+    return () => window.removeEventListener("load", charger);
   }, []);
 
   useEffect(() => {
@@ -77,8 +92,9 @@ export default function UneCarrousel({ diapos }: { diapos: DiapoUne[] }) {
       style={{ ["--duree" as string]: `${DUREE}ms` }}
     >
       {diapos.map((d, n) => {
-        const { contenu, fond, logo, plateforme } = d;
+        const { contenu, fond, logo, logoRatio, plateforme } = d;
         const active = n === actuelle;
+        const images = n < chargees || n === actuelle;
         const fiche = `/${contenu.type}/${contenu.slug}`;
         return (
           <article
@@ -90,25 +106,30 @@ export default function UneCarrousel({ diapos }: { diapos: DiapoUne[] }) {
             className={`une__diapo ${active ? "est-active" : ""}`}
           >
             <div className="une__fond">
-              {fond && (
+              {fond && images && (
                 <Image
                   src={fond}
                   alt=""
                   fill
                   sizes="100vw"
-                  priority={n === 0}
+                  loading={n === 0 ? "eager" : "lazy"}
+                  fetchPriority={n === 0 ? "high" : "low"}
                   className="object-cover object-[65%_20%] brightness-[0.72] saturate-[0.9]"
                 />
               )}
             </div>
             <div className="une__contenu">
               <h2 className="une__logo">
-                {logo ? (
+                {logo && !images ? (
+                  <span className="sr-only">{contenu.titre}</span>
+                ) : logo ? (
                   // Logo PNG détouré, tailles variées : pas d'optimisation
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={logo}
                     alt={contenu.titre}
+                    width={500}
+                    height={hauteurLogo(logoRatio)}
                     className="max-h-[180px] w-[min(440px,86%)] object-contain object-[left_bottom] drop-shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
                   />
                 ) : (

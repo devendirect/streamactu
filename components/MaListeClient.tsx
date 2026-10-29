@@ -32,10 +32,11 @@ export default function MaListeClient({ seriesSemaine }: { seriesSemaine: Conten
   const [filtre, setFiltre] = useState<Filtre>("tout");
   const [tri, setTri] = useState<Tri>("ajout");
 
-  // Évite le flash « liste vide » avant restauration du localStorage
+  // Évite le flash « liste vide » avant restauration du localStorage. Hauteur
+  // d'écran réservée : le pied de page ne remonte pas puis redescend (CLS)
   if (!restaure) {
     return (
-      <div className="px-gouttiere py-8">
+      <div className="min-h-svh px-gouttiere py-8">
         <div className="h-5 w-40 animate-pulse rounded-sm bg-surface" />
       </div>
     );
@@ -43,7 +44,7 @@ export default function MaListeClient({ seriesSemaine }: { seriesSemaine: Conten
 
   if (liste.length === 0) {
     return (
-      <div className="mx-auto max-w-[56ch] space-y-5 px-gouttiere py-16 text-center">
+      <div className="mx-auto min-h-svh max-w-[56ch] space-y-5 px-gouttiere py-16 text-center">
         <p className="text-[clamp(22px,4vw,32px)] leading-tight font-extrabold tracking-[-0.02em]">
           Rien pour l&apos;instant : votre prochaine soirée se prépare ici.
         </p>
@@ -80,7 +81,7 @@ export default function MaListeClient({ seriesSemaine }: { seriesSemaine: Conten
     .map((e) => `${e.type}-${e.id}`);
 
   return (
-    <div className="pt-8 pb-10">
+    <div className="min-h-svh pt-8 pb-10">
       {nouveauxEpisodes.length > 0 && (
         <div className="velours mb-section pt-[34px] pb-2.5">
           <Rangee titre="Nouveaux épisodes cette semaine" salle paysage className="mb-6">
