@@ -41,7 +41,7 @@ const jsonLd = [
     url: SITE_URL,
     logo: {
       "@type": "ImageObject",
-      url: `${SITE_URL}/icons/symbole-512.png`,
+      url: `${SITE_URL}/icones/symbole-512.png`,
       width: 512,
       height: 512,
     },
@@ -106,7 +106,7 @@ export const metadata: Metadata = {
     types: { "application/rss+xml": "/flux.xml" },
   },
   icons: {
-    apple: "/icons/symbole-apple-touch-180.png",
+    apple: "/icones/symbole-apple-touch-180.png",
   },
 };
 
