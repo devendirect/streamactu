@@ -9,6 +9,7 @@ import { ARTICLE_2026_10_27_NOVEMBRE } from "./actu/2026-10-27-nouveautes-stream
 import { ARTICLE_2026_10_30_WEEKEND } from "./actu/2026-10-30-que-regarder-ce-week-end";
 import { ARTICLE_2026_11_06_WEEKEND } from "./actu/2026-11-06-que-regarder-ce-week-end";
 import { ARTICLE_2026_11_13_WEEKEND } from "./actu/2026-11-13-que-regarder-ce-week-end";
+import { ARTICLE_2026_11_20_WEEKEND } from "./actu/2026-11-20-que-regarder-ce-week-end";
 
 /**
  * Rubrique Actu (/actu/[slug]) : un article « Que regarder ce week-end »
@@ -77,6 +78,7 @@ export interface Article {
 
 /** Tous les articles, brouillons compris (tests) */
 export const TOUS_LES_ARTICLES: Article[] = [
+  ARTICLE_2026_11_20_WEEKEND,
   ARTICLE_2026_11_13_WEEKEND,
   ARTICLE_2026_11_06_WEEKEND,
   ARTICLE_2026_10_30_WEEKEND,
