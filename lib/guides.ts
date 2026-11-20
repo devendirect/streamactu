@@ -11,6 +11,9 @@ import { GUIDE_SORTIES_AGENDA } from "./guides/sorties-dans-son-agenda";
 import { GUIDE_LIRE_NOTE } from "./guides/lire-note-spectateurs";
 import { GUIDE_ALTERNER_ABONNEMENTS } from "./guides/alterner-abonnements";
 import { GUIDE_RETROUVER_TITRE } from "./guides/retrouver-titre-oublie";
+import { GUIDE_FILMS_NOEL } from "./guides/films-noel-streaming";
+import { GUIDE_FILMS_HORREUR_HALLOWEEN } from "./guides/films-horreur-halloween-streaming";
+import { GUIDE_DUNE_ORDRE } from "./guides/dune-ordre";
 
 /**
  * Guides éditoriaux (/guides/[slug]) : contenus durables, signés « l'éditeur
@@ -151,6 +154,9 @@ export const GUIDES: Guide[] = [
   GUIDE_LIRE_NOTE,
   GUIDE_SORTIES_AGENDA,
   GUIDE_RETROUVER_TITRE,
+  GUIDE_FILMS_NOEL,
+  GUIDE_FILMS_HORREUR_HALLOWEEN,
+  GUIDE_DUNE_ORDRE,
 ];
 
 /** En dessous, la page /guides reste en noindex : une liste d'un ou deux liens est trop maigre */

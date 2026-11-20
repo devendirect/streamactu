@@ -5,7 +5,18 @@ import type { Guide } from "../guides";
  * (« Quel abonnement ce mois-ci ? » : titres à voir de Ma liste croisés avec
  * leurs plateformes en France et les abonnements cochés ; rubriques « À
  * prendre », « À garder », « Vous pouvez mettre en pause », « Les mois
- * suivants »). Aucun prix cité : ils changent trop souvent.
+ * suivants »). Aucun prix cité dans le corps du guide : ils changent trop
+ * souvent ; seules deux promotions datées de novembre 2026 sont mentionnées
+ * (section « Les promotions de fin d'année »), à retirer ou mettre à jour après
+ * le 9 décembre 2026.
+ *
+ * Faits extérieurs (vérifiés le 2026-11-20) :
+ * - Disney+ : promotion du 11 au 24 novembre 2026 sur les trois formules, deux
+ *   mois à tarif réduit puis plein tarif, sans engagement, ouverte aux nouveaux
+ *   abonnés et aux anciens qui se réabonnent (ariase.com, selectra.info,
+ *   economiematin.fr) ;
+ * - Canal+ La Totale : série limitée vendue du 10 novembre au 9 décembre 2026,
+ *   engagement de 24 mois (gameblog.fr, jechange.fr, resilier.com).
  */
 export const GUIDE_ALTERNER_ABONNEMENTS: Guide = {
   slug: "alterner-abonnements",
@@ -15,7 +26,7 @@ export const GUIDE_ALTERNER_ABONNEMENTS: Guide = {
   chapo:
     "Alterner ses abonnements consiste à ne garder qu'une ou deux plateformes à la fois, le temps de regarder ce qui y est sorti, puis à passer à une autre. La plupart des offres se résilient à tout moment, et le catalogue d'une plateforme est toujours là quand on y revient. Ma liste, sur StreamActu.fr, indique chaque mois la plateforme qui couvre le plus de titres à voir.",
   publie: "2026-10-29",
-  misAJour: "2026-10-29",
+  misAJour: "2026-11-20",
   sections: [
     {
       titre: "Le principe",
@@ -61,6 +72,23 @@ export const GUIDE_ALTERNER_ABONNEMENTS: Guide = {
       ],
     },
     {
+      titre: "Les promotions de fin d'année",
+      blocs: [
+        {
+          p: "Le Black Friday (le 27 novembre 2026) et les semaines qui l'entourent sont le moment où les offres se multiplient, mais elles ne se valent pas pour qui alterne. Deux exemples de ce mois de novembre 2026 :",
+        },
+        {
+          ul: [
+            "Disney+ propose, jusqu'au 24 novembre, deux mois à tarif réduit sur ses trois formules, puis le plein tarif. L'offre est sans engagement : on peut résilier à la fin des deux mois, ce qui convient à l'alternance. Elle est ouverte aux nouveaux abonnés et aux anciens abonnés qui reviennent, pas à un abonnement déjà actif.",
+            "Canal+ vend jusqu'au 9 décembre une formule groupée, La Totale, qui rassemble plusieurs plateformes, avec un engagement de 24 mois. Le prix mensuel est bas, mais la formule ne se résilie pas mois par mois : elle ne convient pas à l'alternance.",
+          ],
+        },
+        {
+          p: "Avant de souscrire, il faut vérifier trois choses sur la page officielle de l'offre : la durée de l'engagement, le prix après la période promotionnelle, et si on y est éligible quand on a déjà été abonné. Ces conditions changent d'une opération à l'autre.",
+        },
+      ],
+    },
+    {
       titre: "Les limites de la méthode",
       blocs: [
         {
@@ -80,6 +108,10 @@ export const GUIDE_ALTERNER_ABONNEMENTS: Guide = {
   ],
   faq: [
     {
+      q: "Les offres du Black Friday conviennent-elles à qui alterne ses abonnements ?",
+      r: "Seulement celles sans engagement, comme les deux mois à tarif réduit de Disney+ en novembre 2026. Les formules groupées engagées sur 24 mois, comme Canal+ La Totale, empêchent de résilier au bout d'un mois.",
+    },
+    {
       q: "Peut-on résilier Netflix ou Disney+ à tout moment ?",
       r: "Les abonnements pris directement sur leur site sont sans engagement et se résilient en ligne ; l'accès reste ouvert jusqu'à la fin de la période payée. Les offres incluses dans une box ou un forfait suivent leurs propres conditions.",
     },
@@ -91,5 +123,10 @@ export const GUIDE_ALTERNER_ABONNEMENTS: Guide = {
       q: "Est-ce rentable d'alterner ses abonnements ?",
       r: "Oui dès qu'on paie plusieurs plateformes sans les regarder toutes chaque mois. L'économie dépend du nombre d'abonnements qu'on garde en même temps.",
     },
+  ],
+  sources: [
+    { titre: "Ariase, « Disney+ baisse le prix de ses trois abonnements : quelle formule choisir avant le 24 novembre »", url: "https://www.ariase.com/streaming/actualite/disney-baisse-le-prix-de-ses-trois-abonnements-quelle-formule-choisir-avant-le-24-novembre" },
+    { titre: "Gameblog, « Canal+ : la promo La Totale 2026 »", url: "https://www.gameblog.fr/geek/ed/news/canal-plus-promo-la-totale-2026-726511" },
+    { titre: "JeChange, « Canal+ La Totale à 40 € : engagement de 2 ans »", url: "https://www.jechange.fr/telecom/internet/news/canal-plus-la-totale-40-euros-10-novembre-netflix-hbo-max-bein-engagement-2-ans" },
   ],
 };
