@@ -28,6 +28,7 @@ import type { Article } from "../actu";
  * - Les Anneaux de pouvoir : épisodes 5 et 6 le mercredi 18, derniers
  *   épisodes le 25. 12 12 12 : épisode 3 jeudi 19 (TMDB, heure américaine),
  *   vendredi 20 en France à confirmer. Nocturne : épisode 5 le 19.
+ * - The Gilded Age : HBO Max le lundi (lendemain des États-Unis), donc lundi 23.
  * - Écartés : Dexter: Resurrection (épisode 4 daté du 22 par TMDB, jour
  *   français non vérifié), La Comtesse de Monte-Cristo (TF1 ; Netflix ?
  *   aucune note, non vérifié), Gordon et La loi de la bête (peu de votes).
@@ -95,10 +96,10 @@ export const ARTICLE_2026_11_20_WEEKEND: Article = {
         {
           ul: [
             "[Les Anneaux de pouvoir](/serie/le-seigneur-des-anneaux-les-anneaux-de-pouvoir-84773), saison 3 (Prime Video, mercredi 18 novembre) : épisodes 5 et 6, les deux derniers arrivent le 25.",
-            "[12 12 12](/serie/12-12-12-254630) (Apple TV+) : troisième épisode cette semaine, puis un par semaine jusqu'au 24 décembre ; [Nocturne](/serie/nocturne-292741) continue aussi.",
+            "[12 12 12](/serie/12-12-12-254630) (Apple TV+) : troisième épisode cette semaine, puis un par semaine jusqu'au 25 décembre ; [Nocturne](/serie/nocturne-292741) continue aussi.",
             "[Rivals](/serie/rivals-208921), saison 2 (Disney+, mercredi 18 novembre) : épisode 10 sur 12, les deux derniers les 25 novembre et 2 décembre.",
             "[Soeurs de sort](/film/soeurs-de-sort-1595124) (Netflix, vendredi 20 novembre) : film d'animation qui reprend Cendrillon du point de vue de Lilith, l'une des belles-sœurs, avec les voix d'Ali Wong et d'Amanda Seyfried (1 h 32).",
-            "[MobLand](/serie/mobland-247718) et [Tulsa King](/serie/tulsa-king-153312) (Paramount+, vendredi 20 novembre) : nouveaux épisodes ; [The Gilded Age](/serie/the-gilded-age-81723) (HBO Max) continue le dimanche 22.",
+            "[MobLand](/serie/mobland-247718) et [Tulsa King](/serie/tulsa-king-153312) (Paramount+, vendredi 20 novembre) : nouveaux épisodes ; [The Gilded Age](/serie/the-gilded-age-81723) (HBO Max) continue le lundi 23.",
           ],
         },
         {

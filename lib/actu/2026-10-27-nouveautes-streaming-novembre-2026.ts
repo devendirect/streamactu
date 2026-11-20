@@ -41,7 +41,7 @@ export const ARTICLE_2026_10_27_NOVEMBRE: Article = {
   chapo:
     "En novembre 2026, Prime Video lance la saison 3 des Anneaux de pouvoir le 11 et Blade Runner 2099 le 25, Disney+ la saison 3 de Percy Jackson le 20, et Netflix la saison 2 de Black Doves le 5. Apple TV+ ramène Stick, HBO Max The Gilded Age, et Paramount+ termine la saison 2 de MobLand.",
   publie: "2026-10-27",
-  misAJour: "2026-10-27",
+  misAJour: "2026-11-20",
   brouillon: false,
   sections: [
     // ── Netflix ──
@@ -195,7 +195,7 @@ export const ARTICLE_2026_10_27_NOVEMBRE: Article = {
       oeuvre: { type: "serie", id: 254630 },
       blocs: [
         {
-          p: "Nouvelle série de braquage en huit épisodes : deux le jeudi 12 novembre, puis un chaque jeudi jusqu'au 24 décembre. Un braquage se prépare en 12 mois et s'exécute en 12 heures, et un braqueur qui n'est pas arrêté dans les 12 jours ne le sera jamais : sur trois époques, un agent du FBI et un criminel se poursuivent à travers l'Europe.",
+          p: "Nouvelle série de braquage en huit épisodes : deux le vendredi 13 novembre, puis un chaque vendredi jusqu'au 25 décembre. Un braquage se prépare en 12 mois et s'exécute en 12 heures, et un braqueur qui n'est pas arrêté dans les 12 jours ne le sera jamais : sur trois époques, un agent du FBI et un criminel se poursuivent à travers l'Europe.",
         },
       ],
     },
@@ -205,7 +205,7 @@ export const ARTICLE_2026_10_27_NOVEMBRE: Article = {
       blocs: [
         {
           ul: [
-            "[Nocturne](/serie/nocturne-292741) : la série policière commencée le 29 octobre continue chaque jeudi jusqu'au 24 décembre.",
+            "[Nocturne](/serie/nocturne-292741) : la série policière commencée le 29 octobre continue chaque vendredi jusqu'au 25 décembre.",
             "[Awkwafina : la cheffe improbable](/serie/awkwafina-la-cheffe-improbable-306179) (vendredi 6 novembre) : documentaire culinaire en huit épisodes.",
             "[Being Heumann](/film/being-heumann-1050981) (vendredi 13 novembre) : film de Sian Heder sur la militante des droits des personnes handicapées Judy Heumann (2 h 07).",
             "[Warrior Kid](/film/warrior-kid-1280115) (mercredi 25 novembre) : film familial de McG avec Chris Pratt (1 h 46).",
