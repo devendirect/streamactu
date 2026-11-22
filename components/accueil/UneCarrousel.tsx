@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { DiapoUne } from "@/lib/accueil";
 import BoutonMaListe from "@/components/BoutonMaListe";
 import Faisceau from "@/components/Faisceau";
+import CalqueSaison from "@/components/saison/CalqueSaison";
 import Icone from "@/components/Icone";
 import { metaContenu } from "@/components/CarteAffiche";
 import { hauteurLogo } from "@/lib/logo";
@@ -196,6 +197,9 @@ export default function UneCarrousel({ diapos }: { diapos: DiapoUne[] }) {
       <div aria-hidden="true" className={`une__lumiere ${tour === 0 ? "" : tour % 2 ? "vacille-a" : "vacille-b"}`}>
         <Faisceau />
       </div>
+
+      {/* Décor de saison (lib/saison.ts) : hors des diapositives, il reste en place quand les images changent */}
+      <CalqueSaison />
 
       {diapos.length > 1 && (
         <div role="group" aria-label="Choisir la diapositive" className="une__indicateurs">

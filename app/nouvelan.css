@@ -1,0 +1,96 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Thème « Nouvel An » (30 décembre → 2 janvier). Maquette : design-ref/maquettes-2026-12-noel/saisons/nouvelan-1-feux-artifice.html
+
+   Tout est sous [data-saison="nouvelan"], posé sur <html> par le script de lib/saison.ts.
+   Sans cet attribut, rien ici ne s'applique. Pour le retirer, voir la note en tête de lib/saison.ts.
+   La scène du hero est components/nouvelan/CalqueNouvelAn.tsx (compte à rebours, feux, vœux).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Palette : mêmes jetons que globals.css, nuit de réveillon ── */
+[data-saison="nouvelan"] {
+  --sa-fond: #05060e;
+  --sa-surface: #0e1020;
+  --sa-surface-2: #171a30;
+  --sa-texte: #f4f5ff;
+  --sa-texte-doux: #d6d9f0;
+  --sa-texte-2: #9da3c4;
+  --sa-trait: rgba(190, 200, 255, 0.16);
+  --sa-accent: #ffd75e;
+  --sa-sur-accent: #1a1300;
+  --sa-blanc-survol: #e6e8f8;
+  --sa-verre: rgba(120, 130, 175, 0.38);
+  --sa-velours: #1c1d4f;
+  --sa-velours-sombre: #0f1030;
+  --sa-velours-texte: #cfd3f2;
+  --sa-lumiere: #fff3c4;
+}
+
+/* Teinte bleu nuit sur les images (CSS pur : elle apparaît tout de suite) */
+[data-saison="nouvelan"] .une::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(40, 50, 170, 0.36), transparent 60%);
+}
+
+/* ── Compte à rebours, puis « Bonne année » ── */
+.pastille-na {
+  position: absolute;
+  right: var(--spacing-gouttiere);
+  top: 84px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--sa-accent);
+  background: color-mix(in srgb, var(--sa-fond) 62%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sa-accent) 45%, transparent);
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .pastille-na { top: 76px; font-size: 13px; padding: 7px 13px; }
+}
+
+/* ── Feux d'artifice : canvas (components/nouvelan/FeuxCanvas.tsx), transparent, sans clic ── */
+.feux-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Vœux au moment de minuit : apparaissent, restent, s'effacent (9 s) ── */
+.voeux-na {
+  position: absolute;
+  left: 50%;
+  top: 20%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: clamp(34px, 7vw, 108px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: #fff3c4;
+  text-shadow: 0 0 30px rgba(255, 215, 94, 0.75), 0 4px 24px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  animation: na-voeux 9s ease both;
+}
+@keyframes na-voeux {
+  0% { opacity: 0; transform: translateX(-50%) scale(0.9); }
+  12% { opacity: 1; transform: translateX(-50%) scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feux-canvas, .voeux-na { display: none; }
+}
+
+/* Les vœux en capitales de salle (Big Shoulders, déjà chargée par le site) */
+.voeux-na { font-family: var(--font-big-shoulders), var(--font-onest), sans-serif; font-variation-settings: "opsz" 72; font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em; font-size: clamp(50px, 9.5vw, 150px); }

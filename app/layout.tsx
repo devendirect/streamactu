@@ -7,8 +7,15 @@ import ApercuSurvol from "@/components/ApercuSurvol";
 import Annonce from "@/components/Annonce";
 import { ACTU_PUBLIEE } from "@/lib/actu";
 import ConsentAnalytics from "@/components/ConsentAnalytics";
+import NeigeNoel from "@/components/noel/NeigeNoel";
+import GestionEffets from "@/components/saison/GestionEffets";
 import { CONTACT_EMAIL, ORG_ID, REPO_URL, SITE_URL } from "@/lib/site";
+import { SCRIPT_SAISON } from "@/lib/saison";
 import "./globals.css";
+import "./saison.css";
+import "./noel.css";
+import "./nouvelan.css";
+import "./themes.css";
 
 // Police de toute l'interface (variable, 100 à 900)
 const onest = Onest({
@@ -118,10 +125,16 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
+    // suppressHydrationWarning : le script de saison pose data-saison avant l'hydratation
     <html
       lang="fr"
       className={`${onest.variable} ${bigShoulders.variable}`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* Thème de Noël : pose data-saison="noel" avant le premier affichage (lib/saison.ts) */}
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_SAISON }} />
+      </head>
       <body>
         <script
           type="application/ld+json"
@@ -146,6 +159,8 @@ export default function RootLayout({
           ]}
         />
         <ApercuSurvol />
+        <NeigeNoel />
+        <GestionEffets />
         <Annonce />
         {/* GA4 derrière consentement CNIL — inerte si NEXT_PUBLIC_GA_ID absent */}
         {process.env.NEXT_PUBLIC_GA_ID && (

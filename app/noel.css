@@ -1,0 +1,222 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Thème « Nuit polaire » de Noël (décembre). Maquette : design-ref/maquettes-2026-12-noel/E-nuit-polaire.html
+
+   Tout est sous [data-saison="noel"], posé sur <html> par le script de lib/saison.ts.
+   Sans cet attribut, rien ici ne s'applique : le design de base est intact.
+   Ce fichier n'est pas dans un @layer : ses règles l'emportent sur Tailwind, c'est voulu.
+   Pour retirer le thème, voir la note en tête de lib/saison.ts.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Palette : mêmes jetons que globals.css, valeurs glacées ── */
+[data-saison="noel"] {
+  --sa-fond: #060B16;
+  --sa-surface: #0E1626;
+  --sa-surface-2: #162238;
+  --sa-texte: #EEF4FF;
+  --sa-texte-doux: #D3DEF2;
+  --sa-texte-2: #93A5C4;
+  --sa-trait: rgba(190, 220, 255, 0.16);
+  --sa-accent: #8FD3FF;
+  --sa-sur-accent: #04121F;
+  --sa-blanc-survol: #DCE7F5;
+  --sa-verre: rgba(120, 140, 175, 0.38);
+  --sa-velours: #1B3A6B;
+  --sa-velours-sombre: #0E2145;
+  --sa-velours-texte: #C9D9F0;
+  --sa-lumiere: #E4F4FF;
+}
+
+/* Le fond du <html> reste visible derrière l'aurore et les étoiles */
+[data-saison="noel"] body {
+  background-color: transparent;
+}
+
+/* ── Aurore boréale et étoiles, fixes derrière le contenu ── */
+[data-saison="noel"] body::before,
+[data-saison="noel"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 75vh;
+  z-index: -1;
+  pointer-events: none;
+}
+[data-saison="noel"] body::before {
+  filter: blur(38px);
+  opacity: 0.5;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(40% 55% at 25% 28%, rgba(80, 255, 190, 0.5), transparent 70%),
+    radial-gradient(35% 50% at 55% 18%, rgba(90, 160, 255, 0.5), transparent 70%),
+    radial-gradient(35% 55% at 82% 30%, rgba(180, 110, 255, 0.45), transparent 70%);
+  -webkit-mask-image: linear-gradient(#000 35%, transparent);
+  mask-image: linear-gradient(#000 35%, transparent);
+  animation: noel-derive 16s ease-in-out infinite alternate;
+}
+[data-saison="noel"] body::after {
+  background-image:
+    radial-gradient(1.2px 1.2px at 8% 18%, #fff, transparent), radial-gradient(1px 1px at 22% 40%, #cfe6ff, transparent),
+    radial-gradient(1.4px 1.4px at 35% 12%, #fff, transparent), radial-gradient(1px 1px at 48% 30%, #cfe6ff, transparent),
+    radial-gradient(1.3px 1.3px at 61% 10%, #fff, transparent), radial-gradient(1px 1px at 72% 36%, #cfe6ff, transparent),
+    radial-gradient(1.4px 1.4px at 86% 16%, #fff, transparent), radial-gradient(1px 1px at 94% 44%, #cfe6ff, transparent);
+  animation: noel-etincelle 4s ease-in-out infinite alternate;
+}
+@keyframes noel-derive {
+  from { transform: translateX(-4%) scaleY(0.9); }
+  to { transform: translateX(5%) scaleY(1.12); }
+}
+@keyframes noel-etincelle {
+  from { opacity: 0.45; }
+  to { opacity: 1; }
+}
+@media (max-width: 760px) {
+  /* Mobile : aurore fixe et plus discrète (pas de flou animé) */
+  [data-saison="noel"] body::before { animation: none; opacity: 0.35; }
+}
+
+/* ── Neige qui tombe (components/noel/NeigeNoel.tsx) ── */
+.neige-noel {
+  display: none;
+}
+[data-saison="noel"] .neige-noel {
+  display: block;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 40;
+  pointer-events: none;
+}
+
+/* ── Neige posée sur le haut des affiches (4 images générées par
+      design-ref/maquettes-2026-12-noel/outils/generer-neige.py) ──
+   Seulement les affiches 2:3 des rangées et des grilles, pas les cartes paysage
+   ni le Top 10. Le haut de l'affiche tombe à 50 px sur 130 dans l'image (38,5 %). */
+[data-saison="noel"] :is(.rangee:not(.top10) .rangee__piste:not(.rangee__piste--paysage), [data-grille]) article[data-carte]::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: -3px;
+  width: calc(100% + 6px);
+  aspect-ratio: 480 / 130;
+  transform: translateY(-38.5%);
+  background: url("/noel/calotte-1.png") center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+[data-saison="noel"] :is(.rangee:not(.top10) .rangee__piste:not(.rangee__piste--paysage), [data-grille]) article[data-carte]:nth-child(4n + 2)::before {
+  background-image: url("/noel/calotte-2.png");
+}
+[data-saison="noel"] :is(.rangee:not(.top10) .rangee__piste:not(.rangee__piste--paysage), [data-grille]) article[data-carte]:nth-child(4n + 3)::before {
+  background-image: url("/noel/calotte-3.png");
+  transform: translateY(-38.5%) scaleX(-1);
+}
+[data-saison="noel"] :is(.rangee:not(.top10) .rangee__piste:not(.rangee__piste--paysage), [data-grille]) article[data-carte]:nth-child(4n + 4)::before {
+  background-image: url("/noel/calotte-4.png");
+}
+/* La rangée défile en horizontal et rogne ce qui dépasse en haut : on lui donne la place */
+[data-saison="noel"] .rangee:not(.top10) .rangee__piste:not(.rangee__piste--paysage) {
+  padding-top: 26px;
+  margin-top: -20px;
+}
+/* Le badge « Nouveau » descend sous la neige */
+[data-saison="noel"] :is(.rangee:not(.top10) .rangee__piste:not(.rangee__piste--paysage), [data-grille]) article[data-carte] a > span:first-child > span.absolute {
+  top: 28px;
+}
+
+/* ── Hero : traîneau à contre-jour (components/noel/CalqueNoel.tsx) ──
+   Le calque est posé dans la une par components/saison/CalqueSaison.tsx, au niveau du faisceau
+   (sous le titre et les indicateurs). La teinte, elle, est en CSS pur : elle apparaît tout de suite. */
+[data-saison="noel"] .une::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(40, 70, 160, 0.35), transparent 62%);
+}
+/* Le traîneau traverse de gauche à droite pendant 58 % du cycle, puis longue pause hors écran */
+.passage {
+  position: absolute;
+  left: 0;
+  top: var(--haut, 14%);
+  color: #03060d;
+  will-change: transform;
+  transform: translateX(-34vw);
+  animation: noel-passage var(--cycle, 26s) linear var(--delai, 3s) infinite;
+}
+@keyframes noel-passage {
+  0% { transform: translateX(-34vw); }
+  58%, 100% { transform: translateX(112vw); }
+}
+/* Halo chaud derrière la silhouette : elle reste visible même sur une image sombre */
+.passage::before {
+  content: "";
+  position: absolute;
+  inset: -70% -12%;
+  z-index: -1;
+  background: radial-gradient(ellipse closest-side, rgba(255, 244, 205, 0.9), rgba(255, 244, 205, 0.35) 45%, transparent 100%);
+}
+/* Traînée dorée qui s'étire derrière le traîneau */
+.passage::after {
+  content: "";
+  position: absolute;
+  right: calc(100% - 24px);
+  top: 44%;
+  width: clamp(120px, 16vw, 280px);
+  height: 5px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, transparent, rgba(255, 236, 170, 0.85));
+  filter: blur(2.5px);
+}
+.passage__bob {
+  animation: noel-bob 3s ease-in-out infinite alternate;
+}
+@keyframes noel-bob {
+  from { transform: translateY(-8px) rotate(-1.5deg); }
+  to { transform: translateY(8px) rotate(1.5deg); }
+}
+.passage svg {
+  display: block;
+  width: clamp(200px, 28vw, 440px);
+  height: auto;
+  aspect-ratio: 480 / 150;
+  overflow: visible;
+  /* liseré de lumière chaude autour de la silhouette : elle se détache de toute image */
+  filter: drop-shadow(0 0 1px rgba(255, 236, 180, 0.95)) drop-shadow(0 0 7px rgba(255, 220, 150, 0.4));
+}
+/* ── Animations du traîneau : galop des rennes, salut du Père Noël, nez, lanterne, clochettes ── */
+.passage .t-haut,
+.passage .t-bas {
+  transform-box: view-box;
+  transform-origin: var(--ox) var(--oy);
+  animation: noel-galop 0.56s ease-in-out infinite alternate;
+  animation-delay: var(--ph, 0s);
+}
+.passage .t-bas { animation-name: noel-genou; }
+@keyframes noel-galop {
+  from { transform: rotate(var(--a1)); }
+  to { transform: rotate(var(--a2)); }
+}
+@keyframes noel-genou {
+  from { transform: rotate(var(--k1, var(--a1))); }
+  to { transform: rotate(var(--k2, var(--a2))); }
+}
+.passage .t-corps { animation: noel-rebond 0.56s ease-in-out infinite alternate; animation-delay: var(--ph, 0s); }
+@keyframes noel-rebond {
+  from { transform: translateY(-2.2px) rotate(-1.2deg); }
+  to { transform: translateY(2.2px) rotate(1.2deg); }
+}
+.passage .t-bras { transform-box: view-box; transform-origin: 82px 80px; animation: noel-salut 1.1s ease-in-out infinite alternate; }
+@keyframes noel-salut { from { transform: rotate(-10deg); } to { transform: rotate(16deg); } }
+.passage .t-bonnet { transform-box: view-box; transform-origin: 78px 54px; animation: noel-bonnet 0.9s ease-in-out infinite alternate; }
+@keyframes noel-bonnet { from { transform: rotate(-7deg); } to { transform: rotate(8deg); } }
+.passage .t-nez-lueur { animation: noel-nez 1.3s ease-in-out infinite alternate; opacity: 0.55; }
+@keyframes noel-nez { from { opacity: 0.25; } to { opacity: 0.9; } }
+.passage .t-lanterne { animation: noel-flamme 1.7s ease-in-out infinite alternate; }
+@keyframes noel-flamme { 0% { opacity: 0.6; } 35% { opacity: 1; } 60% { opacity: 0.75; } 100% { opacity: 0.95; } }
+.passage .t-cloche { animation: noel-cloche 0.56s ease-in-out infinite alternate; animation-delay: var(--ph, 0s); }
+@keyframes noel-cloche { from { opacity: 0.7; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .passage { display: none; }
+}

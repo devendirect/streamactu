@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import Icone from "@/components/Icone";
 import { Repere, Symbole, Wordmark } from "@/components/Logo";
 import PastillePlateforme from "@/components/PastillePlateforme";
+import BoutonEffets from "@/components/saison/BoutonEffets";
 import { PLATEFORMES } from "@/lib/plateformes";
 
 export type LienEntete = { href: string; label: string; prefixe?: string } | { menu: "plateformes" };
@@ -132,6 +133,8 @@ export default function EnteteClient({ liens }: { liens: LienEntete[] }) {
       </nav>
 
       <div className="ml-auto flex items-center gap-1.5">
+        {/* Effets de saison : masqué hors saison (app/saison.css) */}
+        <BoutonEffets className={ACTION} />
         <Link href="/recherche" aria-label="Rechercher" aria-current={courant("/recherche")} className={ACTION}>
           <Icone nom="recherche" taille={22} />
         </Link>

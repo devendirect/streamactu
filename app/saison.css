@@ -1,0 +1,180 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Base commune du calque de saison dans la une (components/saison/CalqueSaison.tsx).
+   Chaque thème (noel.css, nouvelan.css…) ajoute ses propres éléments par-dessus.
+   Le calque est transparent, ne capte aucun clic et reste en place quand les images changent.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.calque-saison {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+  animation: saison-fondu 1.2s ease both;
+}
+@keyframes saison-fondu {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.calque-etoiles {
+  position: absolute;
+  inset: 0;
+  animation: saison-etincelle 4s ease-in-out infinite alternate;
+  background-image:
+    radial-gradient(1.2px 1.2px at 8% 18%, #fff, transparent), radial-gradient(1px 1px at 22% 40%, #cfe6ff, transparent),
+    radial-gradient(1.4px 1.4px at 35% 12%, #fff, transparent), radial-gradient(1px 1px at 48% 30%, #cfe6ff, transparent),
+    radial-gradient(1.3px 1.3px at 61% 10%, #fff, transparent), radial-gradient(1px 1px at 72% 36%, #cfe6ff, transparent),
+    radial-gradient(1.4px 1.4px at 86% 16%, #fff, transparent), radial-gradient(1px 1px at 94% 44%, #cfe6ff, transparent),
+    radial-gradient(1px 1px at 14% 52%, #fff, transparent), radial-gradient(1.2px 1.2px at 57% 48%, #fff, transparent);
+}
+@keyframes saison-etincelle {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+/* Mouvement réduit : le calque reste (il peut porter de l'information, comme le compte à rebours),
+   chaque thème masque seulement ses éléments animés */
+@media (prefers-reduced-motion: reduce) {
+  .calque-saison { animation: none; }
+  .calque-etoiles { animation: none; opacity: 0.7; }
+}
+
+/* ═══ Briques communes des scènes (components/saison/Briques.tsx) ═══ */
+
+/* Teinte du thème sur les images du hero (variable --teinte posée par chaque saison) */
+[data-saison] .une::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: var(--teinte, none);
+}
+
+/* Hauteur du hero : les particules parcourent toute cette hauteur */
+.calque-saison { --H: min(92vh, 900px); }
+@media (max-width: 760px) { .calque-saison { --H: 76vh; } }
+
+.calque-saison .spr { display: block; overflow: visible; }
+.calque-saison .flip { transform: scaleX(-1); }
+
+/* Élément qui traverse : de gauche à droite pendant 58 % du cycle, puis longue pause hors écran */
+.calque-saison .trav {
+  position: absolute; left: 0; top: var(--haut, 15%); will-change: transform; transform: translateX(-34vw);
+  animation: saison-trav var(--cycle, 24s) linear var(--delai, 3s) infinite;
+}
+.calque-saison .trav.rtl { left: auto; right: 0; transform: translateX(34vw); animation-name: saison-trav-rtl; }
+@keyframes saison-trav {
+  0% { transform: translateX(-34vw); }
+  58%, 100% { transform: translateX(112vw); }
+}
+@keyframes saison-trav-rtl {
+  0% { transform: translateX(34vw); }
+  58%, 100% { transform: translateX(-112vw); }
+}
+.calque-saison .bob { animation: saison-bob var(--bob, 3s) ease-in-out infinite alternate; }
+@keyframes saison-bob {
+  from { transform: translateY(-8px) rotate(-1.5deg); }
+  to { transform: translateY(8px) rotate(1.5deg); }
+}
+.calque-saison .flap { animation: saison-flap 0.32s ease-in-out infinite alternate; transform-origin: 50% 70%; }
+@keyframes saison-flap { from { transform: scaleY(1); } to { transform: scaleY(0.45); } }
+.calque-saison .ondule { animation: saison-ondule 2.2s ease-in-out infinite alternate; }
+@keyframes saison-ondule {
+  from { transform: translateY(-5px) rotate(-3deg); }
+  to { transform: translateY(7px) rotate(3deg); }
+}
+
+.calque-saison .tourne { animation: saison-tourne var(--tour, 1.4s) linear infinite; }
+@keyframes saison-tourne { to { transform: rotate(360deg); } }
+
+/* Particules : tombent (chute) ou montent (monte), avec dérive et rotation */
+.calque-saison .part {
+  position: absolute; top: -8%; left: var(--x); width: var(--s); height: var(--s); color: var(--c); opacity: 0.92;
+  will-change: transform; animation: saison-chute var(--t) linear var(--d) infinite;
+}
+.calque-saison .part svg { width: 100%; height: 100%; display: block; overflow: visible; }
+@keyframes saison-chute {
+  0% { transform: translate(0, -40px) rotate(0); }
+  100% { transform: translate(var(--dx), calc(var(--H) + 80px)) rotate(var(--r)); }
+}
+.calque-saison .part.monte { top: auto; bottom: -8%; animation-name: saison-monte; }
+@keyframes saison-monte {
+  0% { transform: translate(0, 40px) rotate(0); opacity: 0; }
+  12% { opacity: 0.95; }
+  100% { transform: translate(var(--dx), calc(-1 * (var(--H) + 80px))) rotate(var(--r)); opacity: 0.2; }
+}
+.calque-saison .part.lent { animation-timing-function: ease-in-out; }
+@keyframes saison-brume {
+  from { transform: translateX(-6%); }
+  to { transform: translateX(6%); }
+}
+/* Particules qui tournent aussi en 3D (pétales) */
+.calque-saison .part.trois { animation-name: saison-chute-3d; }
+@keyframes saison-chute-3d {
+  0% { transform: translate(0, -40px) rotateX(0) rotateY(0) rotateZ(0); }
+  100% { transform: translate(var(--dx), calc(var(--H) + 80px)) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--r)); }
+}
+/* Projecteurs qui balaient le ciel (Cannes, cérémonies) */
+.calque-saison .projo {
+  position: absolute; width: 150%; height: 190%; left: var(--px, -25%); bottom: -80%; transform-origin: 50% 100%; opacity: 0.4; filter: blur(2px);
+  background: conic-gradient(from 168deg at 50% 100%, transparent 0 8deg, rgba(255, 244, 214, 0.55) 12deg, rgba(255, 244, 214, 0.12) 20deg, transparent 24deg 360deg);
+  animation: saison-balaie var(--t, 9s) ease-in-out var(--d, 0s) infinite alternate;
+}
+@keyframes saison-balaie {
+  from { transform: rotate(-26deg); }
+  to { transform: rotate(26deg); }
+}
+/* Mobile : moins de particules */
+@media (max-width: 760px) { .calque-saison .part:nth-child(n + 14) { display: none; } }
+/* Mouvement réduit : ni éléments qui traversent ni particules */
+@media (prefers-reduced-motion: reduce) { .calque-saison .trav, .calque-saison .part, .calque-saison .projo { display: none; } }
+
+/* ═══ Effets de saison : mode calme et désactivation (components/saison/effets.ts) ═══
+   Tout ce qui bouge est rangé dans un conteneur .eff. Calme (après une boucle) : il s'éteint en fondu.
+   Désactivé par le visiteur : il disparaît tout de suite. .eff-evt = événement ponctuel (final du
+   Nouvel An, victoire de Pâques) : jamais calmé, seulement coupé si le visiteur a désactivé les effets. */
+.eff { position: absolute; inset: 0; pointer-events: none; }
+html[data-calme] .eff:not(.eff-evt) { opacity: 0; visibility: hidden; transition: opacity 2.6s ease, visibility 0s 2.6s; }
+html[data-effets="off"] .eff { opacity: 0; visibility: hidden; transition: none; }
+/* Le décor fixe qui reste à l'écran s'immobilise */
+html:is([data-calme], [data-effets="off"]) .calque-saison :is(.calque-etoiles, .cinema-neon b, .cinema-marquee, .cinema-pellicule, .anniv-badge, .anniv-etincelle, .oscars-statuette, .oscars-lueur, .cannes-palme, .ete-palme, .paques-oeuf .spr, .halloween-lune) { animation-play-state: paused; }
+html:is([data-calme], [data-effets="off"]) .calque-saison .cannes-palme::before,
+html:is([data-calme], [data-effets="off"]) .calque-saison .paques-oeuf::after { animation-play-state: paused; }
+/* Effets au niveau de la page : le hero qui tangue (1er avril), qui vibre (4 mai), l'aurore de Noël */
+html:is([data-calme], [data-effets="off"])[data-saison="avril"] :is(.une__diapo, article[data-carte]),
+html:is([data-calme], [data-effets="off"])[data-saison="espace"] .une__diapo,
+html:is([data-calme], [data-effets="off"])[data-saison="noel"] body::before,
+html:is([data-calme], [data-effets="off"])[data-saison="noel"] body::after { animation-play-state: paused; }
+html[data-effets="off"][data-saison="noel"] body::before { display: none; }
+/* Neige : quelques flocons discrets en mode calme, aucune si désactivée */
+.neige-noel { transition: opacity 2.6s ease; }
+html[data-calme] .neige-noel { opacity: 0.55; }
+html[data-effets="off"] .neige-noel { display: none; }
+html[data-effets="off"] .voeux-na { display: none; }
+
+/* Bouton « Effets de saison » de l'en-tête : visible seulement pendant une saison */
+[data-bouton-effets] { display: none; }
+html[data-saison] [data-bouton-effets] { display: grid; position: relative; place-items: center; color: var(--sa-accent); }
+html[data-saison] [data-bouton-effets][aria-pressed="false"] { color: var(--sa-texte-2); }
+.effets-barre { position: absolute; width: 24px; height: 2px; border-radius: 2px; background: currentColor; transform: rotate(-45deg); }
+
+/* ═══ Touches légères aux couleurs de la saison : titres de rangée et cartes (aucune police ajoutée) ═══ */
+html[data-saison] [data-rangee] :is(h1, h2)::before {
+  content: ""; display: inline-block; width: 0.78em; height: 0.78em; margin-right: 0.5em; vertical-align: -0.06em; background: var(--sa-accent);
+  -webkit-mask: var(--orn) center / contain no-repeat; mask: var(--orn) center / contain no-repeat;
+}
+/* Lueur de la couleur d'accent autour de l'affiche survolée */
+html[data-saison] :is(.rangee:not(.top10) .rangee__piste:not(.rangee__piste--paysage), [data-grille]) article[data-carte] a > span:first-child { transition: box-shadow 0.3s ease; }
+html[data-saison] :is(.rangee:not(.top10) .rangee__piste:not(.rangee__piste--paysage), [data-grille]) article[data-carte]:hover a > span:first-child { box-shadow: 0 0 0 1px color-mix(in srgb, var(--sa-accent) 70%, transparent), 0 12px 30px -10px color-mix(in srgb, var(--sa-accent) 55%, transparent); }
+/* Petit détail dans le coin des affiches : toile d'araignée, cœur, feuille */
+html[data-saison="halloween"] :is(.rangee:not(.top10) .rangee__piste:not(.rangee__piste--paysage), [data-grille]) article[data-carte]::after { content: ""; position: absolute; z-index: 2; top: 0; right: 0; width: 46px; height: 46px; opacity: 0.7; pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.7' stroke-width='1.2'%3E%3Cpath d='M80 0L0 0M80 0L74 30M80 0L56 56M80 0L30 74M80 0L80 80'/%3E%3Cpath d='M62 0Q66 14 80 18M42 0Q50 30 80 38M22 0Q34 46 80 58'/%3E%3C/g%3E%3C/svg%3E") top right / contain no-repeat; }
+html[data-saison="valentin"] :is(.rangee:not(.top10) .rangee__piste:not(.rangee__piste--paysage), [data-grille]) article[data-carte]::after { content: ""; position: absolute; z-index: 2; top: 8px; right: 8px; width: 22px; height: 20px; pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ff6b8b' d='M12 21 C-3 10 4 -1 12 6 C20 -1 27 10 12 21Z'/%3E%3C/svg%3E") center / contain no-repeat; filter: drop-shadow(0 0 5px rgba(255, 107, 139, 0.85)); }
+html[data-saison="rentree"] :is(.rangee:not(.top10) .rangee__piste:not(.rangee__piste--paysage), [data-grille]) article[data-carte]::after { content: ""; position: absolute; z-index: 2; top: -8px; left: -8px; width: 34px; height: 34px; transform: rotate(-24deg); pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath fill='%23e8581c' d='M20 2 L23 10 L30 7 L28 15 L37 14 L31 21 L36 26 L27 26 L28 34 L21 30 L20 39 L19 30 L12 34 L13 26 L4 26 L9 21 L3 14 L12 15 L10 7 L17 10 Z'/%3E%3C/svg%3E") center / contain no-repeat; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45)); }
+:root[data-saison="noel"], :root[data-saison="nouvelan"], :root[data-saison="cannes"], :root[data-saison="espace"], :root[data-saison="cinema"], :root[data-saison="oscars"] { --orn: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1 L14.6 9.4 L23 12 L14.6 14.6 L12 23 L9.4 14.6 L1 12 L9.4 9.4Z'/%3E%3C/svg%3E"); }
+:root[data-saison="valentin"] { --orn: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21 C-3 10 4 -1 12 6 C20 -1 27 10 12 21Z'/%3E%3C/svg%3E"); }
+:root[data-saison="rentree"] { --orn: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M20 2 L23 10 L30 7 L28 15 L37 14 L31 21 L36 26 L27 26 L28 34 L21 30 L20 39 L19 30 L12 34 L13 26 L4 26 L9 21 L3 14 L12 15 L10 7 L17 10 Z'/%3E%3C/svg%3E"); }
+:root[data-saison="paques"] { --orn: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 C18 2 21 14 21 17 C21 21 17 23 12 23 C7 23 3 21 3 17 C3 14 6 2 12 2Z'/%3E%3C/svg%3E"); }
+:root[data-saison="halloween"] { --orn: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3Cpath d='M30 11 Q27 5 24 7 Q14 1 1 6 Q8 9 6 16 Q12 12 16 18 Q21 12 26 18 L30 27 L34 18 Q39 12 44 18 Q48 12 54 16 Q52 9 59 6 Q46 1 36 7 Q33 5 30 11Z'/%3E%3C/svg%3E"); }
+:root[data-saison="avril"] { --orn: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 12 C8 4 16 4 20 12 C16 20 8 20 2 12Z M18 12 L24 6 L24 18Z'/%3E%3C/svg%3E"); }
+:root[data-saison="ete"] { --orn: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 7 a5 5 0 1 0 0 10 a5 5 0 0 0 0 -10 Z M11 1 h2 v4 h-2 Z M11 19 h2 v4 h-2 Z M1 11 h4 v2 h-4 Z M19 11 h4 v2 h-4 Z'/%3E%3C/svg%3E"); }
+:root[data-saison="anniv"] { --orn: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1 C18 1 20 8 17 13 C16 15 14 17 12 17 C10 17 8 15 7 13 C4 8 6 1 12 1Z M11 17 L13 17 L12 19Z'/%3E%3C/svg%3E"); }
