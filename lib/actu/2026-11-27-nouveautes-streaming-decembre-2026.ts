@@ -3,9 +3,26 @@ import type { Article } from "../actu";
 /**
  * BROUILLON du 2026-11-20 (deuxième article « mois »), relevé TMDB du jour :
  * séries par réseau d'origine et par plateforme en France, films par sortie
- * numérique FR, dates d'épisodes par /tv/{id}/season/{n}. À REFAIRE LE JEUDI
- * 26 NOVEMBRE (les plateformes publient leurs listes de décembre autour du
- * 24-26 novembre) puis publier le vendredi 27 (brouillon: false).
+ * numérique FR, dates d'épisodes par /tv/{id}/season/{n}. Revérifié le
+ * vendredi 27/11 (relevé TMDB refait, listes de décembre des plateformes),
+ * à publier ce jour après relecture (brouillon: false).
+ *
+ * Revérification du 27/11 :
+ * - Toutes les dates TMDB des titres cités sont inchangées. Ray Gunn passe à
+ *   120 min (2 h).
+ * - Emily in Paris : dernière saison, confirmée par Netflix (Tudum, annonce du
+ *   21 mai), 10 épisodes le 24 décembre (journaldugeek.com du 12/11).
+ * - Maxton Hall : dernière saison selon gameblog.fr et tv-direct.fr.
+ * - Loups Garous saison 3 : 15 joueurs (et non 13), vendredi 4 décembre à
+ *   21 h, deux épisodes puis un par semaine ; les deux premiers gratuits sur
+ *   l'application Canal+ (journaldugeek.com du 09/11, serie-news.com, ozap.com).
+ * - Ajouts : La Cage saison 2 (Netflix, 16/12, TMDB + listes jechange.fr,
+ *   dlgaming.fr), Meurtres à Åre saison 2 (Netflix, 27/12, TMDB), Jumpers
+ *   (Disney+, 4/12, serie-news.com, sortiraparis.com, page Disney+).
+ * - Écartés : Validé saison 3 sur Netflix le 9/12 et Astérix et Obélix : Au
+ *   service de Sa Majesté le 23/12 (une liste seulement, rien de confirmé),
+ *   Le Conte de deux cités (Prime Video le 18/12, une source), Fury-Joshua en
+ *   direct le 11/12 (sport, hors format).
  *
  * À vérifier à la reprise (rien n'est confirmé par une annonce officielle) :
  * - Trinity (Netflix), 7 épisodes le 1er décembre : confirmé le 20/11 par
@@ -40,10 +57,10 @@ export const ARTICLE_2026_11_27_DECEMBRE: Article = {
   description:
     "Harry Potter, Emily in Paris, Trinity, Alice, Only Murders : les nouveautés de décembre 2026 sur Netflix, Prime Video, Disney+ et les autres.",
   chapo:
-    "En décembre 2026, Netflix lance Trinity le 1er, Orgueil et Préjugés le 3, Les Nouvelles Mésaventures de Cliff Booth le 23 et la saison 6 d'Emily in Paris le 24. HBO Max commence Alice le 4 et la série Harry Potter le 25, Disney+ ramène Only Murders in the Building, et Prime Video la saison 3 de Maxton Hall.",
+    "En décembre 2026, Netflix lance Trinity le 1er, Orgueil et Préjugés le 3, Les Nouvelles Mésaventures de Cliff Booth le 23 et la sixième et dernière saison d'Emily in Paris le 24. HBO Max commence Alice le 4 et la série Harry Potter le 25, Disney+ ramène Only Murders in the Building, et Prime Video la saison 3 de Maxton Hall.",
   publie: "2026-11-27",
   misAJour: "2026-11-27",
-  brouillon: true,
+  brouillon: false,
   sections: [
     // ── Netflix ──
     {
@@ -72,7 +89,7 @@ export const ARTICLE_2026_11_27_DECEMBRE: Article = {
       oeuvre: { type: "serie", id: 82596 },
       blocs: [
         {
-          p: "Les dix épisodes sont attendus le jeudi 24 décembre. La série de Darren Star suit Emily, une Américaine qui travaille dans le marketing à Paris. Lily Collins, Philippine Leroy-Beaulieu, Ashley Park et Lucas Bravo reprennent leurs rôles.",
+          p: "La sixième et dernière saison arrive le jeudi 24 décembre, avec ses dix épisodes d'un coup : Netflix a annoncé en mai que la série s'arrêterait là. La série de Darren Star suit Emily, une Américaine qui travaille dans le marketing à Paris. Lily Collins, Philippine Leroy-Beaulieu, Ashley Park et Lucas Bravo reprennent leurs rôles.",
         },
       ],
     },
@@ -83,7 +100,9 @@ export const ARTICLE_2026_11_27_DECEMBRE: Article = {
         {
           ul: [
             "[Les Nouvelles Mésaventures de Cliff Booth](/film/les-nouvelles-mesaventures-de-cliff-booth-1457866) (mercredi 23 décembre) : film de David Fincher avec Brad Pitt, huit ans après Once Upon a Time… in Hollywood, avec Cliff dans un nouveau rôle de fixateur de studio (2 h 21).",
-            "[Ray Gunn](/film/ray-gunn-940009) (vendredi 18 décembre) : film d'animation de Brad Bird, dans un futur où humains et extraterrestres cohabitent ; le dernier détective privé humain enquête sur la fidélité d'une pop star (1 h 59).",
+            "[Ray Gunn](/film/ray-gunn-940009) (vendredi 18 décembre) : film d'animation de Brad Bird, dans un futur où humains et extraterrestres cohabitent ; le dernier détective privé humain enquête sur la fidélité d'une pop star (2 h).",
+            "[La Cage](/serie/la-cage-230003), saison 2 (mercredi 16 décembre) : la série de Franck Gastambide sur le MMA revient.",
+            "[Meurtres à Åre](/serie/meurtres-a-are-224021), saison 2 (dimanche 27 décembre) : le polar suédois revient avec six épisodes.",
             "[Selling Sunset](/serie/selling-sunset-87826), saison 10 (vendredi 4 décembre).",
           ],
         },
@@ -100,7 +119,7 @@ export const ARTICLE_2026_11_27_DECEMBRE: Article = {
       oeuvre: { type: "serie", id: 250670 },
       blocs: [
         {
-          p: "Six épisodes : deux le mercredi 9 décembre, deux le 16 et les deux derniers le 23. La série allemande suit James Beaufort, héritier millionnaire d'un lycée privé, et Ruby Bell, boursière, nés d'un secret que Ruby découvre par hasard. Damian Hardung et Harriet Herbig-Matten jouent le couple.",
+          p: "Troisième et dernière saison, en six épisodes : deux le mercredi 9 décembre, deux le 16 et les deux derniers le 23. La série allemande suit James Beaufort, héritier millionnaire d'un lycée privé, et Ruby Bell, boursière, nés d'un secret que Ruby découvre par hasard. Damian Hardung et Harriet Herbig-Matten jouent le couple.",
         },
       ],
     },
@@ -137,6 +156,7 @@ export const ARTICLE_2026_11_27_DECEMBRE: Article = {
       blocs: [
         {
           ul: [
+            "[Jumpers](/film/jumpers-1327819) (vendredi 4 décembre) : le film Pixar sorti au cinéma en mars ; Mabel transfère sa conscience dans un robot-castor pour parler aux animaux et les rallier contre un maire qui menace leur forêt (1 h 44).",
             "[Journal d'un dégonflé Noël : Sauve qui peut !](/film/journal-d-un-degonfle-noel-sauve-qui-peut-1519780) (vendredi 4 décembre) : film d'animation où la famille Heffley s'envole vers un complexe hôtelier sur une île pour échapper au stress des fêtes (1 h 30).",
           ],
         },
@@ -192,7 +212,7 @@ export const ARTICLE_2026_11_27_DECEMBRE: Article = {
       titre: "Loups garous, saison 3",
       blocs: [
         {
-          p: "Nouvelle saison attendue le vendredi 4 décembre. Canal+ transforme Les Loups-Garous de Thiercelieux, le jeu de société, en expérience grandeur nature : treize joueurs spécialistes de stratégie et de dissimulation s'affrontent en temps réel. Fary Lopes et Panayotis Pascot sont à l'origine de la série.",
+          p: "Nouvelle saison le vendredi 4 décembre à 21 h, avec deux épisodes, puis un par semaine ; ces deux premiers épisodes sont gratuits sur l'application Canal+, même sans abonnement. Canal+ transforme Les Loups-Garous de Thiercelieux, le jeu de société, en expérience grandeur nature : quinze joueurs spécialistes de stratégie et de dissimulation s'affrontent en temps réel. Fary Lopes et Panayotis Pascot sont à l'origine de la série.",
         },
         {
           p: "La liste complète, complétée au fil du mois : [nouveautés Canal+ de décembre 2026](/canal-plus/decembre-2026).",

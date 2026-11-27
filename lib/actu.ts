@@ -10,6 +10,7 @@ import { ARTICLE_2026_10_30_WEEKEND } from "./actu/2026-10-30-que-regarder-ce-we
 import { ARTICLE_2026_11_06_WEEKEND } from "./actu/2026-11-06-que-regarder-ce-week-end";
 import { ARTICLE_2026_11_13_WEEKEND } from "./actu/2026-11-13-que-regarder-ce-week-end";
 import { ARTICLE_2026_11_20_WEEKEND } from "./actu/2026-11-20-que-regarder-ce-week-end";
+import { ARTICLE_2026_11_27_WEEKEND } from "./actu/2026-11-27-que-regarder-ce-week-end";
 import { ARTICLE_2026_11_27_DECEMBRE } from "./actu/2026-11-27-nouveautes-streaming-decembre-2026";
 
 /**
@@ -79,6 +80,7 @@ export interface Article {
 
 /** Tous les articles, brouillons compris (tests) */
 export const TOUS_LES_ARTICLES: Article[] = [
+  ARTICLE_2026_11_27_WEEKEND,
   ARTICLE_2026_11_27_DECEMBRE,
   ARTICLE_2026_11_20_WEEKEND,
   ARTICLE_2026_11_13_WEEKEND,
