@@ -131,7 +131,7 @@ export const GUIDE_SERIES_TOURNEES_PARIS: Guide = {
           ],
         },
         {
-          p: "La méthode de rapprochement entre la base de la Ville et les fiches est détaillée dans [À propos](/a-propos#methode). Pour la suite, les [prochaines sorties](/prochaines-sorties) donnent les séries annoncées sur toutes les plateformes.",
+          p: "La méthode de rapprochement entre la base de la Ville et les fiches est détaillée dans [À propos](/a-propos#methode). Hors de Paris, les [lieux de tournage en France](/lieux-de-tournage) rassemblent, région par région, les films et séries disponibles en streaming. Pour la suite, les [prochaines sorties](/prochaines-sorties) donnent les séries annoncées sur toutes les plateformes.",
         },
       ],
     },

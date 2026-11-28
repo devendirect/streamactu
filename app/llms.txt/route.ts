@@ -61,6 +61,7 @@ ${recapsAnnuels}
 
 - [Accueil](${SITE_URL}/) : les sorties du jour, plateforme par plateforme
 - [Prochaines sorties](${SITE_URL}/prochaines-sorties) : le calendrier des sorties à venir
+- [Lieux de tournage en France](${SITE_URL}/lieux-de-tournage) : les films et séries disponibles en streaming, classés par région et par ville de tournage (Wikidata)
 - [Retrouveur](${SITE_URL}/retrouver) : retrouver un film ou une série à partir d'une description (IA)
 - [Sitemap](${SITE_URL}/sitemap.xml) : toutes les fiches films et séries
 - [Flux RSS](${SITE_URL}/flux.xml) : les nouveautés des 7 derniers jours

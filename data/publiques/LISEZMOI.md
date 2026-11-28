@@ -7,6 +7,7 @@ Ils ne relèvent pas de la licence MIT du code : chacun garde la licence de sa s
 |---|---|---|---|---|
 | `visas-cnc.json.br` | [Liste des visas d'exploitations cinématographiques](https://www.data.gouv.fr/datasets/6311c164ebfb165ddc828ded) | Centre national du cinéma et de l'image animée (CNC) | [Licence Ouverte v2.0 (Etalab)](https://www.etalab.gouv.fr/licence-ouverte-open-licence/) | `import-visas-cnc.mjs` |
 | `entrees-cnc.json.br` | [Films ayant réalisé plus d'un million d'entrées](https://www.data.gouv.fr/datasets/films-ayant-realise-plus-dun-million-dentrees) | CNC | [Licence Ouverte (Etalab)](https://www.etalab.gouv.fr/licence-ouverte-open-licence/) | `import-entrees-cnc.mjs` |
+| `tournages-france.json.br` | [Wikidata, lieu de tournage (P915)](https://www.wikidata.org/wiki/Property:P915), titres et disponibilités TMDB | Contributeurs de Wikidata | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (lieux) | `import-tournages-france.mjs` |
 | `tournages-paris.json.br` | [Lieux de tournage à Paris](https://opendata.paris.fr/explore/dataset/lieux-de-tournage-a-paris/) | Ville de Paris | [Open Database License (ODbL) 1.0](https://opendatacommons.org/licenses/odbl/1-0/) | `import-tournages-paris.mjs` |
 
 ## Base dérivée sous ODbL

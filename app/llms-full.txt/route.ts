@@ -77,6 +77,7 @@ ${PLATEFORMES.map((pf) => `- [Nouveautés ${pf.nom} ${annee}](${SITE_URL}/${pf.s
 
 - [Sitemap](${SITE_URL}/sitemap.xml) : toutes les fiches films et séries
 - [Flux RSS](${SITE_URL}/flux.xml) : les nouveautés des 7 derniers jours
+- [Lieux de tournage en France](${SITE_URL}/lieux-de-tournage) : films et séries disponibles en streaming tournés en France, par région et par ville (Paris, Marseille, Nice, Lyon…), outre-mer compris ; lieux tirés de Wikidata, plateformes relues chaque jour
 - [Calendrier des sorties](${SITE_URL}/calendrier/prochaines-sorties.ics) : les sorties à venir au format iCalendar, à ajouter à son agenda ; une adresse par plateforme (${SITE_URL}/calendrier/netflix.ics, …)
 - [À propos](${SITE_URL}/a-propos) : éditeur, sources, méthode de classement, limites, financement
 ${GUIDES.map((g) => `- [${g.titre}](${SITE_URL}/guides/${g.slug}) : ${g.description}`).join("\n")}

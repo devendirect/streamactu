@@ -5,7 +5,7 @@ import { PLATEFORMES } from "./plateformes";
 import { parseMoisURL } from "./utils";
 
 const PLATEFORMES_SLUGS = new Set(PLATEFORMES.map((p) => p.slug));
-const STATIQUES = new Set(["/", "/a-propos", "/mentions-legales", "/contact", "/guides", "/jeux", "/prochaines-sorties", "/ma-liste", "/retrouver"]);
+const STATIQUES = new Set(["/", "/a-propos", "/mentions-legales", "/contact", "/guides", "/jeux", "/prochaines-sorties", "/ma-liste", "/retrouver", "/lieux-de-tournage"]);
 
 /** Le lien mène-t-il à une route qui existe ? (forme seulement, pas le contenu) */
 function routeConnue(lien: string): boolean {

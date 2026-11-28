@@ -40,6 +40,7 @@ export default function Footer() {
         ...(ACTU_PUBLIEE ? [{ href: "/actu", label: "Actu" }] : []),
         ...EDITIONS_COURANTES.map((a) => ({ href: cheminFixe(a.format), label: ADRESSES_FIXES[a.format].libelle })),
         { href: "/guides", label: "Guides" },
+        { href: "/lieux-de-tournage", label: "Lieux de tournage" },
         { href: "/retrouver", label: "Retrouver un titre" },
         { href: "/surprise", label: "À la surprise" },
         { href: "/jeux", label: "Jeux" },

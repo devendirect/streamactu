@@ -87,6 +87,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // ── Prochaines sorties ──
   entries.push({
+    url: `${BASE}/lieux-de-tournage`,
+    changeFrequency: "weekly",
+    priority: 0.6,
+  });
+  entries.push({
     url: `${BASE}/prochaines-sorties`,
     changeFrequency: "daily",
     priority: 0.8,

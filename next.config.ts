@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
       "./data/publiques/entrees-cnc.json.br",
     ],
     "/serie/*": ["./data/publiques/tournages-paris.json.br"],
+    "/lieux-de-tournage": ["./data/publiques/tournages-france.json.br"],
   },
   // Pas d'en-tête « X-Powered-By: Next.js » (inutile, et renseigne sur la pile)
   poweredByHeader: false,
