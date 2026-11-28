@@ -21,6 +21,7 @@ const PRIX_MAJEURS = [
   /^César\b/,
   /^Lion d'or\b/,
   /^Ours d'or\b/,
+  /^[Gg]rand prix du Festival de Cannes\b/, // libellé Wikidata en minuscule (Q844804)
   /^Golden Globe\b/,
   /^Primetime Emmy Award\b/,
   /^British Academy (Film|Television) Award\b/,
@@ -34,10 +35,21 @@ export interface FaitsWikidata {
   /** Prix majeurs au-delà de MAX_PRIX */
   autresPrix: number;
   /** « basé sur » (P144) : roman, BD… ou personnage (VisionQuest → Vision), d'où « D'après » à l'affichage */
-  adapteDe: string[];
+  adapteDe: OeuvreSource[];
   tournage: string[];
   allocine: string | null;
   senscritique: string | null;
+  /** Fiche UniFrance (P3961, films seulement : la propriété ne vise que les films) */
+  unifrance: string | null;
+}
+
+/** Œuvre adaptée : auteurs (P50) et première publication (P577) seulement pour une œuvre écrite */
+export interface OeuvreSource {
+  libelle: string;
+  auteurs: string[];
+  annee: number | null;
+  /** Identifiant BnF de l'œuvre (P268), pour le lien data.bnf.fr */
+  bnf: string | null;
 }
 
 /** Sous-ensemble utile d'une déclaration Wikidata */
@@ -62,20 +74,50 @@ function chaine(d: Declaration): string | null {
   return typeof v === "string" ? v : null;
 }
 
-/** Entités à libeller : œuvres adaptées, lieux et prix */
-export function entitesReferencees(claims: Declarations): string[] {
+/** Œuvres adaptées (P144) : leurs déclarations sont lues pour l'auteur et la date */
+export function oeuvresSourcesReferencees(claims: Declarations): string[] {
+  return [...new Set(valeurs(claims, "P144").map(idEntite).filter((q): q is string => !!q))];
+}
+
+/** Entités à libeller : œuvres adaptées et leurs auteurs, lieux et prix */
+export function entitesReferencees(claims: Declarations, sources: Record<string, Declarations> = {}): string[] {
+  const auteurs = Object.values(sources).flatMap((s) => valeurs(s, "P50").map(idEntite));
   return [
     ...new Set(
-      ["P144", "P915", "P166"].flatMap((p) => valeurs(claims, p).map(idEntite).filter((q): q is string => !!q))
+      [...["P144", "P915", "P166"].flatMap((p) => valeurs(claims, p).map(idEntite)), ...auteurs].filter(
+        (q): q is string => !!q
+      )
     ),
   ];
+}
+
+/** Première année de publication (P577), ou null */
+function anneePublication(claims: Declarations): number | null {
+  const annees = valeurs(claims, "P577")
+    .map((d) => (d.mainsnak.datavalue?.value as { time?: string } | undefined)?.time)
+    .map((t) => (t ? Number(t.replace(/^[+]/, "").slice(0, 4)) : NaN))
+    .filter((a) => Number.isFinite(a) && a > 0);
+  return annees.length ? Math.min(...annees) : null;
+}
+
+/**
+ * « Le Comte de Monte-Cristo, d'Alexandre Dumas (1844) » ; « Vision » ;
+ * « Les Enfants de la Résistance, de Vincent Dugomier et Benoît Ers ».
+ */
+export function phraseOeuvreSource(o: OeuvreSource): string {
+  if (o.auteurs.length === 0) return o.annee ? `${o.libelle} (${o.annee})` : o.libelle;
+  const noms = o.auteurs.length === 1 ? o.auteurs[0] : `${o.auteurs.slice(0, -1).join(", ")} et ${o.auteurs.at(-1)}`;
+  // Élision devant une voyelle seulement : devant un h, l'usage varie selon le nom
+  const de = /^[aeiouyàâéèêëîïôöûüœ]/i.test(noms) ? "d'" : "de ";
+  return `${o.libelle}, ${de}${noms}${o.annee ? ` (${o.annee})` : ""}`;
 }
 
 /** Faits d'une fiche à partir des déclarations et des libellés français des entités citées */
 export function extraireFaits(
   claims: Declarations,
   libelles: Record<string, string>,
-  type: "film" | "serie"
+  type: "film" | "serie",
+  sources: Record<string, Declarations> = {}
 ): FaitsWikidata {
   const prixMajeurs = valeurs(claims, "P166")
     .map((d) => {
@@ -95,10 +137,29 @@ export function extraireFaits(
 
   const idAllocine = valeurs(claims, type === "film" ? "P1265" : "P1267").map(chaine).find(Boolean);
   const idSensCritique = valeurs(claims, "P10100").map(chaine).find(Boolean);
+  const idUnifrance = type === "film" ? valeurs(claims, "P3961").map(chaine).find(Boolean) : null;
+
+  const vuesSources = new Set<string>();
+  const adapteDe: OeuvreSource[] = [];
+  for (const q of oeuvresSourcesReferencees(claims)) {
+    const libelle = libelles[q];
+    if (!libelle || vuesSources.has(libelle)) continue;
+    vuesSources.add(libelle);
+    const s = sources[q] ?? {};
+    const auteurs = [...new Set(valeurs(s, "P50").map((d) => libelles[idEntite(d) ?? ""]).filter(Boolean))];
+    adapteDe.push({
+      libelle,
+      auteurs,
+      // Sans auteur, ce n'est pas une œuvre écrite (personnage, lieu…) : pas d'année non plus
+      annee: auteurs.length ? anneePublication(s) : null,
+      bnf: valeurs(s, "P268").map(chaine).find(Boolean) ?? null,
+    });
+  }
+
   return {
     prix: uniques.slice(0, MAX_PRIX).map(({ libelle, annee }) => ({ libelle, annee })),
     autresPrix: Math.max(0, uniques.length - MAX_PRIX),
-    adapteDe: libellesDe("P144"),
+    adapteDe,
     tournage: libellesDe("P915", MAX_LIEUX),
     // Formats d'URL des propriétés Wikidata (P1630), relevés le 2026-10-23
     allocine: idAllocine
@@ -107,12 +168,16 @@ export function extraireFaits(
         : `https://www.allocine.fr/series/ficheserie_gen_cserie=${encodeURIComponent(idAllocine)}.html`
       : null,
     senscritique: idSensCritique ? `https://www.senscritique.com/film/-/${encodeURIComponent(idSensCritique)}` : null,
+    // Format d'URL P1630 de P3961, relevé le 2026-11-28
+    unifrance: idUnifrance ? `https://www.unifrance.org/film/${encodeURIComponent(idUnifrance)}` : null,
   };
 }
 
 /** Rien à montrer ? */
 export function faitsVides(f: FaitsWikidata): boolean {
-  return !f.prix.length && !f.adapteDe.length && !f.tournage.length && !f.allocine && !f.senscritique;
+  return (
+    !f.prix.length && !f.adapteDe.length && !f.tournage.length && !f.allocine && !f.senscritique && !f.unifrance
+  );
 }
 
 async function api<T>(params: Record<string, string>): Promise<T> {
@@ -138,8 +203,19 @@ const faitsEnCache = unstable_cache(
       props: "claims",
     });
     const claims = r.entities[qid]?.claims ?? {};
+    // Déclarations des œuvres adaptées (auteur, date, BnF) : un appel de plus, seulement s'il y en a
+    const idsSources = oeuvresSourcesReferencees(claims).slice(0, 50);
+    const sources: Record<string, Declarations> = {};
+    if (idsSources.length > 0) {
+      const s = await api<{ entities: Record<string, { claims?: Declarations }> }>({
+        action: "wbgetentities",
+        ids: idsSources.join("|"),
+        props: "claims",
+      });
+      for (const [q, e] of Object.entries(s.entities)) if (e.claims) sources[q] = e.claims;
+    }
     // Libellés français des entités citées, par lots de 50 (limite de l'API)
-    const refs = entitesReferencees(claims);
+    const refs = entitesReferencees(claims, sources);
     const libelles: Record<string, string> = {};
     for (let i = 0; i < refs.length; i += 50) {
       const l = await api<{ entities: Record<string, { labels?: { fr?: { value: string } } }> }>({
@@ -150,10 +226,12 @@ const faitsEnCache = unstable_cache(
       });
       for (const [q, e] of Object.entries(l.entities)) if (e.labels?.fr) libelles[q] = e.labels.fr.value;
     }
-    const faits = extraireFaits(claims, libelles, type);
+    const faits = extraireFaits(claims, libelles, type, sources);
     return faitsVides(faits) ? null : faits;
   },
-  ["faits-wikidata"],
+  // v2 (2026-11-28) : adapteDe passe de string[] à OeuvreSource[] ; nouvelle clé
+  // pour ne jamais relire l'ancienne forme encore en cache
+  ["faits-wikidata-v2"],
   { revalidate: 604800 }
 );
 

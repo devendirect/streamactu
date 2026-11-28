@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 // unstable_cache n'existe qu'avec le runtime Next : on le neutralise
 vi.mock("next/cache", () => ({ unstable_cache: (f: unknown) => f }));
 
-import { type Declarations, entitesReferencees, extraireFaits, faitsVides } from "./wikidata";
+import { type Declarations, entitesReferencees, extraireFaits, faitsVides, phraseOeuvreSource } from "./wikidata";
 
 const entite = (id: string, extra: object = {}) => ({ mainsnak: { datavalue: { value: { id } } }, ...extra });
 const texte = (v: string) => ({ mainsnak: { datavalue: { value: v } } });
@@ -81,5 +81,43 @@ describe("extraireFaits", () => {
       "Q10",
       "Q1",
     ]);
+  });
+  it("entités à libeller : aussi les auteurs des œuvres adaptées", () => {
+    expect(entitesReferencees({ P144: [entite("Q9")] }, { Q9: { P50: [entite("Q38337")] } })).toEqual(["Q9", "Q38337"]);
+  });
+  it("grand prix du Festival de Cannes (libellé Wikidata en minuscule)", () => {
+    const s = extraireFaits({ P166: [entite("Q844804", annee(2019))] }, { Q844804: "grand prix du Festival de Cannes" }, "film");
+    expect(s.prix).toEqual([{ libelle: "grand prix du Festival de Cannes", annee: 2019 }]);
+  });
+  it("UniFrance : films seulement", () => {
+    expect(extraireFaits({ P3961: [texte("56620")] }, {}, "film").unifrance).toBe("https://www.unifrance.org/film/56620");
+    expect(extraireFaits({ P3961: [texte("56620")] }, {}, "serie").unifrance).toBeNull();
+    expect(faitsVides(extraireFaits({ P3961: [texte("56620")] }, {}, "film"))).toBe(false);
+  });
+});
+
+// D'après Le Comte de Monte-Cristo (2024, Q119998666) → roman Q191838, relevé le 2026-11-28, raccourci
+describe("œuvres adaptées", () => {
+  const temps = (t: string) => ({ mainsnak: { datavalue: { value: { time: t } } } });
+  const claims: Declarations = { P144: [entite("Q191838"), entite("Q99")] };
+  const sources: Record<string, Declarations> = {
+    Q191838: { P50: [entite("Q38337")], P577: [temps("+1846-01-01T00:00:00Z"), temps("+1844-08-28T00:00:00Z")], P268: [texte("119526826")] },
+    Q99: {}, // personnage : ni auteur ni date
+  };
+  const libelles = { Q191838: "Le Comte de Monte-Cristo", Q38337: "Alexandre Dumas", Q99: "Edmond Dantès" };
+  const f = extraireFaits(claims, libelles, "film", sources);
+
+  it("auteur, première publication et identifiant BnF de l'œuvre écrite", () => {
+    expect(f.adapteDe[0]).toEqual({ libelle: "Le Comte de Monte-Cristo", auteurs: ["Alexandre Dumas"], annee: 1844, bnf: "119526826" });
+  });
+  it("personnage : libellé seul", () => {
+    expect(f.adapteDe[1]).toEqual({ libelle: "Edmond Dantès", auteurs: [], annee: null, bnf: null });
+  });
+  it("phrase : « d' » devant une voyelle, « de » sinon, auteurs joints", () => {
+    expect(phraseOeuvreSource(f.adapteDe[0])).toBe("Le Comte de Monte-Cristo, d'Alexandre Dumas (1844)");
+    expect(phraseOeuvreSource(f.adapteDe[1])).toBe("Edmond Dantès");
+    expect(
+      phraseOeuvreSource({ libelle: "Les Enfants de la Résistance", auteurs: ["Vincent Dugomier", "Benoît Ers"], annee: null, bnf: null })
+    ).toBe("Les Enfants de la Résistance, de Vincent Dugomier et Benoît Ers");
   });
 });

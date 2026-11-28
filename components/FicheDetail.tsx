@@ -5,7 +5,7 @@ import { formatDuree, formatDateFR, formatJourSemaineFR, toISO } from "@/lib/uti
 import { calendrierSerie, phraseCalendrier } from "@/lib/episodes";
 import { citationsOeuvre } from "@/lib/citations";
 import { dureeSaison, formatDureeLongue, libelleClassification } from "@/lib/faits";
-import type { FaitsWikidata } from "@/lib/wikidata";
+import { phraseOeuvreSource, type FaitsWikidata } from "@/lib/wikidata";
 import type { VisaCNC } from "@/lib/visas";
 import type { SourceVisas } from "@/lib/visas-donnees";
 import { libelleArrondissement, type TournagesParis } from "@/lib/tournages";
@@ -148,6 +148,7 @@ export default function FicheDetail({
   const liensExternes = [
     contenu.imdbId && /^tt\d+$/.test(contenu.imdbId) ? { nom: "IMDb", url: `https://www.imdb.com/title/${contenu.imdbId}/` } : null,
     faits?.allocine ? { nom: "AlloCiné", url: faits.allocine } : null,
+    faits?.unifrance ? { nom: "UniFrance", url: faits.unifrance } : null,
     faits?.senscritique ? { nom: "SensCritique", url: faits.senscritique } : null,
   ].filter((l): l is { nom: string; url: string } => l !== null);
 
@@ -546,7 +547,7 @@ export default function FicheDetail({
                   {faits && faits.adapteDe.length > 0 && (
                     <div className="grid grid-cols-[140px_minmax(0,1fr)] gap-3.5 border-t border-trait py-[13px] max-[860px]:grid-cols-[110px_minmax(0,1fr)]">
                       <dt className="text-texte-2">D&apos;après</dt>
-                      <dd>{faits.adapteDe.join(", ")}</dd>
+                      <dd>{faits.adapteDe.map(phraseOeuvreSource).join(" ; ")}</dd>
                     </div>
                   )}
                   {tournageWikidata.length > 0 && (
