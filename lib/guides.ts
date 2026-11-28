@@ -14,6 +14,7 @@ import { GUIDE_RETROUVER_TITRE } from "./guides/retrouver-titre-oublie";
 import { GUIDE_FILMS_NOEL } from "./guides/films-noel-streaming";
 import { GUIDE_FILMS_HORREUR_HALLOWEEN } from "./guides/films-horreur-halloween-streaming";
 import { GUIDE_DUNE_ORDRE } from "./guides/dune-ordre";
+import { GUIDE_SERIES_TOURNEES_PARIS } from "./guides/series-tournees-paris";
 
 /**
  * Guides éditoriaux (/guides/[slug]) : contenus durables, signés « l'éditeur
@@ -157,6 +158,7 @@ export const GUIDES: Guide[] = [
   GUIDE_FILMS_NOEL,
   GUIDE_FILMS_HORREUR_HALLOWEEN,
   GUIDE_DUNE_ORDRE,
+  GUIDE_SERIES_TOURNEES_PARIS,
 ];
 
 /** En dessous, la page /guides reste en noindex : une liste d'un ou deux liens est trop maigre */
