@@ -877,6 +877,10 @@ export const getDetailFilm = unstable_cache(
     const trailer = trouverTrailer(videos.results);
     const casting = mapCasting(credits.cast);
     const genres = detail.genres.map((g) => ({ id: g.id, nom: g.name }));
+    const sortiesFR = detail.release_dates?.results.find((r) => r.iso_3166_1 === "FR")?.release_dates ?? [];
+    const anneesSalleFR = sortiesFR
+      .filter((s) => s.type === 3 && s.release_date)
+      .map((s) => new Date(s.release_date).getFullYear());
 
     return {
       id: detail.id,
@@ -899,11 +903,11 @@ export const getDetailFilm = unstable_cache(
       trailer,
       dispo,
       ...optionnels({
-        classification: classificationFilm(
-          detail.release_dates?.results.find((r) => r.iso_3166_1 === "FR")?.release_dates ?? []
-        ),
+        classification: classificationFilm(sortiesFR),
         wikidataId: detail.external_ids?.wikidata_id || null,
         imdbId: detail.external_ids?.imdb_id || null,
+        titreOriginal: detail.original_title && detail.original_title !== detail.title ? detail.original_title : null,
+        anneeSalleFR: anneesSalleFR.length > 0 ? Math.min(...anneesSalleFR) : null,
       }),
     };
   },

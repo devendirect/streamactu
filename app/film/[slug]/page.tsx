@@ -7,6 +7,7 @@ import { descriptionFiche, fichePauvre, jsonLdFiche } from "@/lib/seo";
 import { suggestionsFiche } from "@/lib/suggestions";
 import FicheDetail from "@/components/FicheDetail";
 import { getFaitsWikidata } from "@/lib/wikidata";
+import { visaFilm } from "@/lib/visas-donnees";
 
 export const revalidate = 3600;
 
@@ -69,13 +70,15 @@ export default async function FilmPage({ params }: Props) {
     getImagesUne("film", film.id),
   ]);
 
+  const visa = visaFilm(film);
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdFiche(film) }}
       />
-      <FicheDetail contenu={film} suggestions={suggestions} faits={faits} images={images} />
+      <FicheDetail contenu={film} suggestions={suggestions} faits={faits} images={images} visa={visa} />
     </>
   );
 }

@@ -6,6 +6,8 @@ import { calendrierSerie, phraseCalendrier } from "@/lib/episodes";
 import { citationsOeuvre } from "@/lib/citations";
 import { dureeSaison, formatDureeLongue, libelleClassification } from "@/lib/faits";
 import type { FaitsWikidata } from "@/lib/wikidata";
+import type { VisaCNC } from "@/lib/visas";
+import type { SourceVisas } from "@/lib/visas-donnees";
 import { PLATEFORME_PAR_ID, plateformesDepuisFournisseurs } from "@/lib/plateformes";
 import { slugPourGenreId } from "@/lib/genres";
 import { hauteurLogo } from "@/lib/logo";
@@ -33,6 +35,14 @@ interface FicheDetailProps {
   images?: { logo: string | null; logoRatio?: number | null; fond: string | null };
   /** Rang dans le Top 10 des séries de la semaine (1 à 10), sinon null */
   rang?: number | null;
+  /** Visa d'exploitation du CNC (films), si le rapprochement est sûr */
+  visa?: { visa: VisaCNC; source: SourceVisas } | null;
+}
+
+/** « 13/11/2025 » */
+function formatDateNumerique(iso: string): string {
+  const [a, m, j] = iso.split("-");
+  return `${j}/${m}/${a}`;
 }
 
 const MOIS_COURTS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
@@ -43,7 +53,7 @@ function formatDateCourte(iso: string): string {
   return `${d.getUTCDate()} ${MOIS_COURTS[d.getUTCMonth()]}`;
 }
 
-export default function FicheDetail({ contenu, suggestions, faits, images, rang = null }: FicheDetailProps) {
+export default function FicheDetail({ contenu, suggestions, faits, images, rang = null, visa = null }: FicheDetailProps) {
   const logo = images?.logo ?? null;
   const fond = images?.fond ?? contenu.backdrop;
   const isSerie = contenu.type === "serie";
@@ -165,7 +175,7 @@ export default function FicheDetail({ contenu, suggestions, faits, images, rang 
     ...(serie && calendrier ? [{ id: "episodes", label: "Épisodes" }] : []),
     { id: "a-propos", label: "À propos" },
     ...(contenu.casting.length > 0 ? [{ id: "distribution", label: "Distribution" }] : []),
-    ...(faits || liensExternes.length > 0 || saisonsListe.length > 0 ? [{ id: "reperes", label: "Repères" }] : []),
+    ...(faits || visa || liensExternes.length > 0 || saisonsListe.length > 0 ? [{ id: "reperes", label: "Repères" }] : []),
     ...(contenu.trailer ? [{ id: "bande-annonce", label: "Bande-annonce" }] : []),
     ...(suggestions ? [{ id: "similaires", label: "Dans le même genre" }] : []),
   ];
@@ -262,13 +272,23 @@ export default function FicheDetail({ contenu, suggestions, faits, images, rang 
             )}
             {serie?.statut && <span>{serie.statut === "terminee" ? "Série terminée" : "Série arrêtée"}</span>}
             {film?.duree ? <span>{formatDuree(film.duree)}</span> : null}
-            {contenu.classification && (
+            {/* Classification du visa CNC si le film est rapproché, sinon celle de TMDB */}
+            {visa?.visa.classification ? (
               <span
                 className="rounded-[4px] border border-white/35 px-2 py-0.5 text-[13px] font-semibold"
-                title="Classification française (source TMDB)"
+                title={`Visa d'exploitation n° ${visa.visa.numero.toLocaleString("fr-FR")} (source CNC)`}
               >
-                {libelleClassification(contenu.classification)}
+                {visa.visa.classification}
               </span>
+            ) : (
+              contenu.classification && (
+                <span
+                  className="rounded-[4px] border border-white/35 px-2 py-0.5 text-[13px] font-semibold"
+                  title="Classification française (source TMDB)"
+                >
+                  {libelleClassification(contenu.classification)}
+                </span>
+              )
             )}
           </p>
 
@@ -474,13 +494,13 @@ export default function FicheDetail({ contenu, suggestions, faits, images, rang 
       )}
 
       {/* ── Repères : prix, adaptation, tournage (Wikidata), autres sites ; saisons ── */}
-      {(faits || liensExternes.length > 0 || saisonsListe.length > 0) && (
+      {(faits || visa || liensExternes.length > 0 || saisonsListe.length > 0) && (
         <section id="reperes" aria-labelledby="h-reperes" className={SECTION}>
           <h2 id="h-reperes" className={TITRE}>
             Repères
           </h2>
           <div className="grid grid-cols-2 gap-[clamp(24px,4vw,56px)] max-[860px]:grid-cols-1">
-            {(faits || liensExternes.length > 0) && (
+            {(faits || visa || liensExternes.length > 0) && (
               <div>
                 <dl className="text-[15px]">
                   {faits && faits.prix.length > 0 && (
@@ -515,6 +535,16 @@ export default function FicheDetail({ contenu, suggestions, faits, images, rang 
                       <dd>{faits.tournage.join(", ")}</dd>
                     </div>
                   )}
+                  {visa && (
+                    <div className="grid grid-cols-[140px_minmax(0,1fr)] gap-3.5 border-t border-trait py-[13px] max-[860px]:grid-cols-[110px_minmax(0,1fr)]">
+                      <dt className="text-texte-2">Visa CNC</dt>
+                      <dd>
+                        <span className="tabular">n° {visa.visa.numero.toLocaleString("fr-FR")}</span>
+                        {visa.visa.annee && <span className="tabular text-texte-2"> · {visa.visa.annee}</span>}
+                        {visa.visa.classification && <span className="text-texte-2"> · {visa.visa.classification}</span>}
+                      </dd>
+                    </div>
+                  )}
                   {liensExternes.length > 0 && (
                     <div className="grid grid-cols-[140px_minmax(0,1fr)] gap-3.5 border-t border-trait py-[13px] max-[860px]:grid-cols-[110px_minmax(0,1fr)]">
                       <dt className="text-texte-2">Ailleurs</dt>
@@ -534,12 +564,24 @@ export default function FicheDetail({ contenu, suggestions, faits, images, rang 
                     </div>
                   )}
                 </dl>
-                {faits && (
+                {(faits || visa) && (
                   <p className="mt-2.5 text-[13.5px] text-texte-2">
-                    Source :{" "}
-                    <a href="https://www.wikidata.org/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-[3px]">
-                      Wikidata
-                    </a>
+                    {faits && visa ? "Sources :" : "Source :"}{" "}
+                    {faits && (
+                      <a href="https://www.wikidata.org/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-[3px]">
+                        Wikidata
+                      </a>
+                    )}
+                    {faits && visa && " · "}
+                    {/* Licence Ouverte : mention de la source et de la date de mise à jour */}
+                    {visa && (
+                      <>
+                        <a href={visa.source.page} target="_blank" rel="noopener noreferrer" className="underline underline-offset-[3px]">
+                          CNC, liste des visas d&apos;exploitation
+                        </a>
+                        {visa.source.maj && ` (mise à jour du ${formatDateNumerique(visa.source.maj)})`}
+                      </>
+                    )}
                   </p>
                 )}
               </div>

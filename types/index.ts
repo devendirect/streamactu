@@ -112,6 +112,10 @@ export interface Film extends Contenu {
   casting: PersonneCasting[];
   realisateurs: string[];
   trailer: Video | null;
+  /** Titre original TMDB, quand il diffère du titre français (rapprochement des visas CNC) */
+  titreOriginal?: string;
+  /** Année de la première sortie en salle en France (TMDB, type 3) */
+  anneeSalleFR?: number;
 }
 
 // ──────────────────────────────────────────────
@@ -251,6 +255,7 @@ export interface TMDBReleaseDates {
 export interface TMDBFilmDetail {
   id: number;
   title: string;
+  original_title?: string;
   overview: string;
   poster_path: string | null;
   backdrop_path: string | null;
