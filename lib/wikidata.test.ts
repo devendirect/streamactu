@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 // unstable_cache n'existe qu'avec le runtime Next : on le neutralise
 vi.mock("next/cache", () => ({ unstable_cache: (f: unknown) => f }));
 
-import { type Declarations, entitesReferencees, extraireFaits, faitsVides, phraseOeuvreSource } from "./wikidata";
+import { type Declarations, entitesReferencees, extraireFaits, faitsVides, identiteTmdb, phraseOeuvreSource } from "./wikidata";
 
 const entite = (id: string, extra: object = {}) => ({ mainsnak: { datavalue: { value: { id } } }, ...extra });
 const texte = (v: string) => ({ mainsnak: { datavalue: { value: v } } });
@@ -93,6 +93,21 @@ describe("extraireFaits", () => {
     expect(extraireFaits({ P3961: [texte("56620")] }, {}, "film").unifrance).toBe("https://www.unifrance.org/film/56620");
     expect(extraireFaits({ P3961: [texte("56620")] }, {}, "serie").unifrance).toBeNull();
     expect(faitsVides(extraireFaits({ P3961: [texte("56620")] }, {}, "film"))).toBe(false);
+  });
+});
+
+describe("identiteTmdb", () => {
+  it("confirme l'élément qui porte l'identifiant TMDB de la fiche (P4947 film, P4983 série)", () => {
+    expect(identiteTmdb({ P4947: [texte("1309400")] }, "film", 1309400)).toBe("confirme");
+    expect(identiteTmdb({ P4983: [texte("96677")] }, "serie", 96677)).toBe("confirme");
+  });
+  it("« autre » pour un élément d'une autre fiche TMDB", () => {
+    expect(identiteTmdb({ P4947: [texte("42")] }, "film", 1309400)).toBe("autre");
+  });
+  it("« absent » sans identifiant TMDB (la BD Q109043201 donnée par TMDB pour Les Enfants de la Résistance)", () => {
+    expect(identiteTmdb({ P50: [entite("Q1")] }, "film", 1309400)).toBe("absent");
+    // Un identifiant de série ne vaut pas pour un film
+    expect(identiteTmdb({ P4983: [texte("1309400")] }, "film", 1309400)).toBe("absent");
   });
 });
 

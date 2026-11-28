@@ -68,7 +68,7 @@ export default async function FilmPage({ params }: Props) {
   if (!film) notFound();
   const [suggestions, faits, images] = await Promise.all([
     suggestionsFiche(film),
-    getFaitsWikidata(film.wikidataId, "film"),
+    getFaitsWikidata(film.wikidataId, "film", film.id),
     getImagesUne("film", film.id),
   ]);
 

@@ -74,6 +74,19 @@ function chaine(d: Declaration): string | null {
   return typeof v === "string" ? v : null;
 }
 
+/** Identifiant TMDB dans Wikidata : P4947 (film), P4983 (série) */
+const PROPRIETE_TMDB = { film: "P4947", serie: "P4983" } as const;
+
+/**
+ * L'élément est-il bien la fiche TMDB ? « confirme » s'il porte cet identifiant
+ * TMDB, « autre » s'il en porte seulement d'autres, « absent » s'il n'en a aucun.
+ */
+export function identiteTmdb(claims: Declarations, type: "film" | "serie", tmdbId: number): "confirme" | "autre" | "absent" {
+  const ids = valeurs(claims, PROPRIETE_TMDB[type]).map(chaine).filter(Boolean);
+  if (ids.length === 0) return "absent";
+  return ids.includes(String(tmdbId)) ? "confirme" : "autre";
+}
+
 /** Œuvres adaptées (P144) : leurs déclarations sont lues pour l'auteur et la date */
 export function oeuvresSourcesReferencees(claims: Declarations): string[] {
   return [...new Set(valeurs(claims, "P144").map(idEntite).filter((q): q is string => !!q))];
@@ -195,14 +208,44 @@ async function api<T>(params: Record<string, string>): Promise<T> {
  * Faits Wikidata d'une entité (cache 7 jours), ou null si rien d'utile. Une
  * erreur n'est pas mise en cache : elle remonte, et getFaitsWikidata la rattrape.
  */
+async function declarations(qid: string): Promise<Declarations> {
+  const r = await api<{ entities: Record<string, { claims?: Declarations }> }>({
+    action: "wbgetentities",
+    ids: qid,
+    props: "claims",
+  });
+  return r.entities[qid]?.claims ?? {};
+}
+
+/** Éléments Wikidata qui portent cet identifiant TMDB (recherche « haswbstatement ») */
+async function elementsParTmdb(type: "film" | "serie", tmdbId: number): Promise<string[]> {
+  const r = await api<{ query?: { search?: { title: string }[] } }>({
+    action: "query",
+    list: "search",
+    srsearch: `haswbstatement:${PROPRIETE_TMDB[type]}=${tmdbId}`,
+    srlimit: "3",
+  });
+  return (r.query?.search ?? []).map((s) => s.title).filter((t) => /^Q\d+$/.test(t));
+}
+
 const faitsEnCache = unstable_cache(
-  async (qid: string, type: "film" | "serie"): Promise<FaitsWikidata | null> => {
-    const r = await api<{ entities: Record<string, { claims?: Declarations }> }>({
-      action: "wbgetentities",
-      ids: qid,
-      props: "claims",
-    });
-    const claims = r.entities[qid]?.claims ?? {};
+  async (qidTmdb: string | null, type: "film" | "serie", tmdbId: number): Promise<FaitsWikidata | null> => {
+    // L'identifiant Wikidata donné par TMDB peut être faux (Les Enfants de la
+    // Résistance → la BD Q109043201) : on le contrôle par l'identifiant TMDB
+    let qid: string | null = qidTmdb;
+    let claims: Declarations = qid ? await declarations(qid) : {};
+    const verdict = qid ? identiteTmdb(claims, type, tmdbId) : "absent";
+    if (verdict !== "confirme") {
+      const trouves = await elementsParTmdb(type, tmdbId);
+      if (trouves.length === 1 && trouves[0] !== qid) {
+        qid = trouves[0];
+        claims = await declarations(qid);
+      } else if (verdict === "autre" || !qid) {
+        // Un autre identifiant TMDB, ou rien trouvé sans élément de départ : rien de sûr
+        return null;
+      }
+      // Sinon : élément de TMDB sans identifiant TMDB côté Wikidata, gardé faute de mieux
+    }
     // Déclarations des œuvres adaptées (auteur, date, BnF) : un appel de plus, seulement s'il y en a
     const idsSources = oeuvresSourcesReferencees(claims).slice(0, 50);
     const sources: Record<string, Declarations> = {};
@@ -235,13 +278,20 @@ const faitsEnCache = unstable_cache(
   { revalidate: 604800 }
 );
 
-/** Faits Wikidata d'une fiche, ou null (pas d'identifiant, rien d'utile, Wikidata en panne) */
-export async function getFaitsWikidata(qid: string | undefined, type: "film" | "serie"): Promise<FaitsWikidata | null> {
-  if (!qid || !/^Q\d+$/.test(qid)) return null;
+/**
+ * Faits Wikidata d'une fiche, ou null (rien de sûr, rien d'utile, Wikidata en panne).
+ * Sans identifiant chez TMDB, l'élément est cherché par l'identifiant TMDB.
+ */
+export async function getFaitsWikidata(
+  qid: string | undefined,
+  type: "film" | "serie",
+  tmdbId: number
+): Promise<FaitsWikidata | null> {
+  const depart = qid && /^Q\d+$/.test(qid) ? qid : null;
   try {
-    return await faitsEnCache(qid, type);
+    return await faitsEnCache(depart, type, tmdbId);
   } catch (err) {
-    console.error(`[wikidata] ${qid} :`, err);
+    console.error(`[wikidata] ${depart ?? "-"} (TMDB ${type} ${tmdbId}) :`, err);
     return null;
   }
 }

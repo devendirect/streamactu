@@ -67,7 +67,7 @@ export default async function SeriePage({ params }: Props) {
   if (!serie) notFound();
   const [suggestions, faits, images, rang] = await Promise.all([
     suggestionsFiche(serie),
-    getFaitsWikidata(serie.wikidataId, "serie"),
+    getFaitsWikidata(serie.wikidataId, "serie", serie.id),
     getImagesUne("serie", serie.id),
     rangSemaine(serie.id),
   ]);
