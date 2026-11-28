@@ -9,6 +9,7 @@ import FicheDetail from "@/components/FicheDetail";
 import { getFaitsWikidata } from "@/lib/wikidata";
 import { visaFilm } from "@/lib/visas-donnees";
 import { tournagesParis } from "@/lib/tournages-donnees";
+import { entreesFilm } from "@/lib/entrees-donnees";
 
 export const revalidate = 3600;
 
@@ -73,6 +74,7 @@ export default async function FilmPage({ params }: Props) {
 
   const visa = visaFilm(film);
   const paris = tournagesParis(film);
+  const entrees = entreesFilm(film);
 
   return (
     <>
@@ -80,7 +82,7 @@ export default async function FilmPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdFiche(film) }}
       />
-      <FicheDetail contenu={film} suggestions={suggestions} faits={faits} images={images} visa={visa} paris={paris} />
+      <FicheDetail contenu={film} suggestions={suggestions} faits={faits} images={images} visa={visa} paris={paris} entrees={entrees} />
     </>
   );
 }

@@ -132,7 +132,17 @@ export default function AProposPage() {
               >
                 liste des visas d&apos;exploitation du CNC
               </a>{" "}
-              (Licence Ouverte). Les lieux de tournage à Paris viennent de la base{" "}
+              (Licence Ouverte), les entrées en salle de sa liste des{" "}
+              <a
+                href="https://www.data.gouv.fr/datasets/films-ayant-realise-plus-dun-million-dentrees"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={classeLien}
+              >
+                films ayant dépassé le million d&apos;entrées
+              </a>{" "}
+              sur une année, depuis 2003 (les autres films n&apos;ont pas de chiffre). Les lieux
+              de tournage à Paris viennent de la base{" "}
               <a
                 href="https://opendata.paris.fr/explore/dataset/lieux-de-tournage-a-paris/"
                 target="_blank"
@@ -146,8 +156,9 @@ export default function AProposPage() {
                 ODbL
               </a>
               . Ces bases n&apos;ont pas d&apos;identifiant commun avec TMDB : un titre n&apos;est
-              relié que si le titre, l&apos;année et le réalisateur (ou, pour une série, le
-              créateur ou la société de production) concordent. Dans le doute, rien n&apos;est
+              relié que si le titre, l&apos;année et le réalisateur (pour une série, le
+              créateur ou la société de production ; pour les entrées, la date de sortie en
+              salle) concordent. Dans le doute, rien n&apos;est
               affiché. Les adresses de tournage sont données sans numéro de rue.
             </P>
             <P>

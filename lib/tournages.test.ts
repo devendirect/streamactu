@@ -66,6 +66,9 @@ describe("outils", () => {
     expect(nomVoie("pont de grenelle-cadets de saumur, 75015 paris")).toBe("Pont de Grenelle-Cadets de Saumur");
     expect(nomVoie("10 rue de l' amiral hamelin, 75116 paris")).toBe("Rue de l'Amiral Hamelin");
     expect(nomVoie("Bois* de Boulogne")).toBe("Bois de Boulogne");
+    expect(nomVoie("parvis notre-dame - place jean-paul ii, 75004 paris")).toBe("Parvis Notre-Dame");
+    expect(nomVoie("place jean-paul ii, 75004 paris")).toBe("Place Jean-Paul II");
+    expect(nomVoie("rue louis xiv")).toBe("Rue Louis XIV");
     expect(nomVoie("75019")).toBeNull();
   });
 

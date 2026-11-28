@@ -121,6 +121,8 @@ export interface Film extends Contenu {
   titreOriginal?: string;
   /** Année de la première sortie en salle en France (TMDB, type 3) */
   anneeSalleFR?: number;
+  /** Date de la première sortie en salle en France, AAAA-MM-JJ (TMDB, type 3) */
+  sortieSalleFR?: string;
 }
 
 // ──────────────────────────────────────────────

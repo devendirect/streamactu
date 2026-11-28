@@ -88,6 +88,7 @@ const PETITS_MOTS = new Set(["de", "du", "des", "la", "le", "les", "et", "a", "a
 export function nomVoie(adresse: string): string | null {
   const avantVirgule = adresse
     .split(",")[0]
+    .split(/\s+-\s+/)[0] // « parvis notre-dame - place jean-paul ii » : un seul lieu
     .toLowerCase()
     .replace(/[^a-z0-9à-ÿ'’\s/-]/g, " ") // « bois* de boulogne »
     .replace(/\b([dl])['’]\s+/g, "$1'") // « rue de l' amiral hamelin »
@@ -106,6 +107,7 @@ export function nomVoie(adresse: string): string | null {
         .map((p) => {
           const elision = p.match(/^([dl]['’])(.+)$/);
           if (elision) return elision[1] + elision[2].charAt(0).toUpperCase() + elision[2].slice(1);
+          if (/^(ii|iii|iv|vi|vii|viii|ix|xi|xii|xiii|xiv|xv|xvi)$/.test(p)) return p.toUpperCase(); // Jean-Paul II, Louis XIV
           return i > 0 && PETITS_MOTS.has(p) ? p : p.charAt(0).toUpperCase() + p.slice(1);
         })
         .join("-")

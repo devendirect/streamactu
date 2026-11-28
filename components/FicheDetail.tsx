@@ -10,6 +10,8 @@ import type { VisaCNC } from "@/lib/visas";
 import type { SourceVisas } from "@/lib/visas-donnees";
 import { libelleArrondissement, type TournagesParis } from "@/lib/tournages";
 import type { SourceTournages } from "@/lib/tournages-donnees";
+import { formatMillions, phraseEntrees, type EntreesFrance } from "@/lib/entrees";
+import type { SourceEntrees } from "@/lib/entrees-donnees";
 import { PLATEFORME_PAR_ID, plateformesDepuisFournisseurs } from "@/lib/plateformes";
 import { slugPourGenreId } from "@/lib/genres";
 import { hauteurLogo } from "@/lib/logo";
@@ -41,6 +43,8 @@ interface FicheDetailProps {
   visa?: { visa: VisaCNC; source: SourceVisas } | null;
   /** Tournages déclarés à Paris (Ville de Paris, ODbL), si le rapprochement est sûr */
   paris?: { tournages: TournagesParis; source: SourceTournages } | null;
+  /** Entrées en salle en France (CNC, films ayant dépassé le million), si le rapprochement est sûr */
+  entrees?: { entrees: EntreesFrance; source: SourceEntrees } | null;
 }
 
 /** « 13/11/2025 » */
@@ -65,10 +69,11 @@ export default function FicheDetail({
   rang = null,
   visa = null,
   paris = null,
+  entrees = null,
 }: FicheDetailProps) {
   // Lieux Wikidata : « Paris » seul est redondant avec le bloc détaillé de la Ville
   const tournageWikidata = (faits?.tournage ?? []).filter((l) => !(paris && l === "Paris"));
-  const sourcesReperes = !!(faits || visa || paris);
+  const sourcesReperes = !!(faits || visa || paris || entrees);
   const logo = images?.logo ?? null;
   const fond = images?.fond ?? contenu.backdrop;
   const isSerie = contenu.type === "serie";
@@ -586,6 +591,20 @@ export default function FicheDetail({
                       </dd>
                     </div>
                   )}
+                  {entrees && (
+                    <div className="grid grid-cols-[140px_minmax(0,1fr)] gap-3.5 border-t border-trait py-[13px] max-[860px]:grid-cols-[110px_minmax(0,1fr)]">
+                      <dt className="text-texte-2">Box-office France</dt>
+                      <dd title={`${entrees.entrees.total.toLocaleString("fr-FR")} entrées (CNC)`}>
+                        {phraseEntrees(entrees.entrees)}
+                        {entrees.entrees.parAnnee.length > 1 && (
+                          <span className="tabular text-texte-2">
+                            {" "}
+                            ({entrees.entrees.parAnnee.map((a) => `${formatMillions(a.entrees)} en ${a.annee}`).join(", ")})
+                          </span>
+                        )}
+                      </dd>
+                    </div>
+                  )}
                   {liensExternes.length > 0 && (
                     <div className="grid grid-cols-[140px_minmax(0,1fr)] gap-3.5 border-t border-trait py-[13px] max-[860px]:grid-cols-[110px_minmax(0,1fr)]">
                       <dt className="text-texte-2">Ailleurs</dt>
@@ -607,7 +626,7 @@ export default function FicheDetail({
                 </dl>
                 {sourcesReperes && (
                   <p className="mt-2.5 text-[13.5px] text-texte-2">
-                    {[faits, visa, paris].filter(Boolean).length > 1 ? "Sources :" : "Source :"}{" "}
+                    {[faits, visa, paris, entrees].filter(Boolean).length > 1 ? "Sources :" : "Source :"}{" "}
                     {[
                       faits && (
                         <a key="wd" href="https://www.wikidata.org/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-[3px]">
@@ -621,6 +640,14 @@ export default function FicheDetail({
                             CNC, liste des visas d&apos;exploitation
                           </a>
                           {visa.source.maj && ` (mise à jour du ${formatDateNumerique(visa.source.maj)})`}
+                        </span>
+                      ),
+                      entrees && (
+                        <span key="entrees">
+                          <a href={entrees.source.page} target="_blank" rel="noopener noreferrer" className="underline underline-offset-[3px]">
+                            CNC, films ayant dépassé le million d&apos;entrées
+                          </a>
+                          {entrees.source.maj && ` (mise à jour du ${formatDateNumerique(entrees.source.maj)})`}
                         </span>
                       ),
                       // ODbL : mention de la base et de sa licence
