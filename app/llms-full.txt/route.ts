@@ -1,9 +1,9 @@
 import type { Contenu } from "@/types";
 import { getTopAnnee, getTopMois } from "@/lib/tmdb";
-import { PLATEFORMES } from "@/lib/plateformes";
+import { ARCOM_PORTAIL, ARCOM_VERIFIE_LE, PLATEFORMES } from "@/lib/plateformes";
 import { GUIDES } from "@/lib/guides";
 import { ACTU_PUBLIEE, cheminFixe, editionCourante } from "@/lib/actu";
-import { formatMoisFR } from "@/lib/utils";
+import { formatDateFR, formatMoisFR } from "@/lib/utils";
 
 // 24h : mêmes caches que les pages top (getTopAnnee / getNouveautesMois)
 export const revalidate = 86400;
@@ -64,6 +64,14 @@ Inventaire de l'année, mois par mois, à distinguer des classements ci-dessus,
 qui sont sélectifs et toutes plateformes confondues.
 
 ${PLATEFORMES.map((pf) => `- [Nouveautés ${pf.nom} ${annee}](${SITE_URL}/${pf.slug}/${annee})`).join("\n")}
+
+## Sources des données
+
+- Titres, notes, casting, dates : TMDB. Disponibilités par plateforme en France : JustWatch, via TMDB.
+- Fiches films : visa d'exploitation et classification (liste des visas du CNC, Licence Ouverte) ; entrées en salle en France pour les films ayant dépassé le million sur une année depuis 2003 (CNC, Licence Ouverte).
+- Fiches films et séries : lieux de tournage à Paris (Ville de Paris, ODbL) ; récompenses, œuvre adaptée et son auteur (Wikidata, CC0) ; lien vers la notice BnF du livre adapté.
+- Pages plateforme : référencement de l'offre par l'Arcom comme offre légale (${ARCOM_PORTAIL}), vérifié le ${formatDateFR(ARCOM_VERIFIE_LE)}.
+- Ces bases n'ont pas d'identifiant commun avec TMDB : une donnée n'est affichée que si le rapprochement est sûr (titre, année, réalisateur ou date de sortie). Détails : ${SITE_URL}/a-propos#methode
 
 ## Autres ressources
 

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PLATEFORMES } from "@/lib/plateformes";
+import { ARCOM_PORTAIL, PLATEFORMES } from "@/lib/plateformes";
 import { metadonnees } from "@/lib/meta";
 import { CHAINES_VIDEO, CONTACT_EMAIL, ORG_ID, REPO_URL, SITE_URL } from "@/lib/site";
 import { formatDateFR } from "@/lib/utils";
@@ -160,6 +160,20 @@ export default function AProposPage() {
               créateur ou la société de production ; pour les entrées, la date de sortie en
               salle) concordent. Dans le doute, rien n&apos;est
               affiché. Les adresses de tournage sont données sans numéro de rue.
+            </P>
+            <P>
+              Les récompenses, l&apos;œuvre adaptée (avec son auteur) et les liens vers AlloCiné,
+              SensCritique et UniFrance viennent de{" "}
+              <a href="https://www.wikidata.org" target="_blank" rel="noopener noreferrer" className={classeLien}>
+                Wikidata
+              </a>{" "}
+              (domaine public), après contrôle de l&apos;identifiant TMDB de l&apos;œuvre. Le
+              lien « notice BnF » mène au catalogue de la Bibliothèque nationale de France.
+              Chaque page plateforme indique si l&apos;offre figure dans la{" "}
+              <a href={ARCOM_PORTAIL} target="_blank" rel="noopener noreferrer" className={classeLien}>
+                liste des offres légales de l&apos;Arcom
+              </a>
+              , avec la date de notre dernière vérification.
             </P>
             <P>
               <strong className="text-texte">Les listes de nouveautés</strong> sont triées

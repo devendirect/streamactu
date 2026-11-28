@@ -1,6 +1,17 @@
 import { readFileSync } from "node:fs";
 import { describe, it, expect } from "vitest";
-import { PLATEFORMES, filtreFournisseurs, plateformesDepuisFournisseurs } from "./plateformes";
+import { ARCOM_REFERENCEMENT, ARCOM_VERIFIE_LE, PLATEFORMES, filtreFournisseurs, plateformesDepuisFournisseurs } from "./plateformes";
+
+describe("référencement Arcom", () => {
+  it("chaque plateforme suivie a été vérifiée sur le portail de l'Arcom", () => {
+    // Une plateforme ajoutée au site doit d'abord être cherchée dans la liste de l'Arcom
+    for (const pf of PLATEFORMES) expect(ARCOM_REFERENCEMENT[pf.id], pf.nom).toBeDefined();
+  });
+  it("vérification de moins de 6 mois (à refaire sur le portail, puis changer la date)", () => {
+    const ageJours = (Date.now() - Date.parse(`${ARCOM_VERIFIE_LE}T12:00:00Z`)) / 86400000;
+    expect(ageJours).toBeLessThan(183);
+  });
+});
 
 describe("filtreFournisseurs", () => {
   it("interroge les deux identifiants de Paramount+", () => {

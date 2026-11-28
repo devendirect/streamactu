@@ -15,6 +15,25 @@ export const PLATEFORMES: Plateforme[] = [
   { id: 582,  nom: "Paramount+",  slug: "paramount-plus", couleur: "var(--platform-paramount)" },
 ];
 
+/**
+ * Référencement des offres légales par l'Arcom (délibération n° 2022-06 du
+ * 9 mars 2022). Portail : liste « Cinéma et audiovisuel », 251 services au
+ * 2026-11-28. Le portail ne date pas les référencements : on donne la date de
+ * NOTRE vérification. Nom tel qu'écrit par l'Arcom, quand il diffère du nôtre.
+ * Pas de logo de l'Arcom (aucune autorisation). À revérifier tous les 6 mois.
+ */
+export const ARCOM_PORTAIL = "https://www.arcom.fr/sites-plateformes/cinema-et-audiovisuel";
+export const ARCOM_VERIFIE_LE = "2026-11-28";
+export const ARCOM_REFERENCEMENT: Record<number, { nomArcom: string }> = {
+  8: { nomArcom: "Netflix" },
+  119: { nomArcom: "Amazon prime video" },
+  337: { nomArcom: "Disney+" },
+  350: { nomArcom: "AppleTv+" },
+  381: { nomArcom: "myCANAL" },
+  1899: { nomArcom: "Max" },
+  582: { nomArcom: "Paramount Plus" },
+};
+
 export const PLATEFORME_PAR_ID: Record<number, Plateforme> = Object.fromEntries(
   PLATEFORMES.map((p) => [p.id, p])
 );

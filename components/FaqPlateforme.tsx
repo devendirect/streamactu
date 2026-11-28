@@ -1,9 +1,10 @@
 import Link from "next/link";
 import type { Contenu, Plateforme } from "@/types";
-import { libelleComptes, scoreBayesien } from "@/lib/utils";
+import { formatDateFR, libelleComptes, scoreBayesien } from "@/lib/utils";
 import { jsonLdFaq } from "@/lib/seo";
 import { accord } from "@/lib/meta";
 import Icone from "@/components/Icone";
+import { ARCOM_PORTAIL, ARCOM_REFERENCEMENT, ARCOM_VERIFIE_LE } from "@/lib/plateformes";
 
 interface Props {
   plateforme: Plateforme;
@@ -18,7 +19,7 @@ interface Props {
 interface Entree {
   question: string;
   reponse: string;
-  lien?: { href: string; label: string };
+  lien?: { href: string; label: string; externe?: boolean };
 }
 
 const parNote = (a: Contenu, b: Contenu) =>
@@ -77,6 +78,17 @@ export default function FaqPlateforme({ plateforme, series, films, periodeIntro,
     lien: { href: `/${plateforme.slug}/prochaines-sorties`, label: `Prochaines sorties ${nom}` },
   });
 
+  const arcom = ARCOM_REFERENCEMENT[plateforme.id];
+  if (arcom) {
+    entrees.push({
+      question: `${nom} est-il légal en France ?`,
+      reponse: `Oui. ${nom} figure parmi les offres légales référencées par l'Arcom, l'autorité publique de régulation de l'audiovisuel et du numérique, dans sa liste des sites et plateformes de cinéma et d'audiovisuel${
+        arcom.nomArcom !== nom ? ` (sous le nom « ${arcom.nomArcom} »)` : ""
+      }. Vérifié par StreamActu le ${formatDateFR(ARCOM_VERIFIE_LE)}.`,
+      lien: { href: ARCOM_PORTAIL, label: "Liste de l'Arcom", externe: true },
+    });
+  }
+
   entrees.push({
     question: "À quelle fréquence ces informations sont-elles mises à jour ?",
     reponse: `Chaque jour. Les données proviennent de TMDB et couvrent le catalogue ${nom} disponible en France par abonnement.`,
@@ -110,12 +122,23 @@ export default function FaqPlateforme({ plateforme, series, films, periodeIntro,
               {e.lien && (
                 <>
                   {" "}
-                  <Link
-                    href={e.lien.href}
-                    className="text-white underline decoration-ambre/60 underline-offset-4 transition-[text-decoration-color] duration-200 hover:decoration-ambre"
-                  >
-                    {e.lien.label}
-                  </Link>
+                  {e.lien.externe ? (
+                    <a
+                      href={e.lien.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white underline decoration-ambre/60 underline-offset-4 transition-[text-decoration-color] duration-200 hover:decoration-ambre"
+                    >
+                      {e.lien.label}
+                    </a>
+                  ) : (
+                    <Link
+                      href={e.lien.href}
+                      className="text-white underline decoration-ambre/60 underline-offset-4 transition-[text-decoration-color] duration-200 hover:decoration-ambre"
+                    >
+                      {e.lien.label}
+                    </Link>
+                  )}
                 </>
               )}
             </p>
