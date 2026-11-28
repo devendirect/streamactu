@@ -9,7 +9,8 @@ const nextConfig: NextConfig = {
   // Fichiers lus avec fs à l'exécution : le traçage de Next ne les voit pas
   // tout seul. Sans eux, la fiche retombe sur la classification TMDB.
   outputFileTracingIncludes: {
-    "/film/*": ["./data/publiques/visas-cnc.json.br"],
+    "/film/*": ["./data/publiques/visas-cnc.json.br", "./data/publiques/tournages-paris.json.br"],
+    "/serie/*": ["./data/publiques/tournages-paris.json.br"],
   },
   // Pas d'en-tête « X-Powered-By: Next.js » (inutile, et renseigne sur la pile)
   poweredByHeader: false,

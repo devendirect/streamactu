@@ -8,6 +8,7 @@ import { descriptionFiche, fichePauvre, jsonLdFiche } from "@/lib/seo";
 import { suggestionsFiche } from "@/lib/suggestions";
 import FicheDetail from "@/components/FicheDetail";
 import { getFaitsWikidata } from "@/lib/wikidata";
+import { tournagesParis } from "@/lib/tournages-donnees";
 
 export const revalidate = 3600;
 
@@ -77,7 +78,14 @@ export default async function SeriePage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdFiche(serie) }}
       />
-      <FicheDetail contenu={serie} suggestions={suggestions} faits={faits} images={images} rang={rang} />
+      <FicheDetail
+        contenu={serie}
+        suggestions={suggestions}
+        faits={faits}
+        images={images}
+        rang={rang}
+        paris={tournagesParis(serie)}
+      />
     </>
   );
 }

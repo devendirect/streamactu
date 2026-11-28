@@ -1,0 +1,24 @@
+# Données publiques importées
+
+Fichiers produits par les scripts `scripts/import-*.mjs`, lus côté serveur par le site.
+Ils ne relèvent pas de la licence MIT du code : chacun garde la licence de sa source.
+
+| Fichier | Source | Producteur | Licence | Script |
+|---|---|---|---|---|
+| `visas-cnc.json.br` | [Liste des visas d'exploitations cinématographiques](https://www.data.gouv.fr/datasets/6311c164ebfb165ddc828ded) | Centre national du cinéma et de l'image animée (CNC) | [Licence Ouverte v2.0 (Etalab)](https://www.etalab.gouv.fr/licence-ouverte-open-licence/) | `import-visas-cnc.mjs` |
+| `tournages-paris.json.br` | [Lieux de tournage à Paris](https://opendata.paris.fr/explore/dataset/lieux-de-tournage-a-paris/) | Ville de Paris | [Open Database License (ODbL) 1.0](https://opendatacommons.org/licenses/odbl/1-0/) | `import-tournages-paris.mjs` |
+
+## Base dérivée sous ODbL
+
+`tournages-paris.json.br` est une base de données dérivée de « Lieux de tournage à Paris »
+(Ville de Paris). Elle est mise à disposition sous la même licence, l'**Open Database
+License (ODbL) 1.0**. Modifications : sélection des colonnes titre, type, année,
+réalisateur, producteur, adresse et code postal ; rangement par colonne ; compression
+Brotli. Pour la lire : décompresser (Brotli) puis lire le JSON.
+
+## Visas du CNC
+
+`visas-cnc.json.br` est tiré de la liste des visas du CNC (Licence Ouverte v2.0).
+Modifications : courts métrages et lignes sans numéro de visa retirés ; colonnes
+production, nationalité et localisation du dossier retirées ; rangement par colonne ;
+compression Brotli. Date de mise à jour de la source : voir `source.maj` dans le fichier.

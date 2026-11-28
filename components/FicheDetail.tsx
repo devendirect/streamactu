@@ -8,6 +8,8 @@ import { dureeSaison, formatDureeLongue, libelleClassification } from "@/lib/fai
 import type { FaitsWikidata } from "@/lib/wikidata";
 import type { VisaCNC } from "@/lib/visas";
 import type { SourceVisas } from "@/lib/visas-donnees";
+import { libelleArrondissement, type TournagesParis } from "@/lib/tournages";
+import type { SourceTournages } from "@/lib/tournages-donnees";
 import { PLATEFORME_PAR_ID, plateformesDepuisFournisseurs } from "@/lib/plateformes";
 import { slugPourGenreId } from "@/lib/genres";
 import { hauteurLogo } from "@/lib/logo";
@@ -37,6 +39,8 @@ interface FicheDetailProps {
   rang?: number | null;
   /** Visa d'exploitation du CNC (films), si le rapprochement est sûr */
   visa?: { visa: VisaCNC; source: SourceVisas } | null;
+  /** Tournages déclarés à Paris (Ville de Paris, ODbL), si le rapprochement est sûr */
+  paris?: { tournages: TournagesParis; source: SourceTournages } | null;
 }
 
 /** « 13/11/2025 » */
@@ -53,7 +57,18 @@ function formatDateCourte(iso: string): string {
   return `${d.getUTCDate()} ${MOIS_COURTS[d.getUTCMonth()]}`;
 }
 
-export default function FicheDetail({ contenu, suggestions, faits, images, rang = null, visa = null }: FicheDetailProps) {
+export default function FicheDetail({
+  contenu,
+  suggestions,
+  faits,
+  images,
+  rang = null,
+  visa = null,
+  paris = null,
+}: FicheDetailProps) {
+  // Lieux Wikidata : « Paris » seul est redondant avec le bloc détaillé de la Ville
+  const tournageWikidata = (faits?.tournage ?? []).filter((l) => !(paris && l === "Paris"));
+  const sourcesReperes = !!(faits || visa || paris);
   const logo = images?.logo ?? null;
   const fond = images?.fond ?? contenu.backdrop;
   const isSerie = contenu.type === "serie";
@@ -175,7 +190,7 @@ export default function FicheDetail({ contenu, suggestions, faits, images, rang 
     ...(serie && calendrier ? [{ id: "episodes", label: "Épisodes" }] : []),
     { id: "a-propos", label: "À propos" },
     ...(contenu.casting.length > 0 ? [{ id: "distribution", label: "Distribution" }] : []),
-    ...(faits || visa || liensExternes.length > 0 || saisonsListe.length > 0 ? [{ id: "reperes", label: "Repères" }] : []),
+    ...(sourcesReperes || liensExternes.length > 0 || saisonsListe.length > 0 ? [{ id: "reperes", label: "Repères" }] : []),
     ...(contenu.trailer ? [{ id: "bande-annonce", label: "Bande-annonce" }] : []),
     ...(suggestions ? [{ id: "similaires", label: "Dans le même genre" }] : []),
   ];
@@ -494,13 +509,13 @@ export default function FicheDetail({ contenu, suggestions, faits, images, rang 
       )}
 
       {/* ── Repères : prix, adaptation, tournage (Wikidata), autres sites ; saisons ── */}
-      {(faits || visa || liensExternes.length > 0 || saisonsListe.length > 0) && (
+      {(sourcesReperes || liensExternes.length > 0 || saisonsListe.length > 0) && (
         <section id="reperes" aria-labelledby="h-reperes" className={SECTION}>
           <h2 id="h-reperes" className={TITRE}>
             Repères
           </h2>
           <div className="grid grid-cols-2 gap-[clamp(24px,4vw,56px)] max-[860px]:grid-cols-1">
-            {(faits || visa || liensExternes.length > 0) && (
+            {(sourcesReperes || liensExternes.length > 0) && (
               <div>
                 <dl className="text-[15px]">
                   {faits && faits.prix.length > 0 && (
@@ -529,10 +544,36 @@ export default function FicheDetail({ contenu, suggestions, faits, images, rang 
                       <dd>{faits.adapteDe.join(", ")}</dd>
                     </div>
                   )}
-                  {faits && faits.tournage.length > 0 && (
+                  {tournageWikidata.length > 0 && (
                     <div className="grid grid-cols-[140px_minmax(0,1fr)] gap-3.5 border-t border-trait py-[13px] max-[860px]:grid-cols-[110px_minmax(0,1fr)]">
                       <dt className="text-texte-2">Tournage</dt>
-                      <dd>{faits.tournage.join(", ")}</dd>
+                      <dd>{tournageWikidata.join(", ")}</dd>
+                    </div>
+                  )}
+                  {paris && (
+                    <div className="grid grid-cols-[140px_minmax(0,1fr)] gap-3.5 border-t border-trait py-[13px] max-[860px]:grid-cols-[110px_minmax(0,1fr)]">
+                      <dt className="text-texte-2">Tourné à Paris</dt>
+                      <dd>
+                        {paris.tournages.arrondissements.length > 0 && (
+                          <>
+                            {paris.tournages.arrondissements.slice(0, 6).map(libelleArrondissement).join(", ")}
+                            {paris.tournages.arrondissements.length > 6 && "…"}{" "}
+                            arrondissement{paris.tournages.arrondissements.length > 1 ? "s" : ""}
+                          </>
+                        )}
+                        <span className="tabular text-texte-2">
+                          {paris.tournages.arrondissements.length > 0 ? " · " : ""}
+                          {paris.tournages.anneeMin === paris.tournages.anneeMax
+                            ? paris.tournages.anneeMin
+                            : `${paris.tournages.anneeMin}-${paris.tournages.anneeMax}`}
+                          {" · "}
+                          {paris.tournages.nbLieux} lieu{paris.tournages.nbLieux > 1 ? "x" : ""} déclaré
+                          {paris.tournages.nbLieux > 1 ? "s" : ""}
+                        </span>
+                        {paris.tournages.lieux.length > 0 && (
+                          <span className="mt-1 block text-texte-2">{paris.tournages.lieux.join(", ")}</span>
+                        )}
+                      </dd>
                     </div>
                   )}
                   {visa && (
@@ -564,24 +605,45 @@ export default function FicheDetail({ contenu, suggestions, faits, images, rang 
                     </div>
                   )}
                 </dl>
-                {(faits || visa) && (
+                {sourcesReperes && (
                   <p className="mt-2.5 text-[13.5px] text-texte-2">
-                    {faits && visa ? "Sources :" : "Source :"}{" "}
-                    {faits && (
-                      <a href="https://www.wikidata.org/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-[3px]">
-                        Wikidata
-                      </a>
-                    )}
-                    {faits && visa && " · "}
-                    {/* Licence Ouverte : mention de la source et de la date de mise à jour */}
-                    {visa && (
-                      <>
-                        <a href={visa.source.page} target="_blank" rel="noopener noreferrer" className="underline underline-offset-[3px]">
-                          CNC, liste des visas d&apos;exploitation
+                    {[faits, visa, paris].filter(Boolean).length > 1 ? "Sources :" : "Source :"}{" "}
+                    {[
+                      faits && (
+                        <a key="wd" href="https://www.wikidata.org/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-[3px]">
+                          Wikidata
                         </a>
-                        {visa.source.maj && ` (mise à jour du ${formatDateNumerique(visa.source.maj)})`}
-                      </>
-                    )}
+                      ),
+                      // Licence Ouverte : mention de la source et de la date de mise à jour
+                      visa && (
+                        <span key="cnc">
+                          <a href={visa.source.page} target="_blank" rel="noopener noreferrer" className="underline underline-offset-[3px]">
+                            CNC, liste des visas d&apos;exploitation
+                          </a>
+                          {visa.source.maj && ` (mise à jour du ${formatDateNumerique(visa.source.maj)})`}
+                        </span>
+                      ),
+                      // ODbL : mention de la base et de sa licence
+                      paris && (
+                        <span key="paris">
+                          <a href={paris.source.page} target="_blank" rel="noopener noreferrer" className="underline underline-offset-[3px]">
+                            Ville de Paris, lieux de tournage
+                          </a>{" "}
+                          (
+                          <a
+                            href="https://opendatacommons.org/licenses/odbl/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline underline-offset-[3px]"
+                          >
+                            ODbL
+                          </a>
+                          {paris.source.maj && `, mise à jour du ${formatDateNumerique(paris.source.maj)}`})
+                        </span>
+                      ),
+                    ]
+                      .filter(Boolean)
+                      .flatMap((el, i) => (i === 0 ? [el] : [" · ", el]))}
                   </p>
                 )}
               </div>

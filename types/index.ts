@@ -87,6 +87,11 @@ export interface Serie extends Contenu {
   dureesSaisons?: { saison: number; minutes: number; nbEpisodes: number }[];
   /** Durée de toute la série diffusée, seulement si toutes les saisons ont une durée */
   dureeTotale?: { minutes: number; nbEpisodes: number };
+  /** Titre original TMDB, quand il diffère du titre français */
+  titreOriginal?: string;
+  /** Créateurs et sociétés de production TMDB (rapprochement des tournages à Paris) */
+  createurs?: string[];
+  societes?: string[];
 }
 
 /** Épisode daté (date d'origine TMDB) */
@@ -195,6 +200,9 @@ export interface TMDBSerie {
 export interface TMDBSerieDetail {
   id: number;
   name: string;
+  original_name?: string;
+  created_by?: { name: string }[];
+  production_companies?: { name: string }[];
   overview: string;
   poster_path: string | null;
   backdrop_path: string | null;

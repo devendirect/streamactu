@@ -121,6 +121,36 @@ export default function AProposPage() {
               heures, les archives et les classements une fois par jour.
             </P>
             <P>
+              <strong className="text-texte">Les données publiques</strong> complètent les
+              fiches, avec leur source sous chaque bloc. Le numéro de visa et la classification
+              d&apos;un film viennent de la{" "}
+              <a
+                href="https://www.data.gouv.fr/datasets/6311c164ebfb165ddc828ded"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={classeLien}
+              >
+                liste des visas d&apos;exploitation du CNC
+              </a>{" "}
+              (Licence Ouverte). Les lieux de tournage à Paris viennent de la base{" "}
+              <a
+                href="https://opendata.paris.fr/explore/dataset/lieux-de-tournage-a-paris/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={classeLien}
+              >
+                Lieux de tournage à Paris
+              </a>{" "}
+              de la Ville de Paris, sous licence{" "}
+              <a href="https://opendatacommons.org/licenses/odbl/" target="_blank" rel="noopener noreferrer" className={classeLien}>
+                ODbL
+              </a>
+              . Ces bases n&apos;ont pas d&apos;identifiant commun avec TMDB : un titre n&apos;est
+              relié que si le titre, l&apos;année et le réalisateur (ou, pour une série, le
+              créateur ou la société de production) concordent. Dans le doute, rien n&apos;est
+              affiché. Les adresses de tournage sont données sans numéro de rue.
+            </P>
+            <P>
               <strong className="text-texte">Les listes de nouveautés</strong> sont triées
               par note des spectateurs TMDB.{" "}
               <strong className="text-texte">Les classements</strong> (tops du mois et de
