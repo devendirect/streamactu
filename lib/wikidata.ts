@@ -125,6 +125,15 @@ export function phraseOeuvreSource(o: OeuvreSource): string {
   return `${o.libelle}, ${de}${noms}${o.annee ? ` (${o.annee})` : ""}`;
 }
 
+/**
+ * Notice data.bnf.fr d'une œuvre, depuis son identifiant BnF (P268), ou null si
+ * l'identifiant n'a pas le format attendu (P1793 de P268, relevé le 2026-11-28).
+ */
+export function lienBnf(id: string | null): string | null {
+  if (!id || !/^\d{8,9}[0-9bcdfghjkmnpqrstvwxz]$/.test(id)) return null;
+  return `https://data.bnf.fr/ark:/12148/cb${id}`;
+}
+
 /** Faits d'une fiche à partir des déclarations et des libellés français des entités citées */
 export function extraireFaits(
   claims: Declarations,

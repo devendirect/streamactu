@@ -5,7 +5,7 @@ import { formatDuree, formatDateFR, formatJourSemaineFR, toISO } from "@/lib/uti
 import { calendrierSerie, phraseCalendrier } from "@/lib/episodes";
 import { citationsOeuvre } from "@/lib/citations";
 import { dureeSaison, formatDureeLongue, libelleClassification } from "@/lib/faits";
-import { phraseOeuvreSource, type FaitsWikidata } from "@/lib/wikidata";
+import { lienBnf, phraseOeuvreSource, type FaitsWikidata } from "@/lib/wikidata";
 import type { VisaCNC } from "@/lib/visas";
 import type { SourceVisas } from "@/lib/visas-donnees";
 import { libelleArrondissement, type TournagesParis } from "@/lib/tournages";
@@ -547,7 +547,30 @@ export default function FicheDetail({
                   {faits && faits.adapteDe.length > 0 && (
                     <div className="grid grid-cols-[140px_minmax(0,1fr)] gap-3.5 border-t border-trait py-[13px] max-[860px]:grid-cols-[110px_minmax(0,1fr)]">
                       <dt className="text-texte-2">D&apos;après</dt>
-                      <dd>{faits.adapteDe.map(phraseOeuvreSource).join(" ; ")}</dd>
+                      <dd>
+                        {faits.adapteDe.map((o, i) => {
+                          const bnf = lienBnf(o.bnf);
+                          return (
+                            <span key={o.libelle}>
+                              {i > 0 && " ; "}
+                              {phraseOeuvreSource(o)}
+                              {bnf && (
+                                <>
+                                  {" · "}
+                                  <a
+                                    href={bnf}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-texte-2 underline underline-offset-[3px] transition-colors duration-200 hover:text-ambre"
+                                  >
+                                    notice BnF
+                                  </a>
+                                </>
+                              )}
+                            </span>
+                          );
+                        })}
+                      </dd>
                     </div>
                   )}
                   {tournageWikidata.length > 0 && (

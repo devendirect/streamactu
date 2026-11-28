@@ -3,7 +3,15 @@ import { describe, expect, it, vi } from "vitest";
 // unstable_cache n'existe qu'avec le runtime Next : on le neutralise
 vi.mock("next/cache", () => ({ unstable_cache: (f: unknown) => f }));
 
-import { type Declarations, entitesReferencees, extraireFaits, faitsVides, identiteTmdb, phraseOeuvreSource } from "./wikidata";
+import {
+  type Declarations,
+  entitesReferencees,
+  extraireFaits,
+  faitsVides,
+  identiteTmdb,
+  lienBnf,
+  phraseOeuvreSource,
+} from "./wikidata";
 
 const entite = (id: string, extra: object = {}) => ({ mainsnak: { datavalue: { value: { id } } }, ...extra });
 const texte = (v: string) => ({ mainsnak: { datavalue: { value: v } } });
@@ -124,6 +132,12 @@ describe("œuvres adaptées", () => {
 
   it("auteur, première publication et identifiant BnF de l'œuvre écrite", () => {
     expect(f.adapteDe[0]).toEqual({ libelle: "Le Comte de Monte-Cristo", auteurs: ["Alexandre Dumas"], annee: 1844, bnf: "119526826" });
+  });
+  it("lien vers la notice data.bnf.fr, seulement pour un identifiant BnF valide", () => {
+    expect(lienBnf(f.adapteDe[0].bnf)).toBe("https://data.bnf.fr/ark:/12148/cb119526826");
+    expect(lienBnf("11952682a")).toBeNull(); // « a » n'est pas un caractère de contrôle BnF
+    expect(lienBnf("123")).toBeNull();
+    expect(lienBnf(null)).toBeNull();
   });
   it("personnage : libellé seul", () => {
     expect(f.adapteDe[1]).toEqual({ libelle: "Edmond Dantès", auteurs: [], annee: null, bnf: null });
