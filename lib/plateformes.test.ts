@@ -2,6 +2,29 @@ import { readFileSync } from "node:fs";
 import { describe, it, expect } from "vitest";
 import { ARCOM_REFERENCEMENT, ARCOM_VERIFIE_LE, PLATEFORMES, filtreFournisseurs, plateformesDepuisFournisseurs } from "./plateformes";
 
+describe("variantes du relevé quotidien (lib/fournisseurs-releve.json)", () => {
+  const { plateformes } = JSON.parse(readFileSync(new URL("./fournisseurs-releve.json", import.meta.url), "utf8")) as {
+    plateformes: { id: number; slug: string; nom: string; fournisseurs: number[] }[];
+  };
+  it("couvre exactement les plateformes suivies, avec les mêmes slugs", () => {
+    expect(plateformes.map((p) => [p.id, p.slug]).sort()).toEqual(PLATEFORMES.map((p) => [p.id, p.slug]).sort());
+  });
+  it("chaque plateforme interroge au moins son identifiant principal, sans doublon entre plateformes", () => {
+    const vus = new Set<number>();
+    for (const p of plateformes) {
+      expect(p.fournisseurs, p.nom).toContain(p.id);
+      for (const f of p.fournisseurs) {
+        expect(vus.has(f), `${f} en double`).toBe(false);
+        vus.add(f);
+      }
+    }
+  });
+  it("Paramount+ : mêmes identifiants que le site, plus les chaînes", () => {
+    const pp = plateformes.find((p) => p.id === 582)!;
+    for (const id of filtreFournisseurs(582).split("|").map(Number)) expect(pp.fournisseurs).toContain(id);
+  });
+});
+
 describe("référencement Arcom", () => {
   it("chaque plateforme suivie a été vérifiée sur le portail de l'Arcom", () => {
     // Une plateforme ajoutée au site doit d'abord être cherchée dans la liste de l'Arcom

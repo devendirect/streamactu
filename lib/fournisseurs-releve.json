@@ -1,0 +1,12 @@
+{
+  "_note": "Relevé quotidien des catalogues (scripts/releve-dispo.mjs). Toutes les variantes TMDB de chaque plateforme suivie en France, interrogées ensemble avec « | » pour qu'un titre qui change de variante ne passe pas pour un départ. Identifiants vérifiés sur /watch/providers?watch_region=FR le 2026-10-23 et le 2026-11-28. Doit couvrir exactement PLATEFORMES (lib/plateformes.ts) : test dans lib/plateformes.test.ts.",
+  "plateformes": [
+    { "id": 8, "slug": "netflix", "nom": "Netflix", "fournisseurs": [8, 1796] },
+    { "id": 119, "slug": "prime-video", "nom": "Prime Video", "fournisseurs": [119, 2100] },
+    { "id": 337, "slug": "disney-plus", "nom": "Disney+", "fournisseurs": [337] },
+    { "id": 350, "slug": "apple-tv-plus", "nom": "Apple TV+", "fournisseurs": [350, 2243] },
+    { "id": 381, "slug": "canal-plus", "nom": "Canal+", "fournisseurs": [381, 345] },
+    { "id": 1899, "slug": "hbo-max", "nom": "HBO Max", "fournisseurs": [1899, 1825] },
+    { "id": 582, "slug": "paramount-plus", "nom": "Paramount+", "fournisseurs": [582, 531, 1853, 2303] }
+  ]
+}
